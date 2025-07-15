@@ -1,5 +1,3 @@
-# Introduzione
-
 Con il progetto Functional Rail ci poniamo l'obiettivo di realizzare un simulatore di rete ferroviaria tramite l'utilizzo della programmazione funzionale in linguaggio Scala.
 
 Tramite una GUI, sarà possibile definire la struttura della rete posizionando le stazioni, i binari e i treni per poi fare partire una simulazione impostando parametri quali i numero di giorni da simulare.
