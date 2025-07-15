@@ -1,4 +1,6 @@
-# Scrum
+# Processo di sviluppo
+
+## Scrum
 
 Per lo sviluppo si è deciso di applicare una metodologia di lavoro SCRUM-inspired, suddividendo il lavoro in sprint e monitorando l'avanzamento dei lavori tramite i _backlog_ e i report.
 
@@ -10,17 +12,17 @@ Nel primo incontro sono stati definiti:
 *   la _definition of done_ stabilendo che il codice risulti completo solo dopo averlo ben documentato tramite scaladoc e aver sviluppato dei test completi e che eseguano con successo;
 *   l'utilizzo di ClickUp come strumento di supporto all'applicazione della metodologia di lavoro agile.
 
-# Versioning
+## Versioning
 
 Come strumento di gestione del versioning sono stati scelti Git e GitHub, utilizzando GitFlow per garantire una gestione del flusso di lavoro standard e definita e le Pull Request per mantenere un controllo diretto sulle modifiche effettuate al branch principale.
 
 La modalità di numerazione delle versioni si basa sul _versioning semantico_ quindi segue una struttura MAJOR.MINOR.PATCH.
 
-# Continuous integration e delivery
+## Continuous integration e delivery
 
 Per mantenere una buona affidabilità del software, si è scelto di utilizzare GitHub Actions per creare dei workflow che rieseguano i test sull'intero codice e che ne effettuino controlli sullo stile, oltre che gestire la creazione delle release.
 
-# Strumenti utilizzati
+## Strumenti utilizzati
 
 *   Git
 *   GitHub
