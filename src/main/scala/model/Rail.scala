@@ -2,7 +2,6 @@ package model
 
 import model.Domain.RailCode
 
-
 trait Rail:
   def code: RailCode
   def length: Int
@@ -11,10 +10,15 @@ trait Rail:
   def train: Option[Train]
 
 case class MetalRail(code: RailCode, length: Int, stationA: Station, stationB: Station, train: Option[Train])
-   extends Rail
+    extends Rail
 
-case class TitaniumRail(code: RailCode, length: Int, stationA: Station, stationB: Station, train: Option[HighSpeedTrain])
-   extends Rail
+case class TitaniumRail(
+    code: RailCode,
+    length: Int,
+    stationA: Station,
+    stationB: Station,
+    train: Option[HighSpeedTrain]
+) extends Rail
 
 object Rail:
   def metalRail(code: Int, length: Int, stationA: Station, stationB: Station, train: Train): MetalRail =
@@ -28,4 +32,3 @@ object Rail:
 
   def emptyTitaniumRail(code: Int, length: Int, stationA: Station, stationB: Station): TitaniumRail =
     TitaniumRail(RailCode.fromInt(code), length, stationA, stationB, None)
-    

@@ -2,7 +2,6 @@ package model
 
 import model.Domain.StationCode
 
-
 trait Station:
   def code: StationCode
 

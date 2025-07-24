@@ -16,4 +16,5 @@ lazy val root = (project in file("."))
     scalafmtOnCompile := true,
     coverageEnabled := true,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",
+    Compile / compile := ((Compile / compile) dependsOn scalafmtCheckAll).value
   )
