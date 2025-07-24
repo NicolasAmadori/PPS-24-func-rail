@@ -10,3 +10,8 @@ object Domain:
   object RailCode:
     def fromInt(code: Int): RailCode = code
     def value(code: RailCode): Int = code
+    
+  opaque type TrainCode = Int
+  object TrainCode:
+    def fromInt(code: Int): TrainCode = code
+    def value(code: TrainCode): Int = code
