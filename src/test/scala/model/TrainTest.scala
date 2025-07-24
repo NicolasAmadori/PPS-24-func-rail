@@ -1,12 +1,9 @@
 package model
 
 import model.Domain.TrainCode
-import model.Train.highSpeed
-import model.Train.highSpeedTrain
-import model.Train.normalSpeed
-import model.Train.normalTrain
+import model.Train.{highSpeed, normalSpeed, highSpeedTrain, normalTrain}
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers._
+import org.scalatest.matchers.should.Matchers.*
 
 class TrainTest extends AnyFlatSpec:
 

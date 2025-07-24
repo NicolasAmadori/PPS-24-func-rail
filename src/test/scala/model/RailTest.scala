@@ -1,15 +1,10 @@
 package model
 
-import model.Rail.emptyMetalRail
-import model.Rail.emptyTitaniumRail
-import model.Rail.metalRail
-import model.Rail.titaniumRail
-import model.Station.bigStation
-import model.Station.smallStation
-import model.Train.highSpeedTrain
-import model.Train.normalTrain
+import model.Rail.{emptyMetalRail, emptyTitaniumRail, metalRail, titaniumRail}
+import model.Station.{bigStation, smallStation}
+import model.Train.{highSpeedTrain, normalTrain}
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers._
+import org.scalatest.matchers.should.Matchers.*
 
 class RailTest extends AnyFlatSpec:
 

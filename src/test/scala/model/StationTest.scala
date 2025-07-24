@@ -3,7 +3,7 @@ package model
 import model.Domain.StationCode
 import model.Station.smallStation
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers._
+import org.scalatest.matchers.should.Matchers.*
 
 class StationTest extends AnyFlatSpec:
 
