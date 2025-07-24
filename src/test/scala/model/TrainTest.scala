@@ -16,3 +16,5 @@ class TrainTest extends AnyFlatSpec:
     fastTrain.code should be (TrainCode.fromInt(202))
     fastTrain.speed should be (highSpeed)
   }
+  
+  

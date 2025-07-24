@@ -13,19 +13,19 @@ trait Rail:
 case class MetalRail(code: RailCode, length: Int, stationA: Station, stationB: Station, train: Option[Train])
    extends Rail
 
-case class TitaniumRail(code: RailCode, length: Int, stationA: Station, stationB: Station, train: Option[Train])
+case class TitaniumRail(code: RailCode, length: Int, stationA: Station, stationB: Station, train: Option[HighSpeedTrain])
    extends Rail
 
 object Rail:
-  def metalRail(code: Int, length: Int, stationA: Station, stationB: Station, train: Train): Rail =
+  def metalRail(code: Int, length: Int, stationA: Station, stationB: Station, train: Train): MetalRail =
     MetalRail(RailCode.fromInt(code), length, stationA, stationB, Some(train))
 
-  def emptyMetalRail(code: Int, length: Int, stationA: Station, stationB: Station): Rail =
+  def emptyMetalRail(code: Int, length: Int, stationA: Station, stationB: Station): MetalRail =
     MetalRail(RailCode.fromInt(code), length, stationA, stationB, None)
-    
-  def titaniumRail(code: Int, length: Int, stationA: Station, stationB: Station, train: Train): Rail =
+
+  def titaniumRail(code: Int, length: Int, stationA: Station, stationB: Station, train: HighSpeedTrain): TitaniumRail =
     TitaniumRail(RailCode.fromInt(code), length, stationA, stationB, Some(train))
 
-  def emptyTitaniumRail(code: Int, length: Int, stationA: Station, stationB: Station): Rail =
+  def emptyTitaniumRail(code: Int, length: Int, stationA: Station, stationB: Station): TitaniumRail =
     TitaniumRail(RailCode.fromInt(code), length, stationA, stationB, None)
     

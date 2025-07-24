@@ -2,7 +2,7 @@ package model
 
 import model.Rail.{emptyMetalRail, emptyTitaniumRail, metalRail, titaniumRail}
 import model.Station.{bigStation, smallStation}
-import model.Train.{highSpeedTrain, normalTrain}
+import model.Train.{highSpeed, highSpeedTrain, normalTrain}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -16,7 +16,7 @@ class RailTest extends AnyFlatSpec:
   val stationB: Station = smallStation("ST002")
   val stationC: Station = bigStation("ST003")
 
-  "A MetalRail" should "be created with code, length, stations, train" in {
+  "A MetalRail" should "be created with code, length, stations, normal train" in {
     val rail = metalRail(railCode, railLength, stationA, stationB, normalTrain(trainCode))
     rail.length should be (railLength)
     rail.train should be (Some(normalTrain(trainCode)))
@@ -24,8 +24,14 @@ class RailTest extends AnyFlatSpec:
     rail.stationB shouldBe a [Station]
     rail shouldBe a [MetalRail]
   }
+  
+  "A MetalRail" should "be created with code, length, stations, high speed train" in {
+    val rail = metalRail(railCode, railLength, stationA, stationB, highSpeedTrain(trainCode))
+    rail.train should be (Some(highSpeedTrain(trainCode)))
+    rail shouldBe a [MetalRail]
+  }
 
-  "A TitaniumRail" should "be created with code, length, stations, train" in {
+  "A TitaniumRail" should "be created with code, length, stations, high speed train" in {
     val rail = titaniumRail(railCode, railLength, stationA, stationB, highSpeedTrain(trainCode))
     rail.length should be (railLength)
     rail.train should be (Some(highSpeedTrain(trainCode)))

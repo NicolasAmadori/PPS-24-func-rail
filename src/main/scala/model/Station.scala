@@ -11,6 +11,6 @@ case class SmallStation(code: StationCode) extends Station
 case class BigStation(code: StationCode) extends Station
 
 object Station:
-  def bigStation(code: String): Station = BigStation(StationCode.fromString(code))
+  def bigStation(code: String): BigStation = BigStation(StationCode.fromString(code))
 
-  def smallStation(code: String): Station = SmallStation(StationCode.fromString(code))
+  def smallStation(code: String): SmallStation = SmallStation(StationCode.fromString(code))

@@ -12,6 +12,6 @@ object Train:
   val normalSpeed: Float = 80.0f
   val highSpeed: Float = 300.0f
 
-  def normalTrain(code: Int): Train = NormalTrain(code, normalSpeed)
+  def normalTrain(code: Int): NormalTrain = NormalTrain(code, normalSpeed)
 
-  def highSpeedTrain(code: Int): Train = HighSpeedTrain(code, highSpeed)
+  def highSpeedTrain(code: Int): HighSpeedTrain = HighSpeedTrain(code, highSpeed)
