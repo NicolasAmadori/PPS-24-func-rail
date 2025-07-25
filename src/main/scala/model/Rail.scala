@@ -8,6 +8,8 @@ trait Rail:
   def stationA: Station
   def stationB: Station
   def train: Option[Train]
+  def isEmpty: Boolean = train.isEmpty
+  def canAcceptTrain(train: Train): Boolean = isEmpty
 
 case class MetalRail(code: RailCode, length: Int, stationA: Station, stationB: Station, train: Option[Train])
     extends Rail
@@ -18,7 +20,11 @@ case class TitaniumRail(
     stationA: Station,
     stationB: Station,
     train: Option[HighSpeedTrain]
-) extends Rail
+) extends Rail:
+  override def canAcceptTrain(train: Train): Boolean =
+    isEmpty && (train match
+      case _: HighSpeedTrain => true
+      case _ => false)
 
 object Rail:
   def metalRail(code: Int, length: Int, stationA: Station, stationB: Station, train: Train): MetalRail =

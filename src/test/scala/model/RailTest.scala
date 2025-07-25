@@ -52,3 +52,34 @@ class RailTest extends AnyFlatSpec:
     rail.stationA.code should be(stationA.code)
     rail.stationB.code should be(stationC.code)
   }
+
+  "A MetalRail" should "accept a normal train and a high speed train" in {
+    val rail = emptyMetalRail(railCode, railLength, stationA, stationB)
+    rail.canAcceptTrain(normalTrain(trainCode)) should be(true)
+    rail.canAcceptTrain(highSpeedTrain(trainCode)) should be(true)
+  }
+
+  "A TitaniumRail" should "not accept a normal train" in {
+    val rail = emptyTitaniumRail(railCode, railLength, stationA, stationB)
+    rail.canAcceptTrain(normalTrain(trainCode)) should be(false)
+  }
+
+  "A TitaniumRail" should "accept a high speed train" in {
+    val rail = emptyTitaniumRail(railCode, railLength, stationA, stationB)
+    rail.canAcceptTrain(highSpeedTrain(trainCode)) should be(true)
+  }
+
+  "A Rail" should "be empty when no train is assigned" in {
+    val rail = emptyMetalRail(railCode, railLength, stationA, stationB)
+    rail.isEmpty should be(true)
+  }
+
+  "A Rail" should "not be empty when a train is assigned" in {
+    val rail = metalRail(railCode, railLength, stationA, stationB, normalTrain(trainCode))
+    rail.isEmpty should be(false)
+  }
+
+  "A Rail" should "not accept a train if there's another one" in {
+    val rail = metalRail(railCode, railLength, stationA, stationB, normalTrain(trainCode))
+    rail.canAcceptTrain(normalTrain(trainCode)) should be(false)
+  }
