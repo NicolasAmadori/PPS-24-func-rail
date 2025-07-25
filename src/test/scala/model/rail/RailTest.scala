@@ -1,8 +1,9 @@
-package model
+package model.rail
 
 import model.Rail.{emptyMetalRail, emptyTitaniumRail, metalRail, titaniumRail}
 import model.Station.{bigStation, smallStation}
 import model.Train.{highSpeedTrain, normalTrain}
+import model.{MetalRail, Station, TitaniumRail}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -31,20 +32,9 @@ class RailTest extends AnyFlatSpec:
     rail shouldBe a[MetalRail]
   }
 
-  "A TitaniumRail" should "be created with code, length, stations, high speed train" in {
-    val rail = titaniumRail(railCode, railLength, stationA, stationB, highSpeedTrain(trainCode))
-    rail.length should be(railLength)
-    rail.train should be(Some(highSpeedTrain(trainCode)))
-    rail.stationA shouldBe a[Station]
-    rail.stationB shouldBe a[Station]
-    rail shouldBe a[TitaniumRail]
-  }
-
-  "A Rail" can "be created with no train" in {
+  "A MetalRail" can "be created with no train" in {
     val metalRail = emptyMetalRail(railCode, railLength, stationA, stationB)
-    val titaniumRail = emptyTitaniumRail(railCode, railLength, stationA, stationC)
     metalRail.train should be(None)
-    titaniumRail.train should be(None)
   }
 
   "A Rail" can "be connected to SmallStation or BigStation" in {
@@ -56,16 +46,6 @@ class RailTest extends AnyFlatSpec:
   "A MetalRail" should "accept a normal train and a high speed train" in {
     val rail = emptyMetalRail(railCode, railLength, stationA, stationB)
     rail.canAcceptTrain(normalTrain(trainCode)) should be(true)
-    rail.canAcceptTrain(highSpeedTrain(trainCode)) should be(true)
-  }
-
-  "A TitaniumRail" should "not accept a normal train" in {
-    val rail = emptyTitaniumRail(railCode, railLength, stationA, stationB)
-    rail.canAcceptTrain(normalTrain(trainCode)) should be(false)
-  }
-
-  "A TitaniumRail" should "accept a high speed train" in {
-    val rail = emptyTitaniumRail(railCode, railLength, stationA, stationB)
     rail.canAcceptTrain(highSpeedTrain(trainCode)) should be(true)
   }
 
