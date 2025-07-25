@@ -1,40 +1,46 @@
 package model
 
-import model.Domain.RailCode
+import model.Domain.{RailCode, StationCode, TrainCode}
 
 trait Rail:
   def code: RailCode
   def length: Int
-  def stationA: Station
-  def stationB: Station
-  def train: Option[Train]
-  def isEmpty: Boolean = train.isEmpty
-  def canAcceptTrain(train: Train): Boolean = isEmpty
+  def stationA: StationCode
+  def stationB: StationCode
+  def canAcceptTrain(train: Train): Boolean = true
 
-case class MetalRail(code: RailCode, length: Int, stationA: Station, stationB: Station, train: Option[Train])
+case class MetalRail(code: RailCode, length: Int, stationA: StationCode, stationB: StationCode)
     extends Rail
 
 case class TitaniumRail(
     code: RailCode,
     length: Int,
-    stationA: Station,
-    stationB: Station,
-    train: Option[HighSpeedTrain]
+    stationA: StationCode,
+    stationB: StationCode
 ) extends Rail:
   override def canAcceptTrain(train: Train): Boolean =
-    isEmpty && (train match
+    train match
       case _: HighSpeedTrain => true
-      case _ => false)
+      case _ => false
 
 object Rail:
-  def metalRail(code: Int, length: Int, stationA: Station, stationB: Station, train: Train): MetalRail =
-    MetalRail(RailCode.fromInt(code), length, stationA, stationB, Some(train))
+  def metalRail(code: Int, length: Int, stationA: String, stationB: String): MetalRail =
+    MetalRail(
+      RailCode.fromInt(code),
+      length,
+      StationCode.fromString(stationA),
+      StationCode.fromString(stationB)
+    )
 
-  def emptyMetalRail(code: Int, length: Int, stationA: Station, stationB: Station): MetalRail =
-    MetalRail(RailCode.fromInt(code), length, stationA, stationB, None)
-
-  def titaniumRail(code: Int, length: Int, stationA: Station, stationB: Station, train: HighSpeedTrain): TitaniumRail =
-    TitaniumRail(RailCode.fromInt(code), length, stationA, stationB, Some(train))
-
-  def emptyTitaniumRail(code: Int, length: Int, stationA: Station, stationB: Station): TitaniumRail =
-    TitaniumRail(RailCode.fromInt(code), length, stationA, stationB, None)
+  def titaniumRail(
+      code: Int,
+      length: Int,
+      stationA: String,
+      stationB: String
+  ): TitaniumRail =
+    TitaniumRail(
+      RailCode.fromInt(code),
+      length,
+      StationCode.fromString(stationA),
+      StationCode.fromString(stationB)
+    )
