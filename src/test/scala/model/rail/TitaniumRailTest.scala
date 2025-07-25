@@ -1,6 +1,6 @@
 package model.rail
 
-import model.Rail.{emptyMetalRail, emptyTitaniumRail, titaniumRail}
+import model.Rail.{emptyTitaniumRail, titaniumRail}
 import model.Train.{highSpeedTrain, normalTrain}
 import model.{Station, TitaniumRail}
 import org.scalatest.matchers.should.Matchers.*

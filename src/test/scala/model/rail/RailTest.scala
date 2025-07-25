@@ -1,9 +1,9 @@
 package model.rail
 
-import model.Rail.{emptyMetalRail, emptyTitaniumRail, metalRail, titaniumRail}
+import model.Rail.{emptyMetalRail, metalRail}
 import model.Station.{bigStation, smallStation}
 import model.Train.{highSpeedTrain, normalTrain}
-import model.{MetalRail, Station, TitaniumRail}
+import model.{MetalRail, Station}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
