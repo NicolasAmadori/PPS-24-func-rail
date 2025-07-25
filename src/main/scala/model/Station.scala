@@ -18,7 +18,9 @@ trait TrainOperations[S <: Station]:
   self: S =>
   def withTrains(newTrains: List[Train]): S
 
-  def addTrain(train: Train): S = withTrains(train :: trains)
+  def addTrain(train: Train): S =
+    if (trains.contains(train)) then self
+    else withTrains(trains :+ train)
 
   def removeTrain(train: Train): S = withTrains(trains.filterNot(_ == train))
 
