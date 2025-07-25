@@ -9,8 +9,8 @@ class TrainTest extends AnyFlatSpec:
 
   "A Train" should "be created with code" in {
     val train = normalTrain(101)
-    train.speed should be(normalSpeed)
     train.code should be(TrainCode.fromInt(101))
+    train.speed should be(normalSpeed)
 
     val fastTrain = highSpeedTrain(202)
     fastTrain.code should be(TrainCode.fromInt(202))
