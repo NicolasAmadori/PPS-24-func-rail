@@ -14,16 +14,6 @@ case class BigStation(code: StationCode, trains: List[Train] = List.empty) exten
     with TrainOperations[BigStation]:
   override def withTrains(newTrains: List[Train]): BigStation = copy(trains = newTrains)
 
-trait TrainOperations[S <: Station]:
-  self: S =>
-  def withTrains(newTrains: List[Train]): S
-
-  def addTrain(train: Train): S =
-    if (trains.contains(train)) then self
-    else withTrains(trains :+ train)
-
-  def removeTrain(train: Train): S = withTrains(trains.filterNot(_ == train))
-
 object Station:
   def bigStation(code: String): BigStation = BigStation(StationCode.fromString(code))
 

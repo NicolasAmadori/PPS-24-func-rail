@@ -50,4 +50,3 @@ class StationTest extends AnyFlatSpec:
     val stationAfterRemoval = stationWithTrains.removeTrain(highSpeedTrain(trainCode2))
     stationAfterRemoval.trains should contain(train)
   }
-
