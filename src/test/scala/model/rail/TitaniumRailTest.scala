@@ -1,9 +1,9 @@
 package model.rail
 
-import model.Domain.StationCode
-import model.Rail.titaniumRail
-import model.Train.{highSpeedTrain, normalTrain}
-import model.TitaniumRail
+import model.railway.Domain.StationCode
+import model.railway.Rail.titaniumRail
+import model.railway.Train.{highSpeedTrain, normalTrain}
+import model.railway.TitaniumRail
 import org.scalatest.matchers.should.Matchers.*
 
 class TitaniumRailTest extends RailTest:

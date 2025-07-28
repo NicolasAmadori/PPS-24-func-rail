@@ -1,8 +1,9 @@
 package model
 
-import model.Rail.{metalRail, titaniumRail}
-import model.Station.{bigStation, smallStation}
-import model.Train.normalTrain
+import model.railway.Rail.{metalRail, titaniumRail}
+import model.railway.Station.{bigStation, smallStation}
+
+import model.railway.Railway
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -12,7 +13,6 @@ class RailwayTest extends AnyFlatSpec:
   private val station3 = "ST003"
   private val railway =
     Railway.empty.withStations(List(smallStation(station1), bigStation(station2), smallStation(station3)))
-      .withTrains(List(normalTrain(101)))
       .withRails(List(
         metalRail(1, 200, station1, station2),
         metalRail(2, 500, station2, station3),
@@ -22,13 +22,11 @@ class RailwayTest extends AnyFlatSpec:
   "A Railway" should "be created empty" in {
     val emptyRailway = Railway.empty
     emptyRailway.stations should be(empty)
-    emptyRailway.trains should be(empty)
     emptyRailway.rails should be(empty)
   }
 
-  it should "be created with stations, trains, and rails" in {
+  it should "be created with stations, and rails" in {
     railway.stations should not be empty
-    railway.trains should not be empty
     railway.rails should not be empty
   }
 

@@ -1,10 +1,10 @@
 package model.rail
 
-import model.Domain.StationCode
-import model.Rail.metalRail
-import model.Station.{bigStation, smallStation}
-import model.Train.{highSpeedTrain, normalTrain}
-import model.{MetalRail, Station}
+import model.railway.Domain.StationCode
+import model.railway.Rail.metalRail
+
+import model.railway.Train.{highSpeedTrain, normalTrain}
+import model.railway.MetalRail
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 

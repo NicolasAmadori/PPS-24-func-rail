@@ -1,6 +1,7 @@
-package model
+package model.railway
 
-import model.Domain.{RailCode, StationCode, TrainCode}
+import model.railway.Domain.{RailCode, StationCode}
+import model.*
 
 trait Rail:
   def code: RailCode

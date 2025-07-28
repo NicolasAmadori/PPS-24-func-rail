@@ -1,16 +1,4 @@
-package model
-
-trait TrainOperations[S <: TrainOperations[S]]:
-  self: S =>
-  def trains: List[Train]
-
-  def withTrains(newTrains: List[Train]): S
-
-  def addTrain(train: Train): S =
-    if trains.contains(train) then self
-    else withTrains(trains :+ train)
-
-  def removeTrain(train: Train): S = withTrains(trains.filterNot(_ == train))
+package model.railway
 
 trait StationsOperations[S <: StationsOperations[S]]:
   self: S =>

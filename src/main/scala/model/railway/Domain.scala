@@ -1,4 +1,4 @@
-package model
+package model.railway
 
 object Domain:
   opaque type StationCode = String

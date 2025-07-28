@@ -1,7 +1,7 @@
 package model
 
-import model.Domain.TrainCode
-import model.Train.{highSpeed, normalSpeed, highSpeedTrain, normalTrain}
+import model.railway.Domain.TrainCode
+import model.railway.Train.{highSpeed, normalSpeed, highSpeedTrain, normalTrain}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
