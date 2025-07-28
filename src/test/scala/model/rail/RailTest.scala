@@ -3,7 +3,7 @@ package model.rail
 import model.railway.Domain.StationCode
 import model.railway.Rail.metalRail
 
-import model.railway.Train.{highSpeedTrain, normalTrain}
+import model.simulation.Train.{highSpeedTrain, normalTrain}
 import model.railway.MetalRail
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
@@ -26,14 +26,14 @@ class RailTest extends AnyFlatSpec:
     rail shouldBe a[MetalRail]
   }
 
-  "A Rail" can "be connected to SmallStation or BigStation" in {
+  it can "be connected to SmallStation or BigStation" in {
     val rail = metalRail(railCode, railLength, stationA, stationC)
     rail.stationA should be(StationCode.fromString(stationA))
     rail.stationB should be(StationCode.fromString(stationC))
   }
 
-  "A MetalRail" should "accept a normal train and a high speed train" in {
+  it should "accept a normal train and a high speed train" in {
     val rail = metalRail(railCode, railLength, stationA, stationB)
-    rail.canAcceptTrain(normalTrain(trainCode)) should be(true)
-    rail.canAcceptTrain(highSpeedTrain(trainCode)) should be(true)
+    rail.canAcceptTrain(normalTrain(trainCode, StationCode.listOf(stationA, stationB))) should be(true)
+    rail.canAcceptTrain(highSpeedTrain(trainCode, StationCode.listOf(stationA, stationB))) should be(true)
   }
