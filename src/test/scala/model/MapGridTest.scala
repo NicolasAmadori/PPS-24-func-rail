@@ -96,7 +96,6 @@ class MapGridTest extends AnyFlatSpec:
     assert(result.isRight)
   }
 
-
   it should "allow placing a BigStationPiece when there's enough space" in {
     val grid = MapGrid.empty(10, 10)
     val centerX = 5
@@ -142,4 +141,3 @@ class MapGridTest extends AnyFlatSpec:
       case Left(PlacementError.InvalidPlacement(_, _, _)) =>
     }
   }
-
