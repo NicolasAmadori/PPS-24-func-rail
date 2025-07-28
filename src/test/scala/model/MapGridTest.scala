@@ -1,5 +1,11 @@
 package model
 
+import model.mapgrid.BigStationPiece
+import model.mapgrid.MapGrid
+import model.mapgrid.MetalRailPiece
+import model.mapgrid.PlacementError
+import model.mapgrid.SmallStationPiece
+import model.mapgrid.TitaniumRailPiece
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 

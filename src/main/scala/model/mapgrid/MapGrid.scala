@@ -1,4 +1,4 @@
-package model
+package model.mapgrid
 
 object MapGrid:
   def empty(width: Int, height: Int): MapGrid =
