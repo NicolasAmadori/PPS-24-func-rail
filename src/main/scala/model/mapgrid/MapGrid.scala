@@ -76,7 +76,7 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]]):
 
       case _ => false
 
-  private def adjacentCells(x: Int, y: Int): Seq[Option[Cell]] =
+  def adjacentCells(x: Int, y: Int): Seq[Option[Cell]] =
     cardinalCells(x, y) ++ diagonalCells(x, y)
 
   private def cardinalCells(x: Int, y: Int): Seq[Option[Cell]] =
