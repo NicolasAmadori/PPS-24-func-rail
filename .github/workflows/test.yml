@@ -5,38 +5,11 @@ on:
   push:
   pull_request:
 
-
 jobs:
   test-scala:
     uses: ./.github/workflows/scala-job-template.yml
     with:
       task: "sbt test"
-        
-  test-coverage:
-    needs: test-scala
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: temurin
-          cache: sbt
-
-      - name: Setup sbt launcher
-        uses: sbt/setup-sbt@v1
-
-      - name: Generate Test Coverage
-        run: sbt clean coverage test coverageReport
-
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4  # Uploads HTML coverage report
-        with:
-          name: coverage-report
-          path: target/scala-*/scoverage-report/
 
   scala-fix:
     uses: ./.github/workflows/scala-job-template.yml
