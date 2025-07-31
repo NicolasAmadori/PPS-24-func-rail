@@ -1,4 +1,4 @@
-package model
+package model.mapgrid
 
 object MapGrid:
   def empty(width: Int, height: Int): MapGrid =
@@ -9,6 +9,13 @@ object MapGrid:
 case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]]):
 
   def place(x: Int, y: Int, element: Cell): Either[PlacementError, MapGrid] =
+    element match
+      case BigStationPiece =>
+        placeBigStation(x, y)
+      case _ =>
+        placeSingle(x, y, element)
+
+  private def placeSingle(x: Int, y: Int, element: Cell): Either[PlacementError, MapGrid] =
     if !isInBounds(x, y) then
       Left(PlacementError.OutOfBounds(x, y))
     else if !canPlaceAt(x, y, element) then
@@ -16,11 +23,36 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]]):
     else
       Right(copy(cells = cells.updated(y, cells(y).updated(x, element))))
 
+  private def placeBigStation(centerX: Int, centerY: Int): Either[PlacementError, MapGrid] =
+    val deltas = for dx <- -1 to 1; dy <- -1 to 1 yield (dx, dy)
+
+    // Verifica che tutte le celle siano piazzabili
+    val allPlacementsValid = deltas.forall { (dx, dy) =>
+      val x = centerX + dx
+      val y = centerY + dy
+      isInBounds(x, y) && canPlaceAt(x, y, BigStationPiece)
+    }
+
+    if !allPlacementsValid then
+      Left(PlacementError.InvalidPlacement(centerX, centerY, BigStationPiece))
+    else
+      val newCells = deltas.foldLeft(cells) { case (grid, (dx, dy)) =>
+        val x = centerX + dx
+        val y = centerY + dy
+        grid.updated(y, grid(y).updated(x, BigStationPiece))
+      }
+      Right(copy(cells = newCells))
+
   def getStationsNumber: Int =
-    cells.flatten.count {
-      case _: StationPiece => true
+    val small = cells.flatten.count {
+      case SmallStationPiece => true
       case _ => false
     }
+    val big = cells.flatten.count {
+      case BigStationPiece => true
+      case _ => false
+    }
+    small + (big / 9)
 
   private def isInBounds(x: Int, y: Int): Boolean =
     x >= 0 && y >= 0 && x < width && y < height
@@ -40,7 +72,7 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]]):
           case Some(_: RailPiece) => true
           case _ => false
         }
-        pieceCount < 2
+        pieceCount <= 2
 
       case _ => false
 

@@ -1,4 +1,4 @@
-package model
+package model.mapgrid
 
 sealed trait PlacementError
 object PlacementError:

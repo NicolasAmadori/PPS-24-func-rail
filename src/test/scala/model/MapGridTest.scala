@@ -1,5 +1,11 @@
 package model
 
+import model.mapgrid.BigStationPiece
+import model.mapgrid.MapGrid
+import model.mapgrid.MetalRailPiece
+import model.mapgrid.PlacementError
+import model.mapgrid.SmallStationPiece
+import model.mapgrid.TitaniumRailPiece
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -72,12 +78,23 @@ class MapGridTest extends AnyFlatSpec:
     assert(result.isRight)
   }
 
-  it should "not allow placing a RailPiece if there are 2 or more adjacent StationPieces or RailPieces" in {
+
+  it should "allow placing a RailPiece if there are 2 adjacent StationPieces or RailPieces" in {
     val grid = MapGrid.empty(3, 3)
       .place(0, 1, MetalRailPiece).toOption.get
       .place(2, 1, TitaniumRailPiece).toOption.get
 
     val result = grid.place(1, 1, MetalRailPiece)
+    assert(result.isRight)
+  }
+
+  it should "not allow placing a RailPiece if there are 3 or more adjacent StationPieces or RailPieces" in {
+    val grid = MapGrid.empty(3, 3)
+      .place(0, 1, MetalRailPiece).toOption.get
+      .place(1, 1, MetalRailPiece).toOption.get
+      .place(2, 1, MetalRailPiece).toOption.get
+
+    val result = grid.place(1, 0, MetalRailPiece)
     assert(result.isLeft)
   }
 
@@ -94,4 +111,50 @@ class MapGridTest extends AnyFlatSpec:
 
     val result = grid.place(1, 1, TitaniumRailPiece)
     assert(result.isRight)
+  }
+
+  it should "allow placing a BigStationPiece when there's enough space" in {
+    val grid = MapGrid.empty(10, 10)
+    val centerX = 5
+    val centerY = 5
+    val result = grid.place(centerX, centerY, BigStationPiece)
+
+    result match
+      case Right(updated) =>
+        updated.getStationsNumber should be(1)
+        val surrounding = for dx <- -1 to 1; dy <- -1 to 1 yield (centerX + dx, centerY + dy)
+        surrounding.foreach { (x, y) =>
+          updated.cells(y)(x) shouldBe BigStationPiece
+        }
+
+      case Left(err) =>
+        fail(s"Expected successful BigStationPiece placement, got: $err")
+  }
+
+  it should "not allow placing a BigStationPiece if part of it is out of bounds" in {
+    val grid = MapGrid.empty(3, 3)
+    val result = grid.place(0, 0, BigStationPiece) // angolo in alto a sinistra
+    result should matchPattern {
+      case Left(PlacementError.InvalidPlacement(_, _, _)) =>
+    }
+  }
+
+  it should "not allow placing a BigStationPiece too close to a SmallStationPiece" in {
+    val grid = MapGrid.empty(10, 10)
+      .place(1, 1, SmallStationPiece).toOption.get
+
+    val result = grid.place(3, 3, BigStationPiece) // troppo vicino
+    result should matchPattern {
+      case Left(PlacementError.InvalidPlacement(_, _, _)) =>
+    }
+  }
+
+  it should "not allow overlapping BigStationPieces" in {
+    val grid = MapGrid.empty(10, 10)
+      .place(4, 4, BigStationPiece).toOption.get
+
+    val overlappingResult = grid.place(5, 5, BigStationPiece)
+    overlappingResult should matchPattern {
+      case Left(PlacementError.InvalidPlacement(_, _, _)) =>
+    }
   }
