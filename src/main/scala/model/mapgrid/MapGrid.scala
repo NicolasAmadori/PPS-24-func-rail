@@ -12,6 +12,8 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]]):
     element match
       case BigStationPiece =>
         placeBigStation(x, y)
+      case rail: RailPiece =>
+        placeRail(x, y, rail)
       case _ =>
         placeSingle(x, y, element)
 
@@ -103,3 +105,45 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]]):
       val ny = y + dy
       if isInBounds(nx, ny) then Some(cells(ny)(nx)) else None
     }
+
+  /** Attempts to place a RailPiece at the specified coordinates. Validates the placement based on adjacent cells and
+    * returns an updated MapGrid or an error. Rail placement rules:
+    *   - A RailPiece should handle a big station as a single piece.
+    *   - A RailPiece can be placed if there are 2 or fewer adjacent StationPieces or RailPieces.
+    *
+    * @param x
+    *   The x-coordinate where the RailPiece should be placed.
+    * @param y
+    *   The y-coordinate where the RailPiece should be placed.
+    * @param element
+    *   The RailPiece to be placed.
+    * @return
+    *   Either a PlacementError or the updated MapGrid.
+    */
+  private def placeRail(x: Int, y: Int, element: RailPiece): Either[PlacementError, MapGrid] =
+    if !isInBounds(x, y) then
+      Left(PlacementError.OutOfBounds(x, y))
+    else
+      val adjacent = adjacentCells(x, y)
+
+      val smallStationCount = adjacent.count {
+        case Some(SmallStationPiece) => true
+        case _ => false
+      }
+      val bigStationCount = adjacent.count {
+        case Some(BigStationPiece) => true
+        case _ => false
+      }
+
+      val metalRailCount = adjacent.count {
+        case Some(MetalRailPiece) => true
+        case _ => false
+      }
+
+      val baseStationCount = if bigStationCount % 3 == 0 then 0 else 1
+      val stationsCount = bigStationCount / 3 + baseStationCount + smallStationCount
+
+      if stationsCount > 2 || metalRailCount > 2 || stationsCount + metalRailCount > 2 then
+        Left(PlacementError.InvalidPlacement(x, y, element))
+      else
+        Right(copy(cells = cells.updated(y, cells(y).updated(x, element))))

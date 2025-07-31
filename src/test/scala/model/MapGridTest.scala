@@ -78,7 +78,6 @@ class MapGridTest extends AnyFlatSpec:
     assert(result.isRight)
   }
 
-
   it should "allow placing a RailPiece if there are 2 adjacent StationPieces or RailPieces" in {
     val grid = MapGrid.empty(3, 3)
       .place(0, 1, MetalRailPiece).toOption.get
@@ -157,4 +156,12 @@ class MapGridTest extends AnyFlatSpec:
     overlappingResult should matchPattern {
       case Left(PlacementError.InvalidPlacement(_, _, _)) =>
     }
+  }
+
+  it should "allow placing a RailPiece adjacent to the middle block of a BigStationPiece border" in {
+    val grid = MapGrid.empty(10, 10)
+      .place(5, 5, BigStationPiece).toOption.get
+
+    val result = grid.place(7, 5, MetalRailPiece) // Adiacente al blocco centrale
+    result.isRight should be(true)
   }
