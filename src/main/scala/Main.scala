@@ -1,7 +1,7 @@
 import controller.MapController
 import model.mapgrid.MapGrid
 import scalafx.application.JFXApp3
-import scalafx.scene.{Parent, Scene}
+import scalafx.scene.Scene
 import view.MapView
 
 object Main extends JFXApp3:
