@@ -1,5 +1,5 @@
 import controller.MapController
-import model.MapGrid
+import model.mapgrid.MapGrid
 import scalafx.application.JFXApp3
 import scalafx.scene.{Parent, Scene}
 import view.MapView

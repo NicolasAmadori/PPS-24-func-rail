@@ -1,6 +1,6 @@
 package controller
 
-import model.{Cell, EmptyCell, MapGrid, MetalRailPiece}
+import model.mapgrid.{Cell, EmptyCell, MapGrid, MetalRailPiece}
 
 class MapController(model: MapGrid):
 

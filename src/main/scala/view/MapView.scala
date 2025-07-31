@@ -1,7 +1,7 @@
 package view
 
 import controller.MapController
-import model.*
+import model.mapgrid.*
 import scalafx.application.Platform
 import scalafx.geometry.Insets
 import scalafx.scene.control.{Button, ToggleButton, ToggleGroup}
