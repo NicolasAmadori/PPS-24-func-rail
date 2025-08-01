@@ -157,3 +157,11 @@ class MapGridTest extends AnyFlatSpec:
       case Left(PlacementError.InvalidPlacement(_, _, _)) =>
     }
   }
+
+  it should "allow placing a RailPiece adjacent to the middle block of a BigStationPiece border" in {
+    val grid = MapGrid.empty(10, 10)
+      .place(5, 5, BigStationPiece).toOption.get
+
+    val result = grid.place(7, 5, MetalRailPiece) // Adiacente al blocco centrale
+    result.isRight should be(true)
+  }
