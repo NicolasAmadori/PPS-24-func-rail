@@ -4,27 +4,30 @@ import controller.MapController
 import model.mapgrid.*
 import scalafx.application.Platform
 import scalafx.geometry.Insets
-import scalafx.scene.control.{Button, ToggleButton, ToggleGroup}
+import scalafx.scene.control.Alert.AlertType
+import scalafx.scene.control.{Alert, Button, RadioButton, ToggleButton, ToggleGroup}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
+import utils.ErrorMessage
 
 class MapView(width: Int, height: Int, controller: MapController) extends BorderPane:
 
   private val gridPane = new GridPane
   private val toolsGroup = new ToggleGroup
+  private val alert = Alert(AlertType.Error)
+    alert.title = "Error"
 
   private val cellSize = 15
 
-  private val smallStationTool = new ToggleButton("Small station"):
-    toggleGroup = toolsGroup
-    selected = true
-
-  private val bigStationTool = new ToggleButton("Big station"):
+  private val smallStationTool = new RadioButton("Small station"):
     toggleGroup = toolsGroup
 
-  private val metalRailTool = new ToggleButton("Metal rail"):
+  private val bigStationTool = new RadioButton("Big station"):
     toggleGroup = toolsGroup
 
-  private val titaniumRailTool = new ToggleButton("Titanium rail"):
+  private val metalRailTool = new RadioButton("Metal rail"):
+    toggleGroup = toolsGroup
+
+  private val titaniumRailTool = new RadioButton("Titanium rail"):
     toggleGroup = toolsGroup
 
   private val toolButtons: Seq[ToggleButton] =
@@ -78,3 +81,9 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
           case SmallStationPiece => "-fx-background-color: green"
     }
   }
+
+  def showError(error: ErrorMessage, msg: String = ""): Unit =
+    Platform.runLater {
+      alert.setContentText(s"$msg: ${error.toString}")
+      alert.showAndWait()
+    }
