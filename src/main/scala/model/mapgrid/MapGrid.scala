@@ -72,7 +72,7 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]]):
           case Some(_: RailPiece) => true
           case _ => false
         }
-        pieceCount < 2
+        pieceCount <= 2
 
       case _ => false
 

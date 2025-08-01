@@ -78,12 +78,22 @@ class MapGridTest extends AnyFlatSpec:
     assert(result.isRight)
   }
 
-  it should "not allow placing a RailPiece if there are 2 or more adjacent StationPieces or RailPieces" in {
+  it should "allow placing a RailPiece if there are 2 adjacent StationPieces or RailPieces" in {
     val grid = MapGrid.empty(3, 3)
       .place(0, 1, MetalRailPiece).toOption.get
       .place(2, 1, TitaniumRailPiece).toOption.get
 
     val result = grid.place(1, 1, MetalRailPiece)
+    assert(result.isRight)
+  }
+
+  it should "not allow placing a RailPiece if there are 3 or more adjacent StationPieces or RailPieces" in {
+    val grid = MapGrid.empty(3, 3)
+      .place(0, 1, MetalRailPiece).toOption.get
+      .place(1, 1, MetalRailPiece).toOption.get
+      .place(2, 1, MetalRailPiece).toOption.get
+
+    val result = grid.place(1, 0, MetalRailPiece)
     assert(result.isLeft)
   }
 
