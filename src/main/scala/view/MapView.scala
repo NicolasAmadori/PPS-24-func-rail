@@ -14,7 +14,7 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
   private val gridPane = new GridPane
   private val toolsGroup = new ToggleGroup
   private val alert = Alert(AlertType.Error)
-    alert.title = "Error"
+  alert.title = "Error"
 
   private val cellSize = 15
 

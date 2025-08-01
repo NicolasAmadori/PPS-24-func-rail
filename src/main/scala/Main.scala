@@ -13,7 +13,7 @@ object Main extends JFXApp3:
     val model = MapGrid.empty(cols, rows)
     val controller = MapController(model)
     val view = MapView(cols, rows, controller)
-    
+
     controller.attachView(view)
 
     stage = new JFXApp3.PrimaryStage:

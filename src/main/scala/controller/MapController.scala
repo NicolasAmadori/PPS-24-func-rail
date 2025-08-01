@@ -42,5 +42,3 @@ class MapController(model: MapGrid):
       Left(ViewError.NoToolSelected())
     else
       Right(true)
-
-
