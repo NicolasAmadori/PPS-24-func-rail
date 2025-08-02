@@ -5,9 +5,6 @@ import model.railway.Domain.StationCode
 trait Station:
   def code: StationCode
 
-  override def toString: String = StationCode.value(code)
-
-
 case class SmallStation(code: StationCode) extends Station
 
 case class BigStation(code: StationCode) extends Station
