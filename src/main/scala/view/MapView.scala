@@ -46,8 +46,10 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
   private val toolPanel = new VBox:
     spacing = 10
     margin = Insets(10)
-    children = toolButtons ++ Seq(new Button("Parse map"):
-      onAction = _ => controller.onNext())
+    children = toolButtons ++ Seq(
+      new Button("Parse map"):
+        onAction = _ => controller.onNext()
+    )
 
   left = toolPanel
   center = gridPane
