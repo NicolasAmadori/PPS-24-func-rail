@@ -1,6 +1,6 @@
 package controller
 
-import model.mapgrid.{Cell, CellType, MapGrid}
+import model.mapgrid.{CellType, MapGrid}
 import view.{MapView, ViewError}
 
 import scala.compiletime.uninitialized

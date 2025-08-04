@@ -14,8 +14,6 @@ package model.mapgrid
 //
 //case class StationPiece(id: Int, stationType: StationType) extends Cell
 
-
-
 sealed trait CellType
 
 case object EmptyType extends CellType
@@ -28,29 +26,22 @@ sealed trait StationType extends CellType
 case object BigStationType extends StationType
 case object SmallStationType extends StationType
 
-sealed trait Cell {
+sealed trait Cell:
   def cellType: CellType
-}
 
-case object EmptyCell extends Cell {
+case object EmptyCell extends Cell:
   val cellType: CellType = EmptyType
-}
 
 sealed trait RailPiece extends Cell
-case class MetalRailPiece() extends RailPiece {
+case class MetalRailPiece() extends RailPiece:
   val cellType: CellType = MetalRailType
-}
-case class TitaniumRailPiece() extends RailPiece {
+case class TitaniumRailPiece() extends RailPiece:
   val cellType: CellType = TitaniumRailType
-}
 
-sealed trait StationPiece extends Cell {
+sealed trait StationPiece extends Cell:
   def id: Int
-}
 
-case class BigStationPiece(id: Int) extends StationPiece {
+case class BigStationPiece(id: Int) extends StationPiece:
   val cellType: CellType = BigStationType
-}
-case class SmallStationPiece(id: Int) extends StationPiece {
+case class SmallStationPiece(id: Int) extends StationPiece:
   val cellType: CellType = SmallStationType
-}
