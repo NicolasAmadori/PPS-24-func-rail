@@ -45,11 +45,11 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
     if newToggle != null then
       val selected = newToggle.asInstanceOf[javafx.scene.control.ToggleButton]
       val tool = selected.getText match
-        case "Metal rail" => MetalRailPiece
-        case "Titanium rail" => TitaniumRailPiece
-        case "Small station" => SmallStationPiece
-        case "Big station" => BigStationPiece
-        case _ => EmptyCell
+        case "Metal rail" => MetalRailType
+        case "Titanium rail" => TitaniumRailType
+        case "Small station" => SmallStationType
+        case "Big station" => BigStationType
+        case _ => EmptyType
       controller.selectTool(tool)
   }
 
@@ -75,10 +75,10 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
         val btn = buttons(y)(x)
         btn.style = cell match
           case EmptyCell => "-fx-background-color: white"
-          case MetalRailPiece => "-fx-background-color: gray"
-          case TitaniumRailPiece => "-fx-background-color: blue"
-          case BigStationPiece => "-fx-background-color: red"
-          case SmallStationPiece => "-fx-background-color: green"
+          case MetalRailPiece() => "-fx-background-color: gray"
+          case TitaniumRailPiece() => "-fx-background-color: blue"
+          case BigStationPiece(_) => "-fx-background-color: red"
+          case SmallStationPiece(_) => "-fx-background-color: green"
     }
   }
 

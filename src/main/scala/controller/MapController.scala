@@ -1,6 +1,6 @@
 package controller
 
-import model.mapgrid.{Cell, MapGrid}
+import model.mapgrid.{Cell, CellType, MapGrid}
 import view.{MapView, ViewError}
 
 import scala.compiletime.uninitialized
@@ -8,7 +8,7 @@ import scala.compiletime.uninitialized
 class MapController(model: MapGrid):
 
   private var currentModel = model
-  private var selectedTool: Cell = uninitialized
+  private var selectedTool: CellType = uninitialized
   private var view: MapView = uninitialized
 
   private var onModelUpdated: MapGrid => Unit = _ => ()
@@ -19,7 +19,7 @@ class MapController(model: MapGrid):
   def setOnModelUpdated(callback: MapGrid => Unit): Unit =
     onModelUpdated = callback
 
-  def selectTool(tool: Cell): Unit =
+  def selectTool(tool: CellType): Unit =
     selectedTool = tool
 
   def placeAt(x: Int, y: Int): Unit =
