@@ -20,8 +20,7 @@
 
 .edge {
     -fx-stroke-width: 2;
-    -fx-stroke: #FF6D66;
-    -fx-stroke-dash-array: 2 5 2 5; /* remove for clean edges */
+    -fx-stroke: #0000FF; /* #FF6D66; */
     -fx-fill: transparent; /*important for curved edges. do not remove */
     -fx-stroke-line-cap: round;
     -fx-opacity: 0.8;
@@ -30,7 +29,7 @@
 .edge-label {
     -fx-font: bold 8pt "sans-serif";
     -fx-fill: white;
-    -fx-background-color: red;
+    -fx-background-color: black;
     -fx-background-radius: 0;
     -fx-border-color: black;
     -fx-padding: 2px;

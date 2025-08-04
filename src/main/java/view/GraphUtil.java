@@ -26,9 +26,9 @@ public class GraphUtil {
 
 		List<Rail> rails = List.of(
 			new MetalRail(1, 100, stations.get(0).code(), stations.get(1).code()),
-			new MetalRail(2, 150, stations.get(1).code(), stations.get(2).code()),
+			new TitaniumRail(2, 150, stations.get(1).code(), stations.get(2).code()),
 			new MetalRail(3, 200, stations.get(2).code(), stations.get(3).code()),
-			new MetalRail(4, 120, stations.get(0).code(), stations.get(3).code()),
+			new TitaniumRail(4, 120, stations.get(0).code(), stations.get(3).code()),
 			new MetalRail(5, 120, stations.get(4).code(), stations.get(3).code())
 		);
 
