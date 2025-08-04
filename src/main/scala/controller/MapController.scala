@@ -2,25 +2,15 @@ package controller
 
 import model.mapgrid.{Cell, MapGrid}
 import model.simulation.{Simulation, SimulationState}
-
-import utils.StageManager
 import view.simconfig.SimulationConfigView
 import view.{GraphUtil, MapView, ViewError}
 
-class MapController(model: MapGrid):
+class MapController(model: MapGrid) extends BaseController[MapView]:
 
   private var currentModel = model
   private var selectedTool: Option[Cell] = None
-  private var view: Option[MapView] = None
 
   private var onModelUpdated: MapGrid => Unit = _ => ()
-
-  def attachView(view: MapView): Unit =
-    this.view = Some(view)
-
-  def getView: MapView = view.getOrElse(
-    throw new IllegalStateException("View has not been attached. Call attachView() first.")
-  )
 
   private def getTool: Cell =
     selectedTool.getOrElse(
@@ -47,18 +37,23 @@ class MapController(model: MapGrid):
             getView.showError(error, s"Placement failed")
 
   private def validation: Either[ViewError, Boolean] =
-    if view == null then
-      Left(ViewError.NotAttached())
-    else if selectedTool == null then
+    if selectedTool == null then
       Left(ViewError.NoToolSelected())
     else
       Right(true)
 
-  def parseMap(): Unit =
+  def onNext(): Unit =
     val parsedRailway = GraphUtil.createRailway()
-    val simulation = new Simulation(parsedRailway, SimulationState.empty)
-    val newController = new SimulationConfigController(simulation)
-    val newView = new SimulationConfigView()
-    newController.attachView(newView)
-    StageManager.setRoot(newView.getRoot)
-    newView.initGraph()
+    val simulation = Simulation(parsedRailway, SimulationState.empty)
+
+    val transition: ScreenTransition[SimulationConfigController, SimulationConfigView] =
+      new ScreenTransition[SimulationConfigController, SimulationConfigView]:
+        def build(): (SimulationConfigController, SimulationConfigView) =
+          val controller = SimulationConfigController(simulation)
+          val view = SimulationConfigView()
+          (controller, view)
+
+        override def afterAttach(controller: SimulationConfigController, view: SimulationConfigView): Unit =
+          view.initGraph()
+
+    transition.transition()

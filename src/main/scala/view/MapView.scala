@@ -4,19 +4,20 @@ import controller.MapController
 import model.mapgrid.*
 import scalafx.application.Platform
 import scalafx.geometry.Insets
+import scalafx.scene.Parent
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.{Alert, Button, RadioButton, ToggleButton, ToggleGroup}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import utils.ErrorMessage
 
-class MapView(width: Int, height: Int, controller: MapController) extends BorderPane:
+class MapView(width: Int, height: Int, controller: MapController) extends BorderPane, View:
   private val gridPane = new GridPane
   private val toolsGroup = new ToggleGroup
   private val alert = new Alert(AlertType.Error):
     title = "Error"
   private val cellSize = 15
   private val parseButton = new Button("Parse map"):
-    onAction = _ => controller.parseMap()
+    onAction = _ => controller.onNext()
   private val toolButtons: Seq[ToggleButton] =
     val smallStationTool = new RadioButton("Small station"):
       toggleGroup = toolsGroup
@@ -80,3 +81,5 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
     Platform.runLater:
       alert.setContentText(s"$msg: ${error.toString}")
       alert.showAndWait()
+
+  override def getRoot: Parent = this

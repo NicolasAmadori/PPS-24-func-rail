@@ -4,12 +4,11 @@ import scalafx.geometry.Insets
 import scalafx.geometry.Pos.Center
 import scalafx.scene.control.{Button, CheckBox}
 import scalafx.scene.layout.{BorderPane, HBox, Pane, VBox}
-import view.GraphUtil
-import view.simconfig.{DefaultStyleStrategy, GraphView, RailView, StationView, StyleStrategy}
+import view.{GraphUtil, View}
 
 class SimulationConfigView(
     styleStrategy: StyleStrategy = DefaultStyleStrategy
-):
+) extends View:
 
   private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph())
   graphView.setAutomaticLayout(true)
