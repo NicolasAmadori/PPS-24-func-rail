@@ -1,6 +1,6 @@
 package controller
 
-import model.mapgrid.{Cell, MapGrid}
+import model.mapgrid.{CellType, MapGrid}
 import model.simulation.{Simulation, SimulationState}
 import utils.ErrorMessage
 import view.simconfig.SimulationConfigView
@@ -20,14 +20,14 @@ class SimulationConfigTransition(simulation: Simulation)
 class MapController(model: MapGrid) extends BaseController[MapView]:
 
   private var currentModel = model
-  private var selectedTool: Option[Cell] = None
+  private var selectedTool: Option[CellType] = None
 
   private var onModelUpdated: MapGrid => Unit = _ => ()
 
   def setOnModelUpdated(callback: MapGrid => Unit): Unit =
     onModelUpdated = callback
 
-  def selectTool(tool: Cell): Unit =
+  def selectTool(tool: CellType): Unit =
     selectedTool = Some(tool)
 
   private def validation: Either[ViewError, Boolean] =

@@ -11,19 +11,19 @@ import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import utils.ErrorMessage
 
 object ToolMappings:
-  val nameToCell: Map[String, Cell] = Map(
-    "Metal rail" -> MetalRailPiece,
-    "Titanium rail" -> TitaniumRailPiece,
-    "Small station" -> SmallStationPiece,
-    "Big station" -> BigStationPiece
+  val nameToCell: Map[String, CellType] = Map(
+    "Metal rail" -> MetalRailType,
+    "Titanium rail" -> TitaniumRailType,
+    "Small station" -> SmallStationType,
+    "Big station" -> BigStationType
   )
 
-  val cellToColor: Map[Cell, String] = Map(
-    EmptyCell -> "white",
-    MetalRailPiece -> "gray",
-    TitaniumRailPiece -> "blue",
-    BigStationPiece -> "red",
-    SmallStationPiece -> "green"
+  val cellToColor: Map[CellType, String] = Map(
+    EmptyType -> "white",
+    MetalRailType -> "gray",
+    TitaniumRailType -> "blue",
+    BigStationType -> "red",
+    SmallStationType -> "green"
   )
 
 object MapViewConstants:
@@ -80,9 +80,10 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
 
   private def setupToolListener(): Unit =
     toolsGroup.selectedToggle.onChange { (_, _, newToggle) =>
-      Option(newToggle).collect {
-        case rb: RadioButton => nameToCell.getOrElse(rb.getText, EmptyCell)
-      }.foreach(controller.selectTool)
+      Option(newToggle)
+        .collect { case rb: javafx.scene.control.RadioButton => RadioButton(rb) }
+        .flatMap(rb => nameToCell.get(rb.text()))
+        .foreach(controller.selectTool)
     }
 
   private def setupModelListener(): Unit =
@@ -90,7 +91,7 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
       Platform.runLater:
         for y <- 0 until height; x <- 0 until width do
           val cell = model.cells(y)(x)
-          buttons(y)(x).style = toCssColor(cellToColor.getOrElse(cell, DefaultColor))
+          buttons(y)(x).style = toCssColor(cellToColor.getOrElse(cell.cellType, DefaultColor))
     }
 
   private def toCssColor(color: String): String = s"-fx-background-color: $color"
