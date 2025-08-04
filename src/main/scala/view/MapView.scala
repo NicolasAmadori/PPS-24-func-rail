@@ -53,7 +53,6 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
 
   left = toolPanel
   center = gridPane
-
   initialize()
 
   private def initialize(): Unit =
