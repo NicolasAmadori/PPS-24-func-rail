@@ -1,44 +1,60 @@
 package controller
 
 import model.mapgrid.{CellType, MapGrid}
-import view.{MapView, ViewError}
+import model.simulation.{Simulation, SimulationState}
+import utils.ErrorMessage
+import view.simconfig.SimulationConfigView
+import view.{GraphUtil, MapView, ViewError}
 
-import scala.compiletime.uninitialized
+class SimulationConfigTransition(simulation: Simulation)
+    extends ScreenTransition[SimulationConfigController, SimulationConfigView]:
 
-class MapController(model: MapGrid):
+  def build(): (SimulationConfigController, SimulationConfigView) =
+    val controller = SimulationConfigController(simulation)
+    val view = SimulationConfigView()
+    (controller, view)
+
+  override def afterAttach(controller: SimulationConfigController, view: SimulationConfigView): Unit =
+    view.initGraph()
+
+class MapController(model: MapGrid) extends BaseController[MapView]:
 
   private var currentModel = model
-  private var selectedTool: CellType = uninitialized
-  private var view: MapView = uninitialized
+  private var selectedTool: Option[CellType] = None
 
   private var onModelUpdated: MapGrid => Unit = _ => ()
-
-  def attachView(view: MapView): Unit =
-    this.view = view
 
   def setOnModelUpdated(callback: MapGrid => Unit): Unit =
     onModelUpdated = callback
 
   def selectTool(tool: CellType): Unit =
-    selectedTool = tool
+    selectedTool = Some(tool)
+
+  private def validation: Either[ViewError, Boolean] =
+    if selectedTool.isEmpty then
+      Left(ViewError.NoToolSelected())
+    else
+      Right(true)
+
+  private def showError(error: ErrorMessage, title: String): Unit =
+    getView.showError(error, title)
 
   def placeAt(x: Int, y: Int): Unit =
     validation match
       case Left(error) =>
-        view.showError(error, "Validation failed")
+        showError(error, "Validation failed")
       case Right(_) =>
-        val placementResult = currentModel.place(x, y, selectedTool)
+        val placementResult = currentModel.place(x, y, selectedTool.get)
         placementResult match
           case Right(updatedModel) =>
             currentModel = updatedModel
             onModelUpdated(currentModel)
           case Left(error) =>
-            view.showError(error, s"Placement failed")
+            showError(error, s"Placement failed")
 
-  private def validation: Either[ViewError, Boolean] =
-    if view == null then
-      Left(ViewError.NotAttached())
-    else if selectedTool == null then
-      Left(ViewError.NoToolSelected())
-    else
-      Right(true)
+  def onNext(): Unit =
+    val parsedRailway = GraphUtil.createRailway()
+    val simulation = Simulation(parsedRailway, SimulationState.empty)
+
+    val transition = new SimulationConfigTransition(simulation)
+    transition.transition()
