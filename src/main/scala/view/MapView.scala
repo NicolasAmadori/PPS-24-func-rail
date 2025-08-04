@@ -10,33 +10,28 @@ import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import utils.ErrorMessage
 
 class MapView(width: Int, height: Int, controller: MapController) extends BorderPane:
-
   private val gridPane = new GridPane
   private val toolsGroup = new ToggleGroup
-  private val alert = Alert(AlertType.Error)
-  alert.title = "Error"
-
+  private val alert = new Alert(AlertType.Error):
+    title = "Error"
   private val cellSize = 15
-
-  private val smallStationTool = new RadioButton("Small station"):
-    toggleGroup = toolsGroup
-
-  private val bigStationTool = new RadioButton("Big station"):
-    toggleGroup = toolsGroup
-
-  private val metalRailTool = new RadioButton("Metal rail"):
-    toggleGroup = toolsGroup
-
-  private val titaniumRailTool = new RadioButton("Titanium rail"):
-    toggleGroup = toolsGroup
-
+  private val parseButton = new Button("Parse map"):
+    onAction = _ => controller.parseMap()
   private val toolButtons: Seq[ToggleButton] =
-    Seq(smallStationTool, bigStationTool, metalRailTool, titaniumRailTool)
+    val smallStationTool = new RadioButton("Small station"):
+      toggleGroup = toolsGroup
+    val bigStationTool = new RadioButton("Big station"):
+      toggleGroup = toolsGroup
+    val metalRailTool = new RadioButton("Metal rail"):
+      toggleGroup = toolsGroup
+    val titaniumRailTool = new RadioButton("Titanium rail"):
+      toggleGroup = toolsGroup
 
+    Seq(smallStationTool, bigStationTool, metalRailTool, titaniumRailTool)
   private val toolPanel = new VBox:
     spacing = 10
     margin = Insets(10)
-    children = toolButtons
+    children = toolButtons ++ Seq(parseButton)
 
   left = toolPanel
   center = gridPane
@@ -66,7 +61,7 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
   }
 
   controller.setOnModelUpdated { model =>
-    Platform.runLater {
+    Platform.runLater:
       for
         y <- 0 until height
         x <- 0 until width
@@ -79,11 +74,9 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
           case TitaniumRailPiece => "-fx-background-color: blue"
           case BigStationPiece => "-fx-background-color: red"
           case SmallStationPiece => "-fx-background-color: green"
-    }
   }
 
   def showError(error: ErrorMessage, msg: String = ""): Unit =
-    Platform.runLater {
+    Platform.runLater:
       alert.setContentText(s"$msg: ${error.toString}")
       alert.showAndWait()
-    }

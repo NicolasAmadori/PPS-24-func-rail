@@ -22,5 +22,3 @@ class RailView(rail: Rail):
   def railObject: Rail = rail
 
   override def toString: String = rail.length.toString
-
-

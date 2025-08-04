@@ -2,6 +2,7 @@ import controller.MapController
 import model.mapgrid.MapGrid
 import scalafx.application.JFXApp3
 import scalafx.scene.Scene
+import utils.StageManager
 import view.MapView
 
 object Main extends JFXApp3:
@@ -16,6 +17,10 @@ object Main extends JFXApp3:
 
     controller.attachView(view)
 
-    stage = new JFXApp3.PrimaryStage:
+    val stageInstance = new JFXApp3.PrimaryStage:
       title = "func-rail map builder"
       scene = new Scene(view)
+
+    StageManager.init(stageInstance)
+
+    stage = stageInstance

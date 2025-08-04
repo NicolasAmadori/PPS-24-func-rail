@@ -13,7 +13,6 @@ trait Rail:
 
   override def toString: String = length.toString
 
-
 case class MetalRail(code: RailCode, length: Int, stationA: StationCode, stationB: StationCode)
     extends Rail
 

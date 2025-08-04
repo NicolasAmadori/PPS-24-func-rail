@@ -1,7 +1,5 @@
 package view
 
-import controller.SimulationConfigController
-import model.railway.{Rail, Station}
 import scalafx.geometry.Insets
 import scalafx.geometry.Pos.Center
 import scalafx.scene.control.{Button, CheckBox}
@@ -9,7 +7,6 @@ import scalafx.scene.layout.{BorderPane, HBox, Pane, VBox}
 import view.simconfig.{DefaultStyleStrategy, RailView, StationView, StyleStrategy}
 
 class SimulationConfigView(
-    controller: SimulationConfigController,
     styleStrategy: StyleStrategy = DefaultStyleStrategy
 ):
 
@@ -18,11 +15,13 @@ class SimulationConfigView(
   graphView.edges.foreach(e => graphView.getStylableEdge(e).addStyleClass(styleStrategy.edgeStyle(e.element())))
   graphView.vertices.foreach(v => graphView.getStylableVertex(v).addStyleClass(styleStrategy.vertexStyle(v.element())))
 
-  def initGraph: Unit =
-    graphView.init
+  def initGraph(): Unit =
+    graphView.init()
 
   def getRoot: Pane =
     new BorderPane:
+      minWidth = 1000
+      minHeight = 800
       center = graphBox
       right = configurationSidebar
 
@@ -43,5 +42,5 @@ class SimulationConfigView(
       spacing = 10
 
     new BorderPane:
-      center = graphView
+      center = graphView.getView
       bottom = automaticLayoutHBox

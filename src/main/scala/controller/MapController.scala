@@ -1,7 +1,10 @@
 package controller
 
 import model.mapgrid.{Cell, MapGrid}
-import view.{MapView, ViewError}
+import model.simulation.{Simulation, SimulationState}
+
+import utils.StageManager
+import view.{GraphUtil, MapView, SimulationConfigView, ViewError}
 
 import scala.compiletime.uninitialized
 
@@ -15,6 +18,8 @@ class MapController(model: MapGrid):
 
   def attachView(view: MapView): Unit =
     this.view = view
+
+  def getView: MapView = view
 
   def setOnModelUpdated(callback: MapGrid => Unit): Unit =
     onModelUpdated = callback
@@ -42,3 +47,12 @@ class MapController(model: MapGrid):
       Left(ViewError.NoToolSelected())
     else
       Right(true)
+
+  def parseMap(): Unit =
+    val parsedRailway = GraphUtil.createRailway()
+    val simulation = new Simulation(parsedRailway, SimulationState.empty)
+    val newController = new SimulationConfigController(simulation)
+    val newView = new SimulationConfigView()
+    newController.attachView(newView)
+    StageManager.setRoot(newView.getRoot)
+    StageManager.onShown(newView.initGraph)

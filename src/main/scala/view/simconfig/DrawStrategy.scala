@@ -12,10 +12,9 @@ object DefaultStyleStrategy extends StyleStrategy:
     case _: BigStation => "big-vertex"
     case _ => "vertex"
 
-  def edgeStyle(edge: RailView): String = {
+  def edgeStyle(edge: RailView): String =
     println(s"Applying style to edge: ${edge.railCode}")
     edge.railObject match
       case _: MetalRail => "small-edge"
       case _: TitaniumRail => "big-edge"
       case _ => "edge"
-  }
