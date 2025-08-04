@@ -13,7 +13,7 @@ object SimConfigMain extends JFXApp3:
   override def start(): Unit =
     val model = Simulation.withRailway(GraphUtil.createRailway())
     val controller = SimulationConfigController(model)
-    val view = SimulationConfigView()
+    val view = SimulationConfigView(model.railway)
 
     controller.attachView(view)
 

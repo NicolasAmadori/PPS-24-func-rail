@@ -1,5 +1,6 @@
 package view.simconfig
 
+import model.railway.Railway
 import scalafx.geometry.Insets
 import scalafx.geometry.Pos.Center
 import scalafx.scene.control.{Button, CheckBox}
@@ -12,12 +13,13 @@ object SimulationConfigViewConstants:
   val SidebarMinWidth = 300
 
 class SimulationConfigView(
+    railway: Railway,
     styleStrategy: StyleStrategy = DefaultStyleStrategy
 ) extends View:
 
   import SimulationConfigViewConstants.*
 
-  private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph())
+  private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph(railway))
   private val root = createRoot
 
   def initGraph(): Unit =

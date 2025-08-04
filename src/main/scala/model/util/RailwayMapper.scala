@@ -15,11 +15,14 @@ object RailwayMapper:
   def convert(mapGrid: MapGrid): Railway =
     val smallStations: List[(Station, Int, Int)] = extractSmallStations(mapGrid)
     val bigStations: List[(Station, Int, Int)] = extractBigStations(mapGrid)
-    val rails: List[Rail] = extractRails(mapGrid)(smallStations.map(s => (s._2, s._3)))
+    println(smallStations.size)
+    println(smallStations)
+    println(bigStations.size)
+    println(bigStations)
+//    val rails: List[Rail] = extractRails(mapGrid)(smallStations.map(s => (s._2, s._3)))
     Railway
-      .withStations(smallStations.map(_._1))
-      .withStations(bigStations.map(_._1))
-      .withRails(rails)
+      .withStations(smallStations.map(_._1) ++ bigStations.map(_._1))
+//      .withRails(rails)
 
   private def extractSmallStations(mapGrid: MapGrid): List[(Station, Int, Int)] =
     val allCellsWithCoordinates =
@@ -27,46 +30,55 @@ object RailwayMapper:
         (row, y) <- mapGrid.cells.zipWithIndex
         (cell, x) <- row.zipWithIndex
       yield ((x, y), cell)
-
-    allCellsWithCoordinates
-      .filter(_._2 == SmallStationPiece)
-      .zipWithIndex
-      .map { case (((x, y), _), idx) =>
-        (smallStation(s"$SMALL_STATION_PREFIX$idx"), x, y)
-      }
-      .toList
+    allCellsWithCoordinates.collect {
+      case ((x, y), SmallStationPiece(id)) => (smallStation(s"$SMALL_STATION_PREFIX$id"), x, y)
+    }.toList
 
   private def extractBigStations(mapGrid: MapGrid): List[(Station, Int, Int)] =
-    val validCenters =
+    val allCellsWithCoordinates =
       for
-        x <- 1 until mapGrid.width - 1
-        y <- 1 until mapGrid.height - 1
-        if isBigStationCenter(mapGrid, x, y)
-      yield (x, y)
+        (row, y) <- mapGrid.cells.zipWithIndex
+        (cell, x) <- row.zipWithIndex
+      yield ((x, y), cell)
 
-    validCenters.zipWithIndex.map { case ((x, y), idx) =>
-      (bigStation(s"$BIG_STATION_PREFIX$idx"), x, y)
-    }.toList
+    allCellsWithCoordinates
+      .collect {
+        case ((x, y), BigStationPiece(id)) if isBigStationCenter(mapGrid, x, y) =>
+          (bigStation(s"$BIG_STATION_PREFIX$id"), x, y)
+      }.toList
+//
+//    val validCenters =
+//      for
+//        x <- 1 until mapGrid.width - 1
+//        y <- 1 until mapGrid.height - 1
+//        if isBigStationCenter(mapGrid, x, y)
+//      yield (x, y)
+//
+//    validCenters.zipWithIndex.map { case ((x, y), idx) =>
+//      (bigStation(s"$BIG_STATION_PREFIX$idx"), x, y)
+//    }.toList
 
   private def isBigStationCenter(mapGrid: MapGrid, centerX: Int, centerY: Int): Boolean =
     val deltas = for dx <- -1 to 1; dy <- -1 to 1 yield (dx, dy)
     deltas.forall { case (dx, dy) =>
       val x = centerX + dx
       val y = centerY + dy
-      mapGrid.cells(y)(x) == BigStationPiece
+      mapGrid.cells(y)(x) match
+        case BigStationPiece(_) => true
+        case _ => false
     }
 
-  private def extractRails(mapGrid: MapGrid)(smallStationsCoordinate: List[(Int, Int)]): List[Rail] =
-    smallStationsCoordinate.foreach((x, y) =>
-      mapGrid.adjacentCells(x, y)
-        .collect {
-          case Some(rp: RailPiece) => rp
-        }
+  private def extractRails(mapGrid: MapGrid)(smallStationsCoordinate: List[(Int, Int)]): List[Rail] = ???
+//    smallStationsCoordinate.foreach((x, y) =>
+//      mapGrid.adjacentCells(x, y)
+//        .collect {
+//          case Some(rp: RailPiece) => rp
+//        }
 //        .foreach(_ =>
 //          followRails(mapGrid)(x, y)
 //        )
-    )
-
-    List.empty
+//    )
+//
+//    List.empty
 
 //  private def followRails(mapGrid: MapGrid)(startingX: Int, startingY: Int): Option[Rail] = Option.empty

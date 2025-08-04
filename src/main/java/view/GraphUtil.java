@@ -38,8 +38,7 @@ public class GraphUtil {
 		return new RailwayImpl(scalaStations, scalaRails);
 	}
 
-	public static Graph<StationView, RailView> createGraph() {
-		Railway railway = createRailway();
+	public static Graph<StationView, RailView> createGraph(Railway railway) {
 		Graph<StationView, RailView> graph = new GraphEdgeList<>();
 
 		railway.stations().map(StationView::new).foreach(graph::insertVertex);
