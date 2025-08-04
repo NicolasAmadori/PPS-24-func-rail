@@ -1,4 +1,4 @@
-package view
+package view.simconfig
 
 import com.brunomnsilva.smartgraph.graph.{Edge, Graph, Vertex}
 import com.brunomnsilva.smartgraph.graphview.{SmartCircularSortedPlacementStrategy, SmartGraphPanel, SmartStylableNode}

@@ -2,16 +2,14 @@ package controller
 
 import model.railway.Railway
 import model.simulation.Simulation
-import view.SimulationConfigView
-
-import scala.compiletime.uninitialized
+import view.simconfig.SimulationConfigView
 
 class SimulationConfigController(model: Simulation):
 
-  private var view: SimulationConfigView = uninitialized
+  private var view: Option[SimulationConfigView] = None
 
   def getSimulation: Simulation = model
   def getRailway: Railway = model.railway
 
   def attachView(view: SimulationConfigView): Unit =
-    this.view = view
+    this.view = Some(view)

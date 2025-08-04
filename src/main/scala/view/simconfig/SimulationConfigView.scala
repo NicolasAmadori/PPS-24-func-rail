@@ -1,10 +1,11 @@
-package view
+package view.simconfig
 
 import scalafx.geometry.Insets
 import scalafx.geometry.Pos.Center
 import scalafx.scene.control.{Button, CheckBox}
 import scalafx.scene.layout.{BorderPane, HBox, Pane, VBox}
-import view.simconfig.{DefaultStyleStrategy, RailView, StationView, StyleStrategy}
+import view.GraphUtil
+import view.simconfig.{DefaultStyleStrategy, GraphView, RailView, StationView, StyleStrategy}
 
 class SimulationConfigView(
     styleStrategy: StyleStrategy = DefaultStyleStrategy

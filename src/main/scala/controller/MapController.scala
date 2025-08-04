@@ -4,41 +4,47 @@ import model.mapgrid.{Cell, MapGrid}
 import model.simulation.{Simulation, SimulationState}
 
 import utils.StageManager
-import view.{GraphUtil, MapView, SimulationConfigView, ViewError}
-
-import scala.compiletime.uninitialized
+import view.simconfig.SimulationConfigView
+import view.{GraphUtil, MapView, ViewError}
 
 class MapController(model: MapGrid):
 
   private var currentModel = model
-  private var selectedTool: Cell = uninitialized
-  private var view: MapView = uninitialized
+  private var selectedTool: Option[Cell] = None
+  private var view: Option[MapView] = None
 
   private var onModelUpdated: MapGrid => Unit = _ => ()
 
   def attachView(view: MapView): Unit =
-    this.view = view
+    this.view = Some(view)
 
-  def getView: MapView = view
+  def getView: MapView = view.getOrElse(
+    throw new IllegalStateException("View has not been attached. Call attachView() first.")
+  )
+
+  private def getTool: Cell =
+    selectedTool.getOrElse(
+      throw new IllegalStateException("No tool selected. Call selectTool() first.")
+    )
 
   def setOnModelUpdated(callback: MapGrid => Unit): Unit =
     onModelUpdated = callback
 
   def selectTool(tool: Cell): Unit =
-    selectedTool = tool
+    selectedTool = Some(tool)
 
   def placeAt(x: Int, y: Int): Unit =
     validation match
       case Left(error) =>
-        view.showError(error, "Validation failed")
+        getView.showError(error, "Validation failed")
       case Right(_) =>
-        val placementResult = currentModel.place(x, y, selectedTool)
+        val placementResult = currentModel.place(x, y, getTool)
         placementResult match
           case Right(updatedModel) =>
             currentModel = updatedModel
             onModelUpdated(currentModel)
           case Left(error) =>
-            view.showError(error, s"Placement failed")
+            getView.showError(error, s"Placement failed")
 
   private def validation: Either[ViewError, Boolean] =
     if view == null then
@@ -55,4 +61,4 @@ class MapController(model: MapGrid):
     val newView = new SimulationConfigView()
     newController.attachView(newView)
     StageManager.setRoot(newView.getRoot)
-    StageManager.onShown(newView.initGraph)
+    newView.initGraph()
