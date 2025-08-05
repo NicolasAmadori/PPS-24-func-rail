@@ -1,5 +1,7 @@
 package view.simconfig
 
+import controller.simconfig.SimulationConfigController
+import model.railway.Domain.StationCode
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.geometry.Pos.{BottomCenter, Center}
@@ -17,13 +19,13 @@ object SimulationConfigViewConstants:
   val SmallSpacing = 5
 
 class SimulationConfigView(
+    controller: SimulationConfigController,
     styleStrategy: StyleStrategy = DefaultStyleStrategy
 ) extends View:
 
   import SimulationConfigViewConstants.*
-  
-  // TODO: should be from controller
-  private val stations = List("Station A", "Station B", "Station C", "Station D")
+
+  private val stations = controller.getStationCodes
 
   private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph())
   private val root = createRoot
@@ -93,8 +95,7 @@ class SimulationConfigView(
       center = graphView.getView
       bottom = automaticLayoutHBox
 
-// TODO: should be stationCodes
-class TrainConfigGroup(stations: List[String]) extends VBox:
+class TrainConfigGroup(stations: List[StationCode]) extends VBox:
   import SimulationConfigViewConstants.*
 
   spacing = SmallSpacing
@@ -110,10 +111,10 @@ class TrainConfigGroup(stations: List[String]) extends VBox:
   private val stationsComboBox =
     new ComboBox[String]:
       promptText = "Select departure station"
-      items = ObservableBuffer(stations*)
-      
+      items = ObservableBuffer(stations.map(s => StationCode.value(s))*)
+
   private val stopsCheckBoxes =
-    stations.map { station =>
+    stations.map(s => StationCode.value(s)).map { station =>
       new CheckBox(station)
     }
 

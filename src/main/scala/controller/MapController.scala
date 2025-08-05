@@ -1,5 +1,6 @@
 package controller
 
+import controller.simconfig.SimulationConfigController
 import model.mapgrid.{CellType, MapGrid}
 import model.simulation.{Simulation, SimulationState}
 import utils.ErrorMessage
@@ -11,7 +12,7 @@ class SimulationConfigTransition(simulation: Simulation)
 
   def build(): (SimulationConfigController, SimulationConfigView) =
     val controller = SimulationConfigController(simulation)
-    val view = SimulationConfigView()
+    val view = SimulationConfigView(controller)
     (controller, view)
 
   override def afterAttach(controller: SimulationConfigController, view: SimulationConfigView): Unit =

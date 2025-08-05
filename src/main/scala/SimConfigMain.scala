@@ -1,4 +1,4 @@
-import controller.SimulationConfigController
+import controller.simconfig.SimulationConfigController
 import model.simulation.Simulation
 import scalafx.application.JFXApp3
 import scalafx.scene.Scene
@@ -13,7 +13,7 @@ object SimConfigMain extends JFXApp3:
   override def start(): Unit =
     val model = Simulation.withRailway(GraphUtil.createRailway())
     val controller = SimulationConfigController(model)
-    val view = SimulationConfigView()
+    val view = SimulationConfigView(controller)
 
     controller.attachView(view)
 
