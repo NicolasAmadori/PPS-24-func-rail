@@ -31,7 +31,7 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
     * @return
     *   True if the coordinate is inside grid bounds, False otherwise
     */
-  private def isInBounds(x: Int, y: Int): Boolean = x >= 0 && y >= 0 && x < width && y < height
+  def isInBounds(x: Int, y: Int): Boolean = x >= 0 && y >= 0 && x < width && y < height
 
   /** Checks if the cell at the specified coordinates is empty.
     *
@@ -82,7 +82,7 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
     * @return
     *   A sequence of Option[Cell], one for each cardinal neighbor cell, or None if the neighbor is out of grid bounds.
     */
-  private def cardinalCells(x: Int, y: Int): Seq[Option[Cell]] = getCells(x, y, cardinalOffsets)
+  def cardinalCells(x: Int, y: Int): Seq[Option[Cell]] = getCells(x, y, cardinalOffsets)
 
   /** Returns the cells adjacent in the four diagonal directions (top-left, top-right, bottom-left, bottom-right) from
     * the given coordinate.

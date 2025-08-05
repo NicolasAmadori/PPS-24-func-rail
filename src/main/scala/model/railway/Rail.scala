@@ -11,7 +11,7 @@ trait Rail:
   def stationB: StationCode
   def canAcceptTrain(train: Train): Boolean = true
 
-  override def toString: String = length.toString
+  override def toString: String = s"\"$code\" \"$length\" \"$stationA\" -> \"$stationB\""
 
 case class MetalRail(code: RailCode, length: Int, stationA: StationCode, stationB: StationCode)
     extends Rail

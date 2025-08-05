@@ -1,19 +1,5 @@
 package model.mapgrid
 
-//sealed trait Cell
-//
-//case object EmptyCell extends Cell
-//
-//sealed trait RailPiece extends Cell
-//case object MetalRailPiece extends RailPiece
-//case object TitaniumRailPiece extends RailPiece
-//
-//sealed trait StationType
-//case object BigStation extends StationType //Possibile suddivisione in parti diverse? centro, lato, angolo?
-//case object SmallStation extends StationType
-//
-//case class StationPiece(id: Int, stationType: StationType) extends Cell
-
 sealed trait CellType
 
 case object EmptyType extends CellType
@@ -25,6 +11,7 @@ case object TitaniumRailType extends RailType
 sealed trait StationType extends CellType
 case object BigStationType extends StationType
 case object SmallStationType extends StationType
+
 
 sealed trait Cell:
   def cellType: CellType
