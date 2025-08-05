@@ -41,7 +41,11 @@ case class TitaniumRailPiece() extends RailPiece:
 sealed trait StationPiece extends Cell:
   def id: Int
 
-case class BigStationPiece(id: Int) extends StationPiece:
+sealed trait BigStationPiece extends StationPiece:
   val cellType: CellType = BigStationType
+
+case class BigStationCenterPiece(id: Int) extends BigStationPiece
+case class BigStationBorderPiece(id: Int) extends BigStationPiece
+
 case class SmallStationPiece(id: Int) extends StationPiece:
   val cellType: CellType = SmallStationType

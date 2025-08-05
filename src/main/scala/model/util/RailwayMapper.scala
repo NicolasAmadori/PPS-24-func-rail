@@ -1,8 +1,8 @@
 package model.util
 
-import model.mapgrid.{BigStationPiece, MapGrid, SmallStationPiece}
+import model.mapgrid.{BigStationCenterPiece, BigStationPiece, MapGrid, SmallStationPiece}
 import model.railway.Station.{bigStation, smallStation}
-import model.railway.{Railway, Station}
+import model.railway.{Rail, Railway, Station}
 
 object RailwayMapper:
 
@@ -39,13 +39,12 @@ object RailwayMapper:
 
     allCellsWithCoordinates
       .collect {
-        case ((x, y), BigStationPiece(id)) =>
+        case ((x, y), BigStationCenterPiece(id)) =>
           (bigStation(s"$BIG_STATION_PREFIX$id"), x, y)
       }
-      .distinctBy(_._1)
       .toList
 
-//  private def extractRails(mapGrid: MapGrid)(smallStationsCoordinate: List[(Int, Int)]): List[Rail] = ???
+  private def extractRails(mapGrid: MapGrid)(smallStationsCoordinate: List[(Int, Int)]): List[Rail] =
 //    smallStationsCoordinate.foreach((x, y) =>
 //      mapGrid.adjacentCells(x, y)
 //        .collect {
@@ -55,7 +54,7 @@ object RailwayMapper:
 //          followRails(mapGrid)(x, y)
 //        )
 //    )
-//
-//    List.empty
 
-//  private def followRails(mapGrid: MapGrid)(startingX: Int, startingY: Int): Option[Rail] = Option.empty
+    List.empty
+
+  private def followRails(mapGrid: MapGrid)(startingX: Int, startingY: Int): Option[Rail] = Option.empty
