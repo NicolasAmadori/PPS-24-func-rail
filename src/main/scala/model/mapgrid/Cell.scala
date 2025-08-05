@@ -12,7 +12,6 @@ sealed trait StationType extends CellType
 case object BigStationType extends StationType
 case object SmallStationType extends StationType
 
-
 sealed trait Cell:
   def cellType: CellType
 
