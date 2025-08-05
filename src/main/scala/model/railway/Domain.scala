@@ -7,6 +7,7 @@ object Domain:
     def value(code: StationCode): String = code
     def listOf(code1: String, codes: String*): List[StationCode] =
       (code1 :: codes.toList).map(fromString)
+    def empty: StationCode = fromString("")
 
   opaque type RailCode = Int
   object RailCode:

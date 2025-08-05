@@ -33,7 +33,7 @@ class SimulationConfigView(
     prefWidth = SidebarMinWidth
     spacing = DefaultSpacing
 
-  private var boxes: Seq[VBox] = Seq.empty
+  private var boxes: Map[Int, VBox] = Map.empty
 
   private def applyGraphStyling(): Unit =
     graphView.edges.foreach(e => graphView.getStylableEdge(e).addStyleClass(styleStrategy.edgeStyle(e.element())))
@@ -68,8 +68,9 @@ class SimulationConfigView(
 
   private def newTrainButton: Button = new Button("New train"):
     onAction = _ =>
-      boxes = boxes :+ TrainConfigGroup(stations)
-      sidebarContainer.children = boxes
+      val id = controller.addTrain()
+      boxes = boxes.updated(id, TrainConfigGroup(id, stations, controller))
+      sidebarContainer.children = boxes.values
 
   private def trainConfigScrollPane: ScrollPane = new ScrollPane():
     hbarPolicy = Never
@@ -95,7 +96,7 @@ class SimulationConfigView(
       center = graphView.getView
       bottom = automaticLayoutHBox
 
-class TrainConfigGroup(stations: List[StationCode]) extends VBox:
+class TrainConfigGroup(trainId: Int, stations: List[StationCode], controller: SimulationConfigController) extends VBox:
   import SimulationConfigViewConstants.*
 
   spacing = SmallSpacing
@@ -104,18 +105,34 @@ class TrainConfigGroup(stations: List[StationCode]) extends VBox:
   private val trainNameTextField =
     new TextField:
       promptText = "Train name"
+      onKeyTyped = _ => controller.updateTrainName(trainId, text.value)
 
   private val highSpeedCheckBox =
-    new CheckBox("High speed")
+    new CheckBox("High speed"):
+      onAction = _ =>
+        if selected.value then
+          controller.setHighSpeedTrain(trainId)
+        else
+          controller.setNormalSpeedTrain(trainId)
 
   private val stationsComboBox =
     new ComboBox[String]:
       promptText = "Select departure station"
       items = ObservableBuffer(stations.map(s => StationCode.value(s))*)
+      onAction = _ =>
+        val selectedStation = value.value
+        if selectedStation != null then
+          controller.setDepartureStation(trainId, StationCode.fromString(selectedStation))
 
   private val stopsCheckBoxes =
     stations.map(s => StationCode.value(s)).map { station =>
-      new CheckBox(station)
+      new CheckBox(station):
+        selected = false
+        onAction = _ =>
+          if selected.value then
+            controller.addStop(trainId, StationCode.fromString(station))
+          else
+            controller.removeStop(trainId, StationCode.fromString(station))
     }
 
   private def stopsCheckboxes: ScrollPane =
