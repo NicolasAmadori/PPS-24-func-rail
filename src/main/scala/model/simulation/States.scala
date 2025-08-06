@@ -23,3 +23,11 @@ case class TrainStateImpl(
     progress: Float,
     trainRoute: TrainRoute
 ) extends TrainState
+
+object TrainState:
+  def apply(
+      trainCode: TrainCode,
+      currentRail: RailCode,
+      progress: Float,
+      trainRoute: TrainRoute
+  ): TrainStateImpl = TrainStateImpl(trainCode, currentRail, progress, trainRoute)
