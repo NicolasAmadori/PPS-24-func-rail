@@ -1,6 +1,7 @@
 package model.simulation
 
 import model.railway.Domain.{StationCode, TrainCode}
+import model.railway.Rail
 
 trait Train:
   def code: TrainCode
@@ -31,4 +32,4 @@ object Train:
     if route.distinct.size != route.size then
       throw new IllegalArgumentException("Route cannot contain duplicate stations.")
 
-case class TrainRoute(fullRoute: List[StationCode], currentStationIndex: Int = 0, forward: Boolean = true)
+case class TrainRoute(fullRoute: List[Rail], currentRailIndex: Int = 0, forward: Boolean = true)

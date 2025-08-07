@@ -8,7 +8,6 @@ case class SimulationState(trains: List[Train], trainStates: Map[TrainCode, Trai
 
 object SimulationState:
   def apply(trains: List[Train]): SimulationState = SimulationState(trains, Map.empty)
-
   def empty: SimulationState = SimulationState(Nil, Map.empty)
 
 trait TrainState:
@@ -30,4 +29,4 @@ object TrainState:
       currentRail: RailCode,
       progress: Float,
       trainRoute: TrainRoute
-  ): TrainStateImpl = TrainStateImpl(trainCode, currentRail, progress, trainRoute)
+  ): TrainState = TrainStateImpl(trainCode, currentRail, progress, trainRoute)
