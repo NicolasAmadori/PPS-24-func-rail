@@ -2,16 +2,17 @@ package controller
 
 import controller.simconfig.SimulationConfigController
 import model.mapgrid.{CellType, MapGrid}
+import model.railway.Railway
 import model.simulation.{Simulation, SimulationState}
 import utils.ErrorMessage
 import view.simconfig.SimulationConfigView
 import view.{GraphUtil, MapView, ViewError}
 
-class SimulationConfigTransition(simulation: Simulation)
+class SimulationConfigTransition(model: Railway)
     extends ScreenTransition[SimulationConfigController, SimulationConfigView]:
 
   def build(): (SimulationConfigController, SimulationConfigView) =
-    val controller = SimulationConfigController(simulation)
+    val controller = SimulationConfigController(model)
     val view = SimulationConfigView(controller)
     (controller, view)
 
@@ -55,7 +56,6 @@ class MapController(model: MapGrid) extends BaseController[MapView]:
 
   def onNext(): Unit =
     val parsedRailway = GraphUtil.createRailway()
-    val simulation = Simulation(parsedRailway, SimulationState.empty)
 
-    val transition = new SimulationConfigTransition(simulation)
+    val transition = new SimulationConfigTransition(parsedRailway)
     transition.transition()

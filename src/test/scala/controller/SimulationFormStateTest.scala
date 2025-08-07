@@ -38,14 +38,14 @@ class SimulationFormStateTest extends AnyFlatSpec:
 
   it should "set the departure station for a train" in {
     val state = SimulationFormState().addTrain()._2
-    val newState = state.setDepartureStation(0, StationCode.fromString("StationA"))
+    val newState = state.setDepartureStation(0, StationCode("StationA"))
 
     newState.trains.head.departureStation should be("StationA")
   }
 
   it should "add a stop to a train" in {
     val state = SimulationFormState().addTrain()._2
-    val newState = state.addStop(0, StationCode.fromString("StationB"))
+    val newState = state.addStop(0, StationCode("StationB"))
 
     newState.trains.head.stops should contain("StationB")
   }

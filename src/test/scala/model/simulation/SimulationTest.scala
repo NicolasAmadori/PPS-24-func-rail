@@ -63,5 +63,5 @@ class SimulationTest extends AnyFlatSpec:
     val simulation = Simulation(railway, SimulationState.empty)
     val result = simulation.addTrains(List(invalidTrain))
 
-    result should be(Left(SimulationError.InvalidRoute()))
+    result should be(Left(List(SimulationError.InvalidRoute(invalidTrain.code))))
   }

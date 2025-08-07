@@ -5,9 +5,12 @@ import model.railway.Domain.StationCode
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.geometry.Pos.{BottomCenter, Center}
+import scalafx.scene.{Node, Parent}
 import scalafx.scene.control.*
+import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy.{AsNeeded, Never}
 import scalafx.scene.layout.*
+import utils.ErrorMessage
 import view.{GraphUtil, View}
 
 object SimulationConfigViewConstants:
@@ -27,13 +30,16 @@ class SimulationConfigView(
 
   private val stations = controller.getStationCodes
 
+  private val alert = new Alert(AlertType.Error):
+    title = "Error"
+
   private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph())
   private val root = createRoot
   private lazy val sidebarContainer: Pane = new VBox():
     prefWidth = SidebarMinWidth
     spacing = DefaultSpacing
 
-  private var boxes: Map[Int, VBox] = Map.empty
+  private var sidebarGroups: List[Pane] = List.empty
 
   private def applyGraphStyling(): Unit =
     graphView.edges.foreach(e => graphView.getStylableEdge(e).addStyleClass(styleStrategy.edgeStyle(e.element())))
@@ -69,8 +75,8 @@ class SimulationConfigView(
   private def newTrainButton: Button = new Button("New train"):
     onAction = _ =>
       val id = controller.addTrain()
-      boxes = boxes.updated(id, TrainConfigGroup(id, stations, controller))
-      sidebarContainer.children = boxes.values
+      sidebarGroups = sidebarGroups ++ List(TrainConfigGroup(id, stations, controller))
+      sidebarContainer.children = sidebarGroups
 
   private def trainConfigScrollPane: ScrollPane = new ScrollPane():
     hbarPolicy = Never
@@ -82,6 +88,7 @@ class SimulationConfigView(
   private def startSimulationButton: Button = new Button("Start simulation"):
     alignmentInParent = BottomCenter
     maxWidth = Double.MaxValue
+    onAction = _ => controller.startSimulation()
 
   private def graphPane: Pane =
     val automaticLayoutCheckbox = CheckBox("Automatic layout")
@@ -95,6 +102,16 @@ class SimulationConfigView(
     new BorderPane:
       center = graphView.getView
       bottom = automaticLayoutHBox
+
+  def showError(error: ErrorMessage, msg: String = ""): Unit =
+    alert.setContentText(s"$msg: $error")
+    alert.show()
+
+  def showErrors(errors: List[ErrorMessage], title: String = ""): Unit =
+    val error = errors.mkString("\n")
+    sidebarContainer.children = List(
+      ErrorBox(error, title)
+    ) ++ sidebarGroups
 
 class TrainConfigGroup(trainId: Int, stations: List[StationCode], controller: SimulationConfigController) extends VBox:
   import SimulationConfigViewConstants.*
@@ -153,3 +170,23 @@ class TrainConfigGroup(trainId: Int, stations: List[StationCode], controller: Si
     stationsComboBox,
     stopsCheckboxes
   )
+
+class ErrorBox(message: String, title: String = "") extends HBox:
+  import SimulationConfigViewConstants.*
+
+  style = "-fx-border-color: red; -fx-padding: 10; -fx-background-color: #ff0017;"
+  padding = DefaultPadding
+  spacing = SmallSpacing
+  alignment = Center
+
+  private val text = if title.isEmpty then message else s"$title: $message"
+
+  private val errorLabel = new Label(text):
+    style = "-fx-text-fill: white;"
+
+  private val closeButton = new Button("X"):
+    prefWidth = 30
+    prefHeight = 30
+    style = "-fx-background-color: transparent; -fx-text-fill: white;"
+
+  children = Seq(errorLabel, closeButton)

@@ -6,13 +6,12 @@ import model.railway.Railway
 import model.simulation.Simulation
 import view.simconfig.SimulationConfigView
 
-class SimulationConfigController(model: Simulation) extends BaseController[SimulationConfigView]:
+class SimulationConfigController(model: Railway) extends BaseController[SimulationConfigView]:
 
   private var localState: SimulationFormState = SimulationFormState()
 
-  def getSimulation: Simulation = model
-  def getRailway: Railway = model.railway
-  def getStationCodes: List[StationCode] = model.railway.stations.map(_.code)
+  def getRailway: Railway = model
+  def getStationCodes: List[StationCode] = model.stations.map(_.code)
 
   def addTrain(): Int =
     val (id, newState) = localState.addTrain()
@@ -36,3 +35,10 @@ class SimulationConfigController(model: Simulation) extends BaseController[Simul
 
   def removeStop(id: Int, station: StationCode): Unit =
     localState = localState.removeStop(id, station)
+
+  def startSimulation(): Unit =
+    val simulation = SimulationBuilder.build(model, localState.trains)
+    simulation match
+      case Left(error) => getView.showErrors(error)
+      case Right(sim) =>
+        println("Transitioning to simulation view")
