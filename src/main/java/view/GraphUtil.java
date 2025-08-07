@@ -13,15 +13,21 @@ import view.simconfig.StationView;
 import java.util.List;
 
 public class GraphUtil {
+	
+	public static String STATION_A = "Station A";
+	public static String STATION_B = "Station B";
+	public static String STATION_C = "Station C";
+	public static String STATION_D = "Station D";
+	public static String STATION_E = "Station E";
 
 	public static Railway createRailway() {
 
 		List<Station> stations = List.of(
-			new SmallStation("Station A"),
-			new BigStation("Station B"),
-			new SmallStation("Station C"),
-			new BigStation("Station D"),
-			new BigStation("Station E")
+			new SmallStation(STATION_A),
+			new BigStation(STATION_B),
+			new SmallStation(STATION_C),
+			new BigStation(STATION_D),
+			new BigStation(STATION_E)
 		);
 
 		List<Rail> rails = List.of(
