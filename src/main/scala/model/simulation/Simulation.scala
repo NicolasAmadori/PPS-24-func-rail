@@ -16,7 +16,8 @@ case class Simulation(railway: Railway, state: SimulationState):
 
   private def validateTrain(train: Train): List[SimulationError] =
     val departureError = if !hasValidDeparture(train.departureStation) then Some(InvalidDeparture(train.code)) else None
-    val routeError = if train.stations.isEmpty || !hasValidStations(train.stations) then Some(InvalidRoute(train.code)) else None
+    val routeError =
+      if train.stations.isEmpty || !hasValidStations(train.stations) then Some(InvalidRoute(train.code)) else None
 
     List(departureError, routeError).flatten
 

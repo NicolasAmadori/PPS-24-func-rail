@@ -3,7 +3,7 @@ package controller
 import controller.simconfig.SimulationConfigController
 import model.mapgrid.{CellType, MapGrid}
 import model.railway.Railway
-import model.simulation.{Simulation, SimulationState}
+
 import utils.ErrorMessage
 import view.simconfig.SimulationConfigView
 import view.{GraphUtil, MapView, ViewError}

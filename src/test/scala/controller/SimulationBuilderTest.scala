@@ -1,6 +1,6 @@
 package controller
 
-import controller.simconfig.{HighSpeed, NormalSpeed, SimulationBuilder, TrainConfig}
+import controller.simconfig.{HighSpeed, SimulationBuilder, TrainConfig}
 import model.railway.Domain.{StationCode, TrainCode}
 import model.simulation.SimulationError.{EmptyTrainName, InvalidDeparture, InvalidRoute}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -13,7 +13,13 @@ class SimulationBuilderTest extends AnyFlatSpec:
 
   "SimulationBuilder" should "build a simulation from a configuration" in {
     val trainsConfig = List(
-      TrainConfig(0, "Train1", HighSpeed, StationCode(GraphUtil.STATION_A), List(StationCode(GraphUtil.STATION_B), StationCode(GraphUtil.STATION_C))),
+      TrainConfig(
+        0,
+        "Train1",
+        HighSpeed,
+        StationCode(GraphUtil.STATION_A),
+        List(StationCode(GraphUtil.STATION_B), StationCode(GraphUtil.STATION_C))
+      )
     )
     val simulation = SimulationBuilder.build(railway, trainsConfig)
     simulation.isRight should be(true)
@@ -49,7 +55,7 @@ class SimulationBuilderTest extends AnyFlatSpec:
         error.head should be(InvalidRoute(TrainCode("Train1")))
       case Right(_) => fail("Simulation should not be built with invalid stations")
   }
-  
+
   it should "not accept trains with no departure station" in {
     val trainsConfig = List(
       TrainConfig(0, "Train1", HighSpeed, StationCode.empty, List(StationCode(GraphUtil.STATION_B)))

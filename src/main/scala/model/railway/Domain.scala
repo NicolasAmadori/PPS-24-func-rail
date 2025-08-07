@@ -22,4 +22,3 @@ object Domain:
   object TrainCode:
     def apply(code: String): TrainCode = code
     def fromString(code: String): TrainCode = code
-

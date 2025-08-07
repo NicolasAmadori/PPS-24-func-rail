@@ -5,7 +5,7 @@ import model.railway.Domain.StationCode
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.geometry.Pos.{BottomCenter, Center}
-import scalafx.scene.{Node, Parent}
+
 import scalafx.scene.control.*
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy.{AsNeeded, Never}

@@ -1,7 +1,6 @@
 package view
 
 import scalafx.scene.Parent
-import utils.ErrorMessage
 
 trait View:
   def getRoot: Parent

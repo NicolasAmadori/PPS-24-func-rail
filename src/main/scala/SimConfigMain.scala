@@ -1,5 +1,5 @@
 import controller.simconfig.SimulationConfigController
-import model.simulation.Simulation
+
 import scalafx.application.JFXApp3
 import scalafx.scene.Scene
 import view.GraphUtil
