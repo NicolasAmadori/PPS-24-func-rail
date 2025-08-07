@@ -1,53 +1,118 @@
+/**
+ * @file This object is responsible for mapping a `MapGrid` representation of a game world
+ * into a `Railway` object, which models a network of stations and rails.
+ * It navigates the grid to identify different types of stations and rails and
+ * builds the railway infrastructure.
+ */
 package model.util
 
-import model.mapgrid.{BigStationBorderPiece, BigStationCenterPiece, BigStationType, Cell, MapGrid, MetalRailPiece, MetalRailType, SmallStationPiece, SmallStationType, TitaniumRailPiece, TitaniumRailType}
+import model.mapgrid.{BigStationBorderPiece, BigStationCenterPiece, BigStationType, Cell, CellType, MapGrid, MetalRailPiece, MetalRailType, SmallStationPiece, SmallStationType, TitaniumRailPiece, TitaniumRailType}
 import model.railway.Rail.{metalRail, titaniumRail}
 import model.railway.Station.{bigStation, smallStation}
 import model.railway.{Rail, Railway, Station}
 
+import scala.annotation.tailrec
+
 object RailwayMapper:
 
-  val SMALL_STATION_PREFIX = "ST"
-  val BIG_STATION_PREFIX = "BST"
+  private val SMALL_STATION_PREFIX: String = "ST"
+  private val BIG_STATION_PREFIX: String = "BST"
 
-  var stationCounter = 0
-  var railCounter = 0
+  /**
+   * A set of coordinates for cells that have already been visited during rail mapping.
+   * This prevents infinite loops and redundant processing.
+   */
+  private var alreadyCheckedCells: Set[(Int, Int)] = Set.empty
 
-  var alreadyCheckedCells: List[(Int, Int)] = List.empty
-
+  /**
+   * Converts a given `MapGrid` into a `Railway` object.
+   *
+   * This is the main entry point of the mapping process. It orchestrates the extraction
+   * of stations and rails from the grid and assembles them into a coherent `Railway` object.
+   *
+   * @param mapGrid The `MapGrid` to be converted.
+   * @return A `Railway` object representing the discovered network of stations and rails.
+   */
   def convert(mapGrid: MapGrid): Railway =
     val smallStations: List[(Station, Int, Int)] = extractSmallStations(mapGrid)
     val bigStations: List[(Station, Int, Int)] = extractBigStations(mapGrid)
-    val smallStationsRails: List[Rail] = extractRailsFromSmallStations(mapGrid)(smallStations)
-    val bigStationsRails: List[Rail] = extractRailsFromBigStations(mapGrid)(bigStations)
+    val expandedBigStations: List[(Station, Int, Int)] = expandBigStations(mapGrid)(bigStations)
+
+    val allStations: List[(Station, Int, Int)] = smallStations ++ expandedBigStations
+    val rails: List[Rail] = extractRails(mapGrid)(allStations)
     Railway
       .withStations(smallStations.map(_._1) ++ bigStations.map(_._1))
-      .withRails(smallStationsRails ++ bigStationsRails)
+      .withRails(rails)
 
+  /**
+   * Expands the representation of big stations to include their surrounding border cells.
+   *
+   * A big station is represented by a central piece and multiple border pieces. This method
+   * associates the big station object with all its border cell coordinates.
+   *
+   * @param mapGrid     The `MapGrid` containing the big stations.
+   * @param bigStations A list of tuples, each containing a big station object and its center coordinates.
+   * @return A bigger list of tuples, where each original big station is associated with all its border cells.
+   *         The size of the output list will be exactly 8 times bigger than the original
+   */
+  private def expandBigStations(mapGrid: MapGrid)(bigStations: List[(Station, Int, Int)]): List[(Station, Int, Int)] =
+    bigStations.flatMap { (station, centerX, centerY) =>
+      getSurroundingCells(mapGrid)(centerX, centerY).collect {
+        case Some(_, borderX, borderY) => (station, borderX, borderY)
+      }
+    }
+
+  /**
+   * Extracts all small stations from the `MapGrid`.
+   *
+   * It scans the grid for `SmallStationPiece` cells and creates a `Station` object for each,
+   * associating it with its coordinates.
+   *
+   * @param mapGrid The `MapGrid` to search.
+   * @return A list of tuples, each containing a small station object and its coordinates.
+   */
   private def extractSmallStations(mapGrid: MapGrid): List[(Station, Int, Int)] =
-    val allCellsWithCoordinates =
-      for
-        (row, y) <- mapGrid.cells.zipWithIndex
-        (cell, x) <- row.zipWithIndex
-      yield ((x, y), cell)
-    allCellsWithCoordinates.collect {
-      case ((x, y), SmallStationPiece(id)) => (smallStation(s"$SMALL_STATION_PREFIX$id"), x, y)
+    cellsWithCoords(mapGrid).collect {
+      case ((x, y), SmallStationPiece(id)) =>
+        (smallStation(s"$SMALL_STATION_PREFIX$id"), x, y)
     }.toList
 
+  /**
+   * Extracts all big stations from the `MapGrid`.
+   *
+   * It looks for `BigStationCenterPiece` cells, which are the central points of big stations,
+   * and creates a `Station` object for each.
+   *
+   * @param mapGrid The `MapGrid` to search.
+   * @return A list of tuples, each containing a big station object and its center coordinates.
+   */
   private def extractBigStations(mapGrid: MapGrid): List[(Station, Int, Int)] =
-    val allCellsWithCoordinates =
-      for
-        (row, y) <- mapGrid.cells.zipWithIndex
-        (cell, x) <- row.zipWithIndex
-      yield ((x, y), cell)
+    cellsWithCoords(mapGrid).collect {
+      case ((x, y), BigStationCenterPiece(id)) =>
+        (bigStation(s"$BIG_STATION_PREFIX$id"), x, y)
+    }.toList
 
-    allCellsWithCoordinates
-      .collect {
-        case ((x, y), BigStationCenterPiece(id)) =>
-          (bigStation(s"$BIG_STATION_PREFIX$id"), x, y)
-      }
-      .toList
+  /**
+   * Flattens the 2D grid of cells into a sequence of tuples, each containing a cell's coordinates and the cell itself.
+   *
+   * @param mapGrid The `MapGrid` to process.
+   * @return A sequence of `((Int, Int), Cell)` tuples.
+   */
+  private def cellsWithCoords(mapGrid: MapGrid): Seq[((Int, Int), Cell)] =
+    for
+      (row, y) <- mapGrid.cells.zipWithIndex
+      (cell, x) <- row.zipWithIndex
+    yield ((x, y), cell)
 
+  /**
+   * Gets the cells that are cardinally (up, down, left, right) adjacent to a given cell.
+   *
+   * @param mapGrid The `MapGrid` to operate on.
+   * @param x       The x-coordinate of the central cell.
+   * @param y       The y-coordinate of the central cell.
+   * @return A sequence of `Option[(Cell, Int, Int)]` representing the cardinal cells and their coordinates.
+   *         `None` is used for coordinates that are out of bounds.
+   */
   private def getCardinalCells(mapGrid: MapGrid)(x: Int, y: Int): Seq[Option[(Cell, Int, Int)]] =
     val cardinalOffsets = Seq((0, -1), (-1, 0), (1, 0), (0, 1))
     cardinalOffsets.map { case (dx, dy) =>
@@ -56,12 +121,23 @@ object RailwayMapper:
       if mapGrid.isInBounds(nx, ny) then Some((mapGrid.cells(ny)(nx), nx, ny)) else None
     }
 
+  /**
+   * Gets all 8 surrounding cells (including diagonals) of a given cell, excluding the center cell itself.
+   *
+   * This is primarily used for finding the border pieces of a big station.
+   *
+   * @param mapGrid The `MapGrid` to operate on.
+   * @param x       The x-coordinate of the central cell.
+   * @param y       The y-coordinate of the central cell.
+   * @return A sequence of `Option[(Cell, Int, Int)]` representing the surrounding cells and their coordinates.
+   *         `None` is used for coordinates that are out of bounds.
+   */
   private def getSurroundingCells(mapGrid: MapGrid)(x: Int, y: Int): Seq[Option[(Cell, Int, Int)]] =
     val surroundingOffsets =
       for
         dx <- -1 to 1
         dy <- -1 to 1
-        if !(dx == 0 && dy == 0) // esclude il centro
+        if !(dx == 0 && dy == 0) // exclude the bigstation center
       yield (dx, dy)
 
     surroundingOffsets.map { case (dx, dy) =>
@@ -70,108 +146,95 @@ object RailwayMapper:
       if mapGrid.isInBounds(nx, ny) then Some((mapGrid.cells(ny)(nx), nx, ny)) else None
     }
 
-  private def extractRailsFromSmallStations(mapGrid: MapGrid)(smallStations: List[(Station, Int, Int)]): List[Rail] =
-    var railCounter = 0
+  /**
+   * Extracts all railway tracks (rails) from the `MapGrid`.
+   *
+   * It starts from each station and recursively follows connected rail pieces
+   * to build complete rail segments between stations.
+   *
+   * @param mapGrid  The `MapGrid` to search for rails.
+   * @param stations A list of station objects and their coordinates, used as starting points.
+   * @return A list of `Rail` objects representing all the discovered railway tracks.
+   */
+  private def extractRails(mapGrid: MapGrid)(stations: List[(Station, Int, Int)]): List[Rail] =
+    var railCounter: Int = 0
 
-    smallStations.flatMap { (s, stationX, stationY) =>
-      getCardinalCells(mapGrid)(stationX, stationY).flatMap {
-        case Some((cell, neighbourX, neighbourY)) =>
-          cell match
-            case _: MetalRailPiece =>
-              railCounter += 1
-              println("" + (stationX, stationY) + " ->")
-              followMetalRails(mapGrid)(
-                neighbourX,
-                neighbourY,
-                stationX,
-                stationY,
-                metalRail(railCounter, 0, s.code.toString, "")
-              )
-            case _: TitaniumRailPiece =>
-              railCounter += 1
-              followTitaniumRails(mapGrid)(
-                neighbourX,
-                neighbourY,
-                stationX,
-                stationY,
-                titaniumRail(railCounter, 0, s.code.toString, "")
-              )
-            case _ => None
-        case None => None
+    stations.flatMap { (station, stationX, stationY) =>
+      getCardinalCells(mapGrid)(stationX, stationY).collect {
+        case Some((cell: MetalRailPiece, nx, ny)) =>
+          (nx, ny, MetalRailType, metalRail)
+        case Some((cell: TitaniumRailPiece, nx, ny)) =>
+          (nx, ny, TitaniumRailType, titaniumRail)
+      }.flatMap { (nx, ny, railType, createRailFn) =>
+        val railId = {
+          railCounter += 1
+          railCounter
+        }
+        followRails(mapGrid)(
+          nx, ny,
+          stationX, stationY,
+          createRailFn(railId, 0, station.code.toString, ""),
+          railType,
+          createRailFn
+        )
       }
     }
 
-  private def extractRailsFromBigStations(mapGrid: MapGrid)(bigStations: List[(Station, Int, Int)]): List[Rail] =
-    var railCounter = 0
-
-    bigStations.flatMap { (station, stationCenterX, stationCenterY) =>
-      getSurroundingCells(mapGrid)(stationCenterX, stationCenterY).flatMap {
-        case Some(_, stationBorderX, stationBorderY) =>
-          getCardinalCells(mapGrid)(stationBorderX, stationBorderY).flatMap {
-            case Some((cell, neighbourX, neighbourY)) =>
-              cell match
-                case _: MetalRailPiece =>
-                  railCounter += 1
-                  println(s"(${stationBorderX},${stationBorderY}) -> ($neighbourX,$neighbourY)")
-                  followMetalRails(mapGrid)(
-                    neighbourX,
-                    neighbourY,
-                    stationBorderX,
-                    stationBorderY,
-                    metalRail(railCounter, 0, station.code.toString, "")
-                  )
-                case _: TitaniumRailPiece =>
-                  railCounter += 1
-                  followTitaniumRails(mapGrid)(
-                    neighbourX,
-                    neighbourY,
-                    stationBorderX,
-                    stationBorderY,
-                    titaniumRail(railCounter, 0, station.code.toString, "")
-                  )
-                case _ => None
-            case None => None
-          }
-        case None => None
-      }
-    }
-
-  private def followMetalRails(mapGrid: MapGrid)(
-      x: Int,
-      y: Int,
-      previousX: Int,
-      previousY: Int,
-      rail: Rail
+  /**
+   * Recursively follows a sequence of rail pieces from a starting point until a station or an endpoint is found.
+   *
+   * This is a tail-recursive function that traverses the grid to determine the length and
+   * endpoints of a single rail segment. It uses `alreadyCheckedCells` to avoid loops.
+   *
+   * @param mapGrid            The `MapGrid` being traversed.
+   * @param x                  The x-coordinate of the current rail cell.
+   * @param y                  The y-coordinate of the current rail cell.
+   * @param previousX          The x-coordinate of the previous cell in the path.
+   * @param previousY          The y-coordinate of the previous cell in the path.
+   * @param rail               The `Rail` object being built.
+   * @param railType           The type of rail being followed (e.g., MetalRailType, TitaniumRailType).
+   * @param createRailFunction A function to create a new `Rail` object with updated properties.
+   * @return An `Option[Rail]` containing the completed rail object if a valid path is found, otherwise `None`.
+   */
+  @tailrec
+  private def followRails(mapGrid: MapGrid)(
+    x: Int,
+    y: Int,
+    previousX: Int,
+    previousY: Int,
+    rail: Rail,
+    railType: CellType,
+    createRailFunction: (Int, Int, String, String) => Rail
   ): Option[Rail] =
     val cardinalCells = getCardinalCells(mapGrid)(x, y).collect {
       case Some((cell, nx, ny)) if (nx != previousX || ny != previousY) && !alreadyCheckedCells.contains((nx, ny)) =>
         (cell, nx, ny)
     }
-    alreadyCheckedCells = (x, y) :: alreadyCheckedCells
-    val nearMetalRails = cardinalCells.filter {
-      case (cell, _, _) => cell.cellType == MetalRailType
+    alreadyCheckedCells = alreadyCheckedCells + ((x, y))
+    val nearRails = cardinalCells.filter {
+      case (cell, _, _) => cell.cellType == railType
     }.toList
 
     val nearStations = cardinalCells.filter {
       case (cell, _, _) => cell.cellType == SmallStationType || cell.cellType == BigStationType
     }.toList
 
-    if nearMetalRails.size > 1 then
-      println("Too much metal rails found.")
+    if nearRails.size > 1 then
+      println("Too much valid rails found.")
       return None
 
     if nearStations.size > 1 then
       println("Too much stations found.")
       return None
 
-    if nearMetalRails.isEmpty && nearStations.isEmpty then
-      println("No more metal rails found. Dead rail")
+    if nearRails.isEmpty && nearStations.isEmpty then
+      println("No more valid rails found. Dead rail")
       return None
 
-    if nearMetalRails.isEmpty && nearStations.nonEmpty then
+    if nearRails.isEmpty && nearStations.nonEmpty then
       val nearStation = nearStations.head._1
 
-      return Some(metalRail(
+      return Some(createRailFunction(
         rail.code.toString.toInt,
         rail.length + 1,
         rail.stationA.toString,
@@ -181,60 +244,8 @@ object RailwayMapper:
           case _ => ""
       ))
 
-    val newRail = metalRail(rail.code.toString.toInt, rail.length + 1, rail.stationA.toString, rail.stationB.toString)
+    val newRail = createRailFunction(rail.code.toString.toInt, rail.length + 1, rail.stationA.toString, rail.stationB.toString)
     println("" + (previousX, previousY) + " -> " + (x, y) + ". new rail: " + newRail)
-    val nextMetalRail = nearMetalRails.head
+    val nextRail = nearRails.head
 
-    followMetalRails(mapGrid)(nextMetalRail._2, nextMetalRail._3, x, y, newRail)
-
-  private def followTitaniumRails(mapGrid: MapGrid)(
-      x: Int,
-      y: Int,
-      previousX: Int,
-      previousY: Int,
-      rail: Rail
-  ): Option[Rail] =
-    val cardinalCells = getCardinalCells(mapGrid)(x, y).collect {
-      case Some((cell, nx, ny)) if (nx != previousX || ny != previousY) && !alreadyCheckedCells.contains((nx, ny)) =>
-        (cell, nx, ny)
-    }
-    alreadyCheckedCells = (x, y) :: alreadyCheckedCells
-    val nearTitaniumRails = cardinalCells.filter {
-      case (cell, _, _) => cell.cellType == TitaniumRailType
-    }.toList
-
-    val nearStations = cardinalCells.filter {
-      case (cell, _, _) => cell.cellType == SmallStationType || cell.cellType == BigStationType
-    }.toList
-
-    if nearTitaniumRails.size > 1 then
-      println("Too much titanium rails found.")
-      return None
-
-    if nearStations.size > 1 then
-      println("Too much stations found.")
-      return None
-
-    if nearTitaniumRails.isEmpty && nearStations.isEmpty then
-      println("No more titanium rails found. Dead rail")
-      return None
-
-    if nearTitaniumRails.isEmpty && nearStations.nonEmpty then
-      val nearStation = nearStations.head._1
-
-      return Some(titaniumRail(
-        rail.code.toString.toInt,
-        rail.length + 1,
-        rail.stationA.toString,
-        nearStation match
-          case SmallStationPiece(id) => s"$SMALL_STATION_PREFIX$id"
-          case BigStationBorderPiece(id) => s"$BIG_STATION_PREFIX$id"
-          case _ => ""
-      ))
-
-    val newRail =
-      titaniumRail(rail.code.toString.toInt, rail.length + 1, rail.stationA.toString, rail.stationB.toString)
-    println("" + (previousX, previousY) + " -> " + (x, y) + ". new rail: " + newRail)
-    val nextTitaniumRail = nearTitaniumRails.head
-
-    followTitaniumRails(mapGrid)(nextTitaniumRail._2, nextTitaniumRail._3, x, y, newRail)
+    followRails(mapGrid)(nextRail._2, nextRail._3, x, y, newRail, railType, createRailFunction)
