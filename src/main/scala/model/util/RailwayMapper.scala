@@ -20,7 +20,6 @@ object RailwayMapper:
   /** A set of coordinates for cells that have already been visited during rail mapping. This prevents infinite loops
     * and redundant processing.
     */
-  private var alreadyCheckedCells: Set[(Int, Int)] = Set.empty
 
   /** Converts a given `MapGrid` into a `Railway` object.
     *
@@ -39,6 +38,7 @@ object RailwayMapper:
 
     val allStations: List[(Station, Int, Int)] = smallStations ++ expandedBigStations
     val rails: List[Rail] = extractRails(mapGrid)(allStations)
+
     Railway
       .withStations(smallStations.map(_._1) ++ bigStations.map(_._1))
       .withRails(rails)
@@ -170,6 +170,7 @@ object RailwayMapper:
     */
   private def extractRails(mapGrid: MapGrid)(stations: List[(Station, Int, Int)]): List[Rail] =
     var railCounter: Int = 0
+    var alreadyCheckedCells: Set[(Int, Int)] = Set.empty
 
     stations.flatMap { (station, stationX, stationY) =>
       getCardinalCells(mapGrid)(stationX, stationY).collect {
@@ -188,8 +189,13 @@ object RailwayMapper:
           stationY,
           createRailFn(railId, 0, station.code.toString, ""),
           railType,
-          createRailFn
-        )
+          createRailFn,
+          alreadyCheckedCells
+        ) match
+          case Some((updatedSet, rail)) =>
+            alreadyCheckedCells = updatedSet
+            Some(rail)
+          case None => None
       }
     }
 
@@ -214,8 +220,11 @@ object RailwayMapper:
     *   The type of rail being followed (e.g., MetalRailType, TitaniumRailType).
     * @param createRailFunction
     *   A function to create a new `Rail` object with updated properties.
+    * @param alreadyChecked
+    *   A set of already controlled coordinates to avoid loop.
     * @return
-    *   An `Option[Rail]` containing the completed rail object if a valid path is found, otherwise `None`.
+    *   An `Option[(Set[(Int, Int)], Rail)]` containing the set of checked cells and the completed rail object if a
+    *   valid path is found, otherwise `None`.
     */
   @tailrec
   private def followRails(mapGrid: MapGrid)(
@@ -225,13 +234,18 @@ object RailwayMapper:
       previousY: Int,
       rail: Rail,
       railType: CellType,
-      createRailFunction: (Int, Int, String, String) => Rail
-  ): Option[Rail] =
+      createRailFunction: (Int, Int, String, String) => Rail,
+      alreadyChecked: Set[(Int, Int)]
+  ): Option[(Set[(Int, Int)], Rail)] =
+    if alreadyChecked.contains((x, y)) then
+      return None
+
+    val updatedChecked = alreadyChecked + ((x, y))
     val cardinalCells = getCardinalCells(mapGrid)(x, y).collect {
-      case Some((cell, nx, ny)) if (nx != previousX || ny != previousY) && !alreadyCheckedCells.contains((nx, ny)) =>
+      case Some((cell, nx, ny)) if (nx != previousX || ny != previousY) && !alreadyChecked.contains((nx, ny)) =>
         (cell, nx, ny)
     }
-    alreadyCheckedCells = alreadyCheckedCells + ((x, y))
+
     val nearRails = cardinalCells.filter {
       case (cell, _, _) => cell.cellType == railType
     }.toList
@@ -241,33 +255,37 @@ object RailwayMapper:
     }.toList
 
     if nearRails.size > 1 then
-      println("Too much valid rails found.")
-      return None
+      return None // Too much valid rails found.
 
     if nearStations.size > 1 then
-      println("Too much stations found.")
-      return None
+      return None // Too much stations found.
 
     if nearRails.isEmpty && nearStations.isEmpty then
-      println("No more valid rails found. Dead rail")
+      // No more valid rails found. Dead rail
       return None
 
     if nearRails.isEmpty && nearStations.nonEmpty then
-      val nearStation = nearStations.head._1
+      // Rail completed
+      val nearStationCode: String = nearStations.head._1 match
+        case SmallStationPiece(id) => s"$SMALL_STATION_PREFIX$id"
+        case BigStationBorderPiece(id) => s"$BIG_STATION_PREFIX$id"
+        case _ => ""
 
-      return Some(createRailFunction(
-        rail.code.toString.toInt,
-        rail.length + 1,
-        rail.stationA.toString,
-        nearStation match
-          case SmallStationPiece(id) => s"$SMALL_STATION_PREFIX$id"
-          case BigStationBorderPiece(id) => s"$BIG_STATION_PREFIX$id"
-          case _ => ""
-      ))
+      if rail.stationA.toString == nearStationCode then
+        return None // The rail start and finish to the same station.
+
+      return Some(
+        updatedChecked,
+        createRailFunction(
+          rail.code.toString.toInt,
+          rail.length + 1,
+          rail.stationA.toString,
+          nearStationCode
+        )
+      )
 
     val newRail =
       createRailFunction(rail.code.toString.toInt, rail.length + 1, rail.stationA.toString, rail.stationB.toString)
-    println("" + (previousX, previousY) + " -> " + (x, y) + ". new rail: " + newRail)
     val nextRail = nearRails.head
 
-    followRails(mapGrid)(nextRail._2, nextRail._3, x, y, newRail, railType, createRailFunction)
+    followRails(mapGrid)(nextRail._2, nextRail._3, x, y, newRail, railType, createRailFunction, updatedChecked)
