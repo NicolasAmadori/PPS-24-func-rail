@@ -18,10 +18,11 @@ object RailwayMapper:
   def convert(mapGrid: MapGrid): Railway =
     val smallStations: List[(Station, Int, Int)] = extractSmallStations(mapGrid)
     val bigStations: List[(Station, Int, Int)] = extractBigStations(mapGrid)
-    val rails: List[Rail] = extractRails(mapGrid)(smallStations)
+    val smallStationsRails: List[Rail] = extractRailsFromSmallStations(mapGrid)(smallStations)
+    val bigStationsRails: List[Rail] = extractRailsFromBigStations(mapGrid)(bigStations)
     Railway
       .withStations(smallStations.map(_._1) ++ bigStations.map(_._1))
-      .withRails(rails)
+      .withRails(smallStationsRails ++ bigStationsRails)
 
   private def extractSmallStations(mapGrid: MapGrid): List[(Station, Int, Int)] =
     val allCellsWithCoordinates =
@@ -55,21 +56,82 @@ object RailwayMapper:
       if mapGrid.isInBounds(nx, ny) then Some((mapGrid.cells(ny)(nx), nx, ny)) else None
     }
 
-  private def extractRails(mapGrid: MapGrid)(smallStations: List[(Station, Int, Int)]): List[Rail] =
+  private def getSurroundingCells(mapGrid: MapGrid)(x: Int, y: Int): Seq[Option[(Cell, Int, Int)]] =
+    val surroundingOffsets =
+      for
+        dx <- -1 to 1
+        dy <- -1 to 1
+        if !(dx == 0 && dy == 0) // esclude il centro
+      yield (dx, dy)
+
+    surroundingOffsets.map { case (dx, dy) =>
+      val nx = x + dx
+      val ny = y + dy
+      if mapGrid.isInBounds(nx, ny) then Some((mapGrid.cells(ny)(nx), nx, ny)) else None
+    }
+
+  private def extractRailsFromSmallStations(mapGrid: MapGrid)(smallStations: List[(Station, Int, Int)]): List[Rail] =
     var railCounter = 0
 
-    smallStations.flatMap { (s, x, y) =>
-      getCardinalCells(mapGrid)(x, y).flatMap {
-        case Some((cell, nx, ny)) =>
+    smallStations.flatMap { (s, stationX, stationY) =>
+      getCardinalCells(mapGrid)(stationX, stationY).flatMap {
+        case Some((cell, neighbourX, neighbourY)) =>
           cell match
             case _: MetalRailPiece =>
               railCounter += 1
-              println("" + (x, y) + " ->")
-              followMetalRails(mapGrid)(nx, ny, x, y, metalRail(railCounter, 0, s.code.toString, ""))
+              println("" + (stationX, stationY) + " ->")
+              followMetalRails(mapGrid)(
+                neighbourX,
+                neighbourY,
+                stationX,
+                stationY,
+                metalRail(railCounter, 0, s.code.toString, "")
+              )
             case _: TitaniumRailPiece =>
               railCounter += 1
-              followTitaniumRails(mapGrid)(nx, ny, x, y, titaniumRail(railCounter, 0, s.code.toString, ""))
+              followTitaniumRails(mapGrid)(
+                neighbourX,
+                neighbourY,
+                stationX,
+                stationY,
+                titaniumRail(railCounter, 0, s.code.toString, "")
+              )
             case _ => None
+        case None => None
+      }
+    }
+
+  private def extractRailsFromBigStations(mapGrid: MapGrid)(bigStations: List[(Station, Int, Int)]): List[Rail] =
+    var railCounter = 0
+
+    bigStations.flatMap { (station, stationCenterX, stationCenterY) =>
+      getSurroundingCells(mapGrid)(stationCenterX, stationCenterY).flatMap {
+        case Some(_, stationBorderX, stationBorderY) =>
+          getCardinalCells(mapGrid)(stationBorderX, stationBorderY).flatMap {
+            case Some((cell, neighbourX, neighbourY)) =>
+              cell match
+                case _: MetalRailPiece =>
+                  railCounter += 1
+                  println(s"(${stationBorderX},${stationBorderY}) -> ($neighbourX,$neighbourY)")
+                  followMetalRails(mapGrid)(
+                    neighbourX,
+                    neighbourY,
+                    stationBorderX,
+                    stationBorderY,
+                    metalRail(railCounter, 0, station.code.toString, "")
+                  )
+                case _: TitaniumRailPiece =>
+                  railCounter += 1
+                  followTitaniumRails(mapGrid)(
+                    neighbourX,
+                    neighbourY,
+                    stationBorderX,
+                    stationBorderY,
+                    titaniumRail(railCounter, 0, station.code.toString, "")
+                  )
+                case _ => None
+            case None => None
+          }
         case None => None
       }
     }
