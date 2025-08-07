@@ -1,5 +1,6 @@
 package view.simconfig
 
+import model.railway.Railway
 import controller.simconfig.SimulationConfigController
 import model.railway.Domain.StationCode
 import scalafx.collections.ObservableBuffer
@@ -28,12 +29,12 @@ class SimulationConfigView(
 
   import SimulationConfigViewConstants.*
 
+  private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph(controller.getRailway))
   private val stations = controller.getStationCodes
 
   private val alert = new Alert(AlertType.Error):
     title = "Error"
 
-  private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph())
   private val root = createRoot
   private lazy val sidebarContainer: Pane = new VBox():
     prefWidth = SidebarMinWidth

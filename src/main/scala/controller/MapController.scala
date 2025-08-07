@@ -2,11 +2,12 @@ package controller
 
 import controller.simconfig.SimulationConfigController
 import model.mapgrid.{CellType, MapGrid}
+import model.simulation.{Simulation, SimulationState}
+import model.util.RailwayMapper
 import model.railway.Railway
-
 import utils.ErrorMessage
 import view.simconfig.SimulationConfigView
-import view.{GraphUtil, MapView, ViewError}
+import view.{MapView, ViewError}
 
 class SimulationConfigTransition(model: Railway)
     extends ScreenTransition[SimulationConfigController, SimulationConfigView]:
@@ -55,7 +56,9 @@ class MapController(model: MapGrid) extends BaseController[MapView]:
             showError(error, s"Placement failed")
 
   def onNext(): Unit =
-    val parsedRailway = GraphUtil.createRailway()
+//    val parsedRailway = GraphUtil.createRailway()
+    val parsedRailway = RailwayMapper.convert(currentModel)
+    val simulation = Simulation(parsedRailway, SimulationState.empty)
 
     val transition = new SimulationConfigTransition(parsedRailway)
     transition.transition()
