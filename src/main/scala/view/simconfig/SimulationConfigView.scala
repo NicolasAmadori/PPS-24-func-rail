@@ -34,9 +34,10 @@ class SimulationConfigView(
     title = "Error"
 
   private val root = createRoot
-  private lazy val sidebarContainer: Pane = new VBox():
+  private lazy val sidebarContainer: VBox = new VBox():
     prefWidth = SidebarMinWidth
     spacing = DefaultSpacing
+    vgrow = Priority.Always
 
   private var sidebarGroups: List[Pane] = List.empty
 
@@ -67,7 +68,13 @@ class SimulationConfigView(
 
       top = new VBox:
         spacing = DefaultSpacing
-        children = Seq(newTrainButton, trainConfigScrollPane)
+        children = Seq(
+          newTrainButton,
+          new VBox:
+            vgrow = Priority.Always
+            children = Seq(trainConfigScrollPane)
+        )
+
       val startButton = startSimulationButton
       bottom = new HBox:
         spacing = DefaultSpacing
@@ -85,6 +92,7 @@ class SimulationConfigView(
       val id = controller.addTrain()
       sidebarGroups = sidebarGroups ++ List(TrainConfigGroup(id, stations, controller))
       sidebarContainer.children = sidebarGroups
+      sidebarContainer.requestLayout()
 
   private def trainConfigScrollPane: ScrollPane = new ScrollPane():
     hbarPolicy = Never
@@ -92,6 +100,7 @@ class SimulationConfigView(
     fitToWidth = true
     style = "-fx-border-color: transparent; -fx-background-insets: 0;"
     content = sidebarContainer
+    maxHeight = 700
 
   private def simulationDurationBox(startSimulationButton: Button): TextField =
     val field = new TextField()
