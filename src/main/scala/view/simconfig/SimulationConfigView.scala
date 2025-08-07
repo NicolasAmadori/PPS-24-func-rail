@@ -95,7 +95,7 @@ class SimulationConfigView(
 
   private def simulationDurationBox(startSimulationButton: Button): TextField =
     val field = new TextField()
-    field.promptText = "Durata simulazione"
+    field.promptText = "Simulation duration"
     field.onKeyTyped = _ =>
       startSimulationButton.disable =
         field.text.value.isEmpty || field.text.value.toIntOption.isEmpty || field.text.value.toInt <= 0
