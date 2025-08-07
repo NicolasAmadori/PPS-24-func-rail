@@ -22,3 +22,7 @@ object Domain:
   object TrainCode:
     def apply(code: String): TrainCode = code
     def fromString(code: String): TrainCode = code
+    def empty: TrainCode = TrainCode("")
+
+    extension (code: TrainCode)
+      def isEmpty: Boolean = code == empty

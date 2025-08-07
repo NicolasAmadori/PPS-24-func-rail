@@ -1,8 +1,8 @@
 package model.simulation
 
-import model.railway.Domain.StationCode
+import model.railway.Domain.{StationCode, TrainCode}
 import model.railway.Railway
-import model.simulation.SimulationError.{InvalidDeparture, InvalidRoute}
+import model.simulation.SimulationError.{EmptyTrainName, InvalidDeparture, InvalidRoute}
 
 case class Simulation(railway: Railway, state: SimulationState):
 
@@ -15,11 +15,15 @@ case class Simulation(railway: Railway, state: SimulationState):
       Right(copy(state = updatedState))
 
   private def validateTrain(train: Train): List[SimulationError] =
+    val codeError = if !hasValidCode(train.code) then Some(EmptyTrainName()) else None
     val departureError = if !hasValidDeparture(train.departureStation) then Some(InvalidDeparture(train.code)) else None
     val routeError =
       if train.stations.isEmpty || !hasValidStations(train.stations) then Some(InvalidRoute(train.code)) else None
 
-    List(departureError, routeError).flatten
+    List(codeError, departureError, routeError).flatten
+
+  private def hasValidCode(code: TrainCode): Boolean =
+    !code.isEmpty
 
   private def hasValidStations(stations: List[StationCode]): Boolean =
     stations.forall(station => railway.stations.exists(_.code == station))
