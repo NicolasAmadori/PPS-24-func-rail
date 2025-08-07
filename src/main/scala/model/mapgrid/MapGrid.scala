@@ -31,7 +31,7 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
     * @return
     *   True if the coordinate is inside grid bounds, False otherwise
     */
-  private def isInBounds(x: Int, y: Int): Boolean = x >= 0 && y >= 0 && x < width && y < height
+  def isInBounds(x: Int, y: Int): Boolean = x >= 0 && y >= 0 && x < width && y < height
 
   /** Checks if the cell at the specified coordinates is empty.
     *
@@ -181,7 +181,10 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
       val newCells = deltas.foldLeft(cells) { case (grid, (dx, dy)) =>
         val x = centerX + dx
         val y = centerY + dy
-        grid.updated(y, grid(y).updated(x, BigStationPiece(nextId)))
+        if x == centerX && y == centerY then
+          grid.updated(y, grid(y).updated(x, BigStationCenterPiece(nextId)))
+        else
+          grid.updated(y, grid(y).updated(x, BigStationBorderPiece(nextId)))
       }
       Right(copy(
         stationCounter = nextId,
@@ -274,7 +277,7 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
     }
 
     val bigStationCount = cardinal.count {
-      case Some(BigStationPiece(_)) => true
+      case Some(BigStationBorderPiece(_)) => true
       case _ => false
     }
 
