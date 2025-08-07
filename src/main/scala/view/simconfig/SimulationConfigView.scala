@@ -1,6 +1,5 @@
 package view.simconfig
 
-import model.railway.Railway
 import controller.simconfig.SimulationConfigController
 import model.railway.Domain.StationCode
 import scalafx.collections.ObservableBuffer
@@ -62,16 +61,24 @@ class SimulationConfigView(
       center = graphPane
       right = sidebar
 
-  private def sidebar: VBox =
-    new VBox:
+  private def sidebar: BorderPane =
+    new BorderPane:
       prefWidth = SidebarMinWidth
       padding = DefaultPadding
-      spacing = DefaultSpacing
-      children = Seq(
-        newTrainButton,
-        trainConfigScrollPane,
-        startSimulationButton
-      )
+
+      top = new VBox:
+        spacing = DefaultSpacing
+        children = Seq(newTrainButton, trainConfigScrollPane)
+
+      bottom = new HBox:
+        spacing = DefaultSpacing
+        padding = Insets(10, 0, 0, 0)
+        fillHeight = true
+        alignment = BottomCenter // oppure BottomCenter
+        maxWidth = Double.MaxValue
+        children = Seq(backButton, startSimulationButton)
+        HBox.setHgrow(backButton, Priority.Always)
+        HBox.setHgrow(startSimulationButton, Priority.Always)
 
   private def newTrainButton: Button = new Button("New train"):
     onAction = _ =>
@@ -87,9 +94,12 @@ class SimulationConfigView(
     content = sidebarContainer
 
   private def startSimulationButton: Button = new Button("Start simulation"):
-    alignmentInParent = BottomCenter
     maxWidth = Double.MaxValue
     onAction = _ => controller.startSimulation()
+
+  private def backButton: Button = new Button("Back"):
+    maxWidth = Double.MaxValue
+    onAction = _ => controller.onBack()
 
   private def graphPane: Pane =
     val automaticLayoutCheckbox = CheckBox("Automatic layout")
