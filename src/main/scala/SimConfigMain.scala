@@ -31,7 +31,7 @@ object SimConfigMain extends JFXApp3:
       Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
       Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell)
     )
-    val grid = MapGrid(8, 5, cells)
+    val grid = MapGrid(8, 5, cells, 3)
 
     val controller = SimulationConfigController(grid, RailwayMapper.convert(grid))
     val view = SimulationConfigView(controller)
