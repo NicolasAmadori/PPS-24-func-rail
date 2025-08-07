@@ -4,16 +4,19 @@ import controller.MapController
 import model.mapgrid.*
 import scalafx.application.Platform
 import scalafx.geometry.Insets
-import scalafx.scene.Parent
+import scalafx.scene.{Node, Parent}
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.{Alert, Button, RadioButton, ToggleGroup}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import utils.ErrorMessage
 
 object ToolMappings:
-  val nameToCell: Map[String, CellType] = Map(
+  val railNameToCell: Map[String, CellType] = Map(
     "Metal rail" -> MetalRailType,
-    "Titanium rail" -> TitaniumRailType,
+    "Titanium rail" -> TitaniumRailType
+  )
+
+  val stationNameToCell: Map[String, CellType] = Map(
     "Small station" -> SmallStationType,
     "Big station" -> BigStationType
   )
@@ -34,6 +37,7 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
 
   import ToolMappings.*
   import MapViewConstants.*
+  import scalafx.scene.control.Label
 
   private val gridPane = new GridPane
   private val toolsGroup = new ToggleGroup
@@ -73,16 +77,33 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
       btn
     }
 
-  private def createToolButtons(): Seq[RadioButton] =
-    nameToCell.keys.toSeq.map: label =>
-      new RadioButton(label):
+  private def createToolButtons(): Seq[Node] = {
+    val railLabel = new Label("Rails:")
+
+    val rails = railNameToCell.keys.toSeq.map { label =>
+      new RadioButton(label) {
         toggleGroup = toolsGroup
+      }
+    }
+
+    val stationLabel = new Label("Stations:")
+    val stations = stationNameToCell.keys.toSeq.map { label =>
+      new RadioButton(label) {
+        toggleGroup = toolsGroup
+      }
+    }
+
+    rails ++ stations match {
+      case allButtons =>
+        Seq(railLabel) ++ rails ++ Seq(stationLabel) ++ stations
+    }
+  }
 
   private def setupToolListener(): Unit =
     toolsGroup.selectedToggle.onChange { (_, _, newToggle) =>
       Option(newToggle)
         .collect { case rb: javafx.scene.control.RadioButton => RadioButton(rb) }
-        .flatMap(rb => nameToCell.get(rb.text()))
+        .flatMap(rb => railNameToCell.get(rb.text()).orElse(stationNameToCell.get(rb.text())))
         .foreach(controller.selectTool)
     }
 
