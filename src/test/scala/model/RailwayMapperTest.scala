@@ -10,8 +10,6 @@ import org.scalatest.matchers.should.Matchers
 
 class RailwayMapperTest extends AnyFlatSpec with Matchers:
 
-  // --- Test Fixtures ---
-
   // Helper values to make grid definitions more readable
   private val e: Cell = EmptyCell
   private val mr: Cell = MetalRailPiece()
@@ -20,9 +18,14 @@ class RailwayMapperTest extends AnyFlatSpec with Matchers:
   private def bsc(id: Int): Cell = BigStationCenterPiece(id)
   private def bsb(id: Int): Cell = BigStationBorderPiece(id)
 
-  // Helper function to normalize a list of rails for comparison.
-  // This ignores the auto-generated rail 'code' and sorts station endpoints (A, B)
-  // to make comparisons independent of processing order.
+  /** Helper function to normalize a list of rails for comparison. This ignores the auto-generated rail 'code' and sorts
+    * station endpoints (A, B) to make comparisons independent of processing order.
+    *
+    * @param rails
+    *   the list of rails to normalize
+    * @return
+    *   a list of tuples with rail length, the stations connected and the type of the rail
+    */
   private def normalizeRails(rails: List[Rail]): List[(Int, (String, String), RailType)] =
     rails.map { rail =>
       val stations = List(rail.stationA.toString, rail.stationB.toString).sorted
