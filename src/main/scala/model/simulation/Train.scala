@@ -5,23 +5,26 @@ import model.railway.Domain.{StationCode, TrainCode}
 trait Train:
   def code: TrainCode
   def speed: Float
+  def departureStation: StationCode = stations.head
   def stations: List[StationCode]
 
-case class NormalTrain(code: TrainCode, speed: Float, stations: List[StationCode]) extends Train
+case class NormalTrain(code: TrainCode, speed: Float, stations: List[StationCode])
+    extends Train
 
-case class HighSpeedTrain(code: TrainCode, speed: Float, stations: List[StationCode]) extends Train
+case class HighSpeedTrain(code: TrainCode, speed: Float, stations: List[StationCode])
+    extends Train
 
 object Train:
   val normalSpeed: Float = 100.0f
   val highSpeed: Float = 300.0f
 
-  def normalTrain(code: Int, stations: List[StationCode]): NormalTrain =
+  def normalTrain(code: String, stations: List[StationCode]): NormalTrain =
     validateRoute(stations)
-    NormalTrain(TrainCode.fromInt(code), normalSpeed, stations)
+    NormalTrain(TrainCode(code), normalSpeed, stations)
 
-  def highSpeedTrain(code: Int, stations: List[StationCode]): HighSpeedTrain =
+  def highSpeedTrain(code: String, stations: List[StationCode]): HighSpeedTrain =
     validateRoute(stations)
-    HighSpeedTrain(TrainCode.fromInt(code), highSpeed, stations)
+    HighSpeedTrain(TrainCode(code), highSpeed, stations)
 
   private def validateRoute(route: List[StationCode]): Unit =
     if route.isEmpty then throw new IllegalArgumentException("Route cannot be empty.")

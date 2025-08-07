@@ -10,7 +10,7 @@ import org.scalatest.matchers.should.Matchers.*
 
 class RailTest extends AnyFlatSpec:
 
-  val trainCode: Int = 1
+  val trainCode: String = "1"
   val railCode: Int = 1
   val railLength: Int = 10
 
