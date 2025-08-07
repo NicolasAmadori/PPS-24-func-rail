@@ -18,7 +18,7 @@ object Main extends JFXApp3:
     controller.attachView(view)
 
     val stageInstance = new JFXApp3.PrimaryStage:
-      title = "func-rail map builder"
+      title = "Map Builder"
       scene = new Scene(view)
 
     StageManager.init(stageInstance)
