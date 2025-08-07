@@ -1,5 +1,5 @@
 import controller.simconfig.SimulationConfigController
-import model.mapgrid.{MapGrid, MetalRailPiece, SmallStationPiece, TitaniumRailPiece}
+import model.mapgrid.{EmptyCell, MapGrid, MetalRailPiece, SmallStationPiece, TitaniumRailPiece}
 import model.util.RailwayMapper
 import scalafx.application.JFXApp3
 import scalafx.scene.Scene
@@ -16,9 +16,22 @@ object SimConfigMain extends JFXApp3:
     GraphUtil.createRailway()
 
     val cells = Vector(
-      Vector(SmallStationPiece(1), MetalRailPiece(), MetalRailPiece(), SmallStationPiece(2), TitaniumRailPiece(), SmallStationPiece(3))
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(
+        EmptyCell,
+        SmallStationPiece(1),
+        MetalRailPiece(),
+        MetalRailPiece(),
+        SmallStationPiece(2),
+        TitaniumRailPiece(),
+        SmallStationPiece(3),
+        EmptyCell
+      ),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell)
     )
-    val grid = MapGrid(6, 1, cells)
+    val grid = MapGrid(8, 5, cells)
 
     val controller = SimulationConfigController(grid, RailwayMapper.convert(grid))
     val view = SimulationConfigView(controller)
@@ -33,5 +46,5 @@ object SimConfigMain extends JFXApp3:
       onShown = _ => view.initGraph()
 
     StageManager.init(stageInstance)
-    
+
     stage = stageInstance
