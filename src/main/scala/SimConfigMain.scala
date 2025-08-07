@@ -1,6 +1,11 @@
+import controller.simconfig.SimulationConfigController
+import model.mapgrid.{MapGrid, MetalRailPiece, SmallStationPiece, TitaniumRailPiece}
+import model.util.RailwayMapper
 import scalafx.application.JFXApp3
-
+import scalafx.scene.Scene
+import utils.StageManager
 import view.GraphUtil
+import view.simconfig.SimulationConfigView
 
 object SimConfigMain extends JFXApp3:
 
@@ -9,14 +14,24 @@ object SimConfigMain extends JFXApp3:
 
   override def start(): Unit =
     GraphUtil.createRailway()
-//    val controller = SimulationConfigController(model)
-//    val view = SimulationConfigView(controller)
-//
-//    controller.attachView(view)
-//
-//    stage = new JFXApp3.PrimaryStage:
-//      title = "func-rail map builder"
-//      minWidth = 1000
-//      minHeight = 800
-//      scene = new Scene(view.getRoot)
-//      onShown = _ => view.initGraph()
+
+    val cells = Vector(
+      Vector(SmallStationPiece(1), MetalRailPiece(), MetalRailPiece(), SmallStationPiece(2), TitaniumRailPiece(), SmallStationPiece(3))
+    )
+    val grid = MapGrid(6, 1, cells)
+
+    val controller = SimulationConfigController(grid, RailwayMapper.convert(grid))
+    val view = SimulationConfigView(controller)
+
+    controller.attachView(view)
+
+    val stageInstance = new JFXApp3.PrimaryStage:
+      title = "func-rail map builder"
+      minWidth = 1000
+      minHeight = 800
+      scene = new Scene(view.getRoot)
+      onShown = _ => view.initGraph()
+
+    StageManager.init(stageInstance)
+    
+    stage = stageInstance
