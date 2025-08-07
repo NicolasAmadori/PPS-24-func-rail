@@ -5,7 +5,6 @@ import model.railway.Domain.StationCode
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.geometry.Pos.{BottomCenter, Center}
-
 import scalafx.scene.control.*
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy.{AsNeeded, Never}
@@ -69,15 +68,16 @@ class SimulationConfigView(
       top = new VBox:
         spacing = DefaultSpacing
         children = Seq(newTrainButton, trainConfigScrollPane)
-
+      val startButton = startSimulationButton
       bottom = new HBox:
         spacing = DefaultSpacing
         padding = Insets(10, 0, 0, 0)
         fillHeight = true
         alignment = BottomCenter // oppure BottomCenter
         maxWidth = Double.MaxValue
-        children = Seq(backButton, startSimulationButton)
+        children = Seq(backButton, simulationDurationBox(startButton), startButton)
         HBox.setHgrow(backButton, Priority.Always)
+        HBox.setHgrow(simulationDurationBox(startButton), Priority.Always)
         HBox.setHgrow(startSimulationButton, Priority.Always)
 
   private def newTrainButton: Button = new Button("New train"):
@@ -93,7 +93,16 @@ class SimulationConfigView(
     style = "-fx-border-color: transparent; -fx-background-insets: 0;"
     content = sidebarContainer
 
+  private def simulationDurationBox(startSimulationButton: Button): TextField =
+    val field = new TextField()
+    field.promptText = "Durata simulazione"
+    field.onKeyTyped = _ =>
+      startSimulationButton.disable =
+        field.text.value.isEmpty || field.text.value.toIntOption.isEmpty || field.text.value.toInt <= 0
+    field
+
   private def startSimulationButton: Button = new Button("Start simulation"):
+    disable = true
     maxWidth = Double.MaxValue
     onAction = _ => controller.startSimulation()
 
@@ -150,7 +159,7 @@ class TrainConfigGroup(trainId: Int, stations: List[StationCode], controller: Si
       onAction = _ =>
         val selectedStation = value.value
         if selectedStation != null then
-          controller.setDepartureStation(trainId, StationCode.fromString(selectedStation))
+          controller.setDepartureStation(trainId, StationCode(selectedStation))
 
   private val stopsCheckBoxes =
     stations.map(s => StationCode.value(s)).map { station =>
@@ -158,9 +167,9 @@ class TrainConfigGroup(trainId: Int, stations: List[StationCode], controller: Si
         selected = false
         onAction = _ =>
           if selected.value then
-            controller.addStop(trainId, StationCode.fromString(station))
+            controller.addStop(trainId, StationCode(station))
           else
-            controller.removeStop(trainId, StationCode.fromString(station))
+            controller.removeStop(trainId, StationCode(station))
     }
 
   private def stopsCheckboxes: ScrollPane =

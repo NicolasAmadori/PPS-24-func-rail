@@ -6,6 +6,7 @@
 package model.util
 
 import model.mapgrid.{BigStationBorderPiece, BigStationCenterPiece, BigStationType, Cell, CellType, MapGrid, MetalRailPiece, MetalRailType, SmallStationPiece, SmallStationType, TitaniumRailPiece, TitaniumRailType}
+import model.railway.Domain.{RailCode, StationCode}
 import model.railway.Rail.{metalRail, titaniumRail}
 import model.railway.Station.{bigStation, smallStation}
 import model.railway.{Rail, Railway, Station}
@@ -187,7 +188,7 @@ object RailwayMapper:
           ny,
           stationX,
           stationY,
-          createRailFn(railId, 0, station.code.toString, ""),
+          createRailFn(railId, 0, StationCode.value(station.code), ""),
           railType,
           createRailFn,
           alreadyCheckedCells
@@ -271,21 +272,26 @@ object RailwayMapper:
         case BigStationBorderPiece(id) => s"$BIG_STATION_PREFIX$id"
         case _ => ""
 
-      if rail.stationA.toString == nearStationCode then
+      if StationCode.value(rail.stationA) == nearStationCode then
         return None // The rail start and finish to the same station.
 
       return Some(
         updatedChecked,
         createRailFunction(
-          rail.code.toString.toInt,
+          RailCode.value(rail.code),
           rail.length + 1,
-          rail.stationA.toString,
+          StationCode.value(rail.stationA),
           nearStationCode
         )
       )
 
     val newRail =
-      createRailFunction(rail.code.toString.toInt, rail.length + 1, rail.stationA.toString, rail.stationB.toString)
+      createRailFunction(
+        RailCode.value(rail.code),
+        rail.length + 1,
+        StationCode.value(rail.stationA),
+        StationCode.value(rail.stationB)
+      )
     val nextRail = nearRails.head
 
     followRails(mapGrid)(nextRail._2, nextRail._3, x, y, newRail, railType, createRailFunction, updatedChecked)

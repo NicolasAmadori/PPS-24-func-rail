@@ -30,10 +30,10 @@ case class TitaniumRail(
 object Rail:
   def metalRail(code: Int, length: Int, stationA: String, stationB: String): MetalRail =
     MetalRail(
-      RailCode.fromInt(code),
+      RailCode(code),
       length,
-      StationCode.fromString(stationA),
-      StationCode.fromString(stationB)
+      StationCode(stationA),
+      StationCode(stationB)
     )
 
   def titaniumRail(
@@ -43,8 +43,8 @@ object Rail:
       stationB: String
   ): TitaniumRail =
     TitaniumRail(
-      RailCode.fromInt(code),
+      RailCode(code),
       length,
-      StationCode.fromString(stationA),
-      StationCode.fromString(stationB)
+      StationCode(stationA),
+      StationCode(stationB)
     )

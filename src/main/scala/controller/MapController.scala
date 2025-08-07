@@ -10,11 +10,11 @@ import utils.{ErrorMessage, StageManager}
 import view.simconfig.SimulationConfigView
 import view.{MapView, ViewError}
 
-class SimulationConfigTransition(width: Int, height: Int, mapGrid: MapGrid, model: Railway)
+class SimulationConfigTransition(mapGrid: MapGrid, model: Railway)
     extends ScreenTransition[SimulationConfigController, SimulationConfigView]:
 
   def build(): (SimulationConfigController, SimulationConfigView) =
-    val controller = SimulationConfigController(width, height, mapGrid, model)
+    val controller = SimulationConfigController(mapGrid, model)
     val view = SimulationConfigView(controller)
     (controller, view)
 
@@ -62,5 +62,5 @@ class MapController(model: MapGrid) extends BaseController[MapView]:
     val parsedRailway = RailwayMapper.convert(currentModel)
     Simulation(parsedRailway, SimulationState.empty)
 
-    val transition = new SimulationConfigTransition(width, height, currentModel, parsedRailway)
+    val transition = new SimulationConfigTransition(currentModel, parsedRailway)
     transition.transition()

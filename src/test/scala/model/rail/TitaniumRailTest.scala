@@ -11,8 +11,8 @@ class TitaniumRailTest extends RailTest:
   "A TitaniumRail" should "be created with code, length, stations, high speed train" in {
     val rail = titaniumRail(railCode, railLength, stationA, stationB)
     rail.length should be(railLength)
-    rail.stationA should be(StationCode.fromString(stationA))
-    rail.stationB should be(StationCode.fromString(stationB))
+    rail.stationA should be(StationCode(stationA))
+    rail.stationB should be(StationCode(stationB))
     rail shouldBe a[TitaniumRail]
   }
 
