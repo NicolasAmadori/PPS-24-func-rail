@@ -82,7 +82,7 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
     * @return
     *   A sequence of Option[Cell], one for each cardinal neighbor cell, or None if the neighbor is out of grid bounds.
     */
-  def cardinalCells(x: Int, y: Int): Seq[Option[Cell]] = getCells(x, y, cardinalOffsets)
+  private def cardinalCells(x: Int, y: Int): Seq[Option[Cell]] = getCells(x, y, cardinalOffsets)
 
   /** Returns the cells adjacent in the four diagonal directions (top-left, top-right, bottom-left, bottom-right) from
     * the given coordinate.
