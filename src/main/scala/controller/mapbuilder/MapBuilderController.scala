@@ -1,14 +1,14 @@
-package controller
+package controller.mapbuilder
 
 import controller.simconfig.SimulationConfigController
+import controller.{BaseController, ScreenTransition}
 import model.mapgrid.{CellType, MapGrid}
+import model.railway.Railway
 import model.simulation.{Simulation, SimulationState}
 import model.util.RailwayMapper
-import model.railway.Railway
-
 import utils.{ErrorMessage, StageManager}
+import view.mapbuilder.{MapBuilderView, MapBuilderViewError}
 import view.simconfig.SimulationConfigView
-import view.{MapView, ViewError}
 
 class SimulationConfigTransition(mapGrid: MapGrid, model: Railway)
     extends ScreenTransition[SimulationConfigController, SimulationConfigView]:
@@ -22,7 +22,7 @@ class SimulationConfigTransition(mapGrid: MapGrid, model: Railway)
     view.initGraph()
     StageManager.getStage.title = "Simulation Configurator"
 
-class MapController(model: MapGrid) extends BaseController[MapView]:
+class MapBuilderController(model: MapGrid) extends BaseController[MapBuilderView]:
 
   private var currentModel = model
   private var selectedTool: Option[CellType] = None
@@ -36,9 +36,9 @@ class MapController(model: MapGrid) extends BaseController[MapView]:
   def selectTool(tool: CellType): Unit =
     selectedTool = Some(tool)
 
-  private def validation: Either[ViewError, Boolean] =
+  private def validation: Either[MapBuilderViewError, Boolean] =
     if selectedTool.isEmpty then
-      Left(ViewError.NoToolSelected())
+      Left(MapBuilderViewError.NoToolSelected())
     else
       Right(true)
 
@@ -58,7 +58,7 @@ class MapController(model: MapGrid) extends BaseController[MapView]:
           case Left(error) =>
             showError(error, s"Placement failed")
 
-  def onNext(width: Int, height: Int): Unit =
+  def onNext(): Unit =
     val parsedRailway = RailwayMapper.convert(currentModel)
     Simulation(parsedRailway, SimulationState.empty)
 

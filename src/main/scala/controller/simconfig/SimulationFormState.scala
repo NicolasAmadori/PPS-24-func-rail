@@ -51,6 +51,14 @@ case class SimulationFormState(trains: List[TrainConfig] = List.empty, trainId: 
     val nextId = trainId + 1
     (trainId, copy(trains = trains :+ TrainConfig(trainId), trainId = nextId))
 
+  /** Adds a new train to the simulation form state.
+    *
+    * @return
+    *   The updated SimulationFormState
+    */
+  def removeTrain(trainId: Int): SimulationFormState =
+    copy(trains = trains.filterNot(t => t.id == trainId), trainId = trainId)
+
   /** Renames a train by ID */
   def updateTrainName(id: Int, name: String): SimulationFormState =
     copy(trains = trains.map {

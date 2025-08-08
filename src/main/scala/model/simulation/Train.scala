@@ -30,5 +30,3 @@ object Train:
     if route.isEmpty then throw new IllegalArgumentException("Route cannot be empty.")
     if route.distinct.size != route.size then
       throw new IllegalArgumentException("Route cannot contain duplicate stations.")
-
-case class TrainRoute(fullRoute: List[StationCode], currentStationIndex: Int = 0, forward: Boolean = true)

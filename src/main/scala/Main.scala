@@ -1,9 +1,9 @@
-import controller.MapController
+import controller.mapbuilder.MapBuilderController
 import model.mapgrid.MapGrid
 import scalafx.application.JFXApp3
 import scalafx.scene.Scene
 import utils.StageManager
-import view.MapView
+import view.mapbuilder.MapBuilderView
 
 object Main extends JFXApp3:
 
@@ -12,8 +12,8 @@ object Main extends JFXApp3:
 
   override def start(): Unit =
     val model = MapGrid.empty(cols, rows)
-    val controller = MapController(model)
-    val view = MapView(cols, rows, controller)
+    val controller = MapBuilderController(model)
+    val view = MapBuilderView(cols, rows, controller)
 
     controller.attachView(view)
 

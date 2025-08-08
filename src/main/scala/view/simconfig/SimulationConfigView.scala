@@ -29,6 +29,7 @@ class SimulationConfigView(
 
   private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph(controller.getRailway))
   private val stations = controller.getStationCodes
+  private var simulationDuration: Int = 100
 
   private val alert = new Alert(AlertType.Error):
     title = "Error"
@@ -90,7 +91,17 @@ class SimulationConfigView(
   private def newTrainButton: Button = new Button("New train"):
     onAction = _ =>
       val id = controller.addTrain()
-      sidebarGroups = sidebarGroups ++ List(TrainConfigGroup(id, stations, controller))
+      var trainGroup: TrainConfigGroup = null
+      trainGroup = TrainConfigGroup(
+        id,
+        stations,
+        controller,
+        () =>
+          sidebarGroups = sidebarGroups.filterNot(_ eq trainGroup)
+          sidebarContainer.children = sidebarGroups
+          controller.removeTrain(id)
+      )
+      sidebarGroups = sidebarGroups :+ trainGroup
       sidebarContainer.children = sidebarGroups
       sidebarContainer.requestLayout()
 
@@ -105,15 +116,16 @@ class SimulationConfigView(
   private def simulationDurationBox(startSimulationButton: Button): TextField =
     val field = new TextField()
     field.promptText = "Simulation duration"
+    field.text = simulationDuration.toString
     field.onKeyTyped = _ =>
+      simulationDuration = field.text.value.toIntOption.getOrElse(0)
       startSimulationButton.disable =
         field.text.value.isEmpty || field.text.value.toIntOption.isEmpty || field.text.value.toInt <= 0
     field
 
   private def startSimulationButton: Button = new Button("Start simulation"):
-    disable = true
     maxWidth = Double.MaxValue
-    onAction = _ => controller.startSimulation()
+    onAction = _ => controller.startSimulation(simulationDuration)
 
   private def backButton: Button = new Button("Back"):
     maxWidth = Double.MaxValue
@@ -142,7 +154,12 @@ class SimulationConfigView(
       ErrorBox(error, title)
     ) ++ sidebarGroups
 
-class TrainConfigGroup(trainId: Int, stations: List[StationCode], controller: SimulationConfigController) extends VBox:
+class TrainConfigGroup(
+    trainId: Int,
+    stations: List[StationCode],
+    controller: SimulationConfigController,
+    deletionCallable: () => Unit
+) extends VBox:
   import SimulationConfigViewConstants.*
 
   spacing = SmallSpacing
@@ -194,10 +211,16 @@ class TrainConfigGroup(trainId: Int, stations: List[StationCode], controller: Si
       spacing = SmallSpacing
       children = node.toSeq
 
+  private val deleteButton =
+    new Button("Delete train"):
+      style = "-fx-text-fill: red;"
+      onAction = _ => deletionCallable()
+
   children = Seq(
     sideBySide(trainNameTextField, highSpeedCheckBox),
     stationsComboBox,
-    stopsCheckboxes
+    stopsCheckboxes,
+    deleteButton
   )
 
 class ErrorBox(message: String, title: String = "") extends HBox:

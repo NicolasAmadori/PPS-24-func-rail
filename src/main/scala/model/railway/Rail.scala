@@ -28,7 +28,7 @@ case class TitaniumRail(
       case _ => false
 
 object Rail:
-  def metalRail(code: Int, length: Int, stationA: String, stationB: String): MetalRail =
+  def metalRail(code: Int, length: Int, stationA: String, stationB: String): Rail =
     MetalRail(
       RailCode(code),
       length,
@@ -41,7 +41,7 @@ object Rail:
       length: Int,
       stationA: String,
       stationB: String
-  ): TitaniumRail =
+  ): Rail =
     TitaniumRail(
       RailCode(code),
       length,
