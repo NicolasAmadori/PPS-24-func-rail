@@ -29,6 +29,7 @@ class SimulationConfigView(
 
   private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph(controller.getRailway))
   private val stations = controller.getStationCodes
+  private var simulationDuration: Int = 100
 
   private val alert = new Alert(AlertType.Error):
     title = "Error"
@@ -115,15 +116,16 @@ class SimulationConfigView(
   private def simulationDurationBox(startSimulationButton: Button): TextField =
     val field = new TextField()
     field.promptText = "Simulation duration"
+    field.text = simulationDuration.toString
     field.onKeyTyped = _ =>
+      simulationDuration = field.text.value.toIntOption.getOrElse(0)
       startSimulationButton.disable =
         field.text.value.isEmpty || field.text.value.toIntOption.isEmpty || field.text.value.toInt <= 0
     field
 
   private def startSimulationButton: Button = new Button("Start simulation"):
-    disable = true
     maxWidth = Double.MaxValue
-    onAction = _ => controller.startSimulation()
+    onAction = _ => controller.startSimulation(simulationDuration)
 
   private def backButton: Button = new Button("Back"):
     maxWidth = Double.MaxValue

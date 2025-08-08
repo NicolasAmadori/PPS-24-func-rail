@@ -9,6 +9,7 @@ import view.GraphUtil
 
 class SimulationBuilderTest extends AnyFlatSpec:
 
+  private val DURATION = 100
   private val railway = GraphUtil.createRailway()
 
   "SimulationBuilder" should "build a simulation from a configuration" in {
@@ -21,7 +22,7 @@ class SimulationBuilderTest extends AnyFlatSpec:
         List(StationCode(GraphUtil.STATION_B), StationCode(GraphUtil.STATION_C))
       )
     )
-    val simulation = SimulationBuilder.build(railway, trainsConfig)
+    val simulation = SimulationBuilder.build(railway, DURATION, trainsConfig)
     simulation.isRight should be(true)
     simulation match
       case Right(sim) =>
@@ -36,7 +37,7 @@ class SimulationBuilderTest extends AnyFlatSpec:
     val trainsConfig = List(
       TrainConfig(0, "", HighSpeed, StationCode(GraphUtil.STATION_A), List(StationCode("InvalidStation")))
     )
-    val simulation = SimulationBuilder.build(railway, trainsConfig)
+    val simulation = SimulationBuilder.build(railway, DURATION, trainsConfig)
     simulation.isLeft should be(true)
     simulation match
       case Left(error) =>
@@ -48,7 +49,7 @@ class SimulationBuilderTest extends AnyFlatSpec:
     val trainsConfig = List(
       TrainConfig(0, "Train1", HighSpeed, StationCode(GraphUtil.STATION_A), List(StationCode("InvalidStation")))
     )
-    val simulation = SimulationBuilder.build(railway, trainsConfig)
+    val simulation = SimulationBuilder.build(railway, DURATION, trainsConfig)
     simulation.isLeft should be(true)
     simulation match
       case Left(error) =>
@@ -60,7 +61,7 @@ class SimulationBuilderTest extends AnyFlatSpec:
     val trainsConfig = List(
       TrainConfig(0, "Train1", HighSpeed, StationCode.empty, List(StationCode(GraphUtil.STATION_B)))
     )
-    val simulation = SimulationBuilder.build(railway, trainsConfig)
+    val simulation = SimulationBuilder.build(railway, DURATION, trainsConfig)
     simulation.isLeft should be(true)
     simulation match
       case Left(error) =>

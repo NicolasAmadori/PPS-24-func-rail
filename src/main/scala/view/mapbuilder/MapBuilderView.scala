@@ -1,15 +1,18 @@
-package view
+package view.mapbuilder
 
-import controller.MapController
 import model.mapgrid.*
 import scalafx.application.Platform
 import scalafx.geometry.Insets
-import scalafx.scene.{Node, Parent}
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.control.{Alert, Button, RadioButton, ToggleGroup}
+import scalafx.scene.control.{Alert, Button, RadioButton, ToggleGroup, Label}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
+import scalafx.scene.{Node, Parent}
 import utils.ErrorMessage
 import view.simconfig.SimulationConfigViewConstants.{DefaultPadding, DefaultSpacing}
+import view.View
+import MapViewConstants.*
+import ToolMappings.*
+import controller.mapbuilder.MapBuilderController
 
 object ToolMappings:
   val railNameToCell: Map[String, CellType] = Map(
@@ -34,14 +37,8 @@ object MapViewConstants:
   val DefaultColor = "white"
   val DefaultCellSize = 15
 
-class MapView(width: Int, height: Int, controller: MapController) extends BorderPane, View:
+class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) extends BorderPane, View:
 
-  import ToolMappings.*
-  import MapViewConstants.*
-  import scalafx.scene.control.Label
-
-  private val mapWidth = width
-  private val mapHeight = height
   private val gridPane = new GridPane
   private val toolsGroup = new ToggleGroup
   private val toolButtons = createToolButtons()
@@ -87,7 +84,7 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
 
   private def parseMapButton: Button = new Button("Parse Map"):
     maxWidth = Double.MaxValue
-    onAction = _ => controller.onNext(mapWidth, mapHeight)
+    onAction = _ => controller.onNext()
 
   private def createToolButtons(): Seq[Node] =
     val railLabel = new Label("Rails:")

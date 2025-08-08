@@ -17,7 +17,7 @@ object SimulationBuilder:
     * @return
     *   Either a list of SimulationError or a Simulation instance
     */
-  def build(railway: Railway, configs: List[TrainConfig]): Either[List[SimulationError], Simulation] =
+  def build(railway: Railway, duration: Int, configs: List[TrainConfig]): Either[List[SimulationError], Simulation] =
     val trains = configs.map { c =>
       val stops = List(c.departureStation) ++ c.stops.filterNot(s => s == c.departureStation)
       c.trainType match
