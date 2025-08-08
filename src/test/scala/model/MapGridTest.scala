@@ -1,6 +1,6 @@
 package model
 
-import model.mapgrid.{BigStationPiece, BigStationType, MapGrid, MetalRailType, PlacementError, SmallStationType, TitaniumRailType}
+import model.mapgrid.{BigStationType, MapGrid, MetalRailType, PlacementError, SmallStationType, TitaniumRailType}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -107,7 +107,7 @@ class MapGridTest extends AnyFlatSpec:
         updated.getStationsNumber should be(1)
         val surrounding = for dx <- -1 to 1; dy <- -1 to 1 yield (centerX + dx, centerY + dy)
         surrounding.foreach { (x, y) =>
-          updated.cells(y)(x) shouldBe BigStationPiece(_: Int)
+          updated.cells(y)(x).cellType should be(BigStationType)
         }
 
       case Left(err) =>

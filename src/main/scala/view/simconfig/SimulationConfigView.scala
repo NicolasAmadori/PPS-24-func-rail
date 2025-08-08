@@ -5,7 +5,6 @@ import model.railway.Domain.StationCode
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.geometry.Pos.{BottomCenter, Center}
-
 import scalafx.scene.control.*
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy.{AsNeeded, Never}
@@ -28,16 +27,17 @@ class SimulationConfigView(
 
   import SimulationConfigViewConstants.*
 
+  private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph(controller.getRailway))
   private val stations = controller.getStationCodes
 
   private val alert = new Alert(AlertType.Error):
     title = "Error"
 
-  private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph())
   private val root = createRoot
-  private lazy val sidebarContainer: Pane = new VBox():
+  private lazy val sidebarContainer: VBox = new VBox():
     prefWidth = SidebarMinWidth
     spacing = DefaultSpacing
+    vgrow = Priority.Always
 
   private var sidebarGroups: List[Pane] = List.empty
 
@@ -61,16 +61,31 @@ class SimulationConfigView(
       center = graphPane
       right = sidebar
 
-  private def sidebar: VBox =
-    new VBox:
+  private def sidebar: BorderPane =
+    new BorderPane:
       prefWidth = SidebarMinWidth
       padding = DefaultPadding
-      spacing = DefaultSpacing
-      children = Seq(
-        newTrainButton,
-        trainConfigScrollPane,
-        startSimulationButton
-      )
+
+      top = new VBox:
+        spacing = DefaultSpacing
+        children = Seq(
+          newTrainButton,
+          new VBox:
+            vgrow = Priority.Always
+            children = Seq(trainConfigScrollPane)
+        )
+
+      val startButton = startSimulationButton
+      bottom = new HBox:
+        spacing = DefaultSpacing
+        padding = Insets(10, 0, 0, 0)
+        fillHeight = true
+        alignment = BottomCenter // oppure BottomCenter
+        maxWidth = Double.MaxValue
+        children = Seq(backButton, simulationDurationBox(startButton), startButton)
+        HBox.setHgrow(backButton, Priority.Always)
+        HBox.setHgrow(simulationDurationBox(startButton), Priority.Always)
+        HBox.setHgrow(startSimulationButton, Priority.Always)
 
   private def newTrainButton: Button = new Button("New train"):
     onAction = _ =>
@@ -87,6 +102,7 @@ class SimulationConfigView(
       )
       sidebarGroups = sidebarGroups :+ trainGroup
       sidebarContainer.children = sidebarGroups
+      sidebarContainer.requestLayout()
 
   private def trainConfigScrollPane: ScrollPane = new ScrollPane():
     hbarPolicy = Never
@@ -94,11 +110,24 @@ class SimulationConfigView(
     fitToWidth = true
     style = "-fx-border-color: transparent; -fx-background-insets: 0;"
     content = sidebarContainer
+    maxHeight = 700
+
+  private def simulationDurationBox(startSimulationButton: Button): TextField =
+    val field = new TextField()
+    field.promptText = "Simulation duration"
+    field.onKeyTyped = _ =>
+      startSimulationButton.disable =
+        field.text.value.isEmpty || field.text.value.toIntOption.isEmpty || field.text.value.toInt <= 0
+    field
 
   private def startSimulationButton: Button = new Button("Start simulation"):
-    alignmentInParent = BottomCenter
+    disable = true
     maxWidth = Double.MaxValue
     onAction = _ => controller.startSimulation()
+
+  private def backButton: Button = new Button("Back"):
+    maxWidth = Double.MaxValue
+    onAction = _ => controller.onBack()
 
   private def graphPane: Pane =
     val automaticLayoutCheckbox = CheckBox("Automatic layout")
@@ -154,7 +183,7 @@ class TrainConfigGroup(
       onAction = _ =>
         val selectedStation = value.value
         if selectedStation != null then
-          controller.setDepartureStation(trainId, StationCode.fromString(selectedStation))
+          controller.setDepartureStation(trainId, StationCode(selectedStation))
 
   private val stopsCheckBoxes =
     stations.map(s => StationCode.value(s)).map { station =>
@@ -162,9 +191,9 @@ class TrainConfigGroup(
         selected = false
         onAction = _ =>
           if selected.value then
-            controller.addStop(trainId, StationCode.fromString(station))
+            controller.addStop(trainId, StationCode(station))
           else
-            controller.removeStop(trainId, StationCode.fromString(station))
+            controller.removeStop(trainId, StationCode(station))
     }
 
   private def stopsCheckboxes: ScrollPane =

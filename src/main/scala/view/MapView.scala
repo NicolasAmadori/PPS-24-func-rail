@@ -4,16 +4,20 @@ import controller.MapController
 import model.mapgrid.*
 import scalafx.application.Platform
 import scalafx.geometry.Insets
-import scalafx.scene.Parent
+import scalafx.scene.{Node, Parent}
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.{Alert, Button, RadioButton, ToggleGroup}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import utils.ErrorMessage
+import view.simconfig.SimulationConfigViewConstants.{DefaultPadding, DefaultSpacing}
 
 object ToolMappings:
-  val nameToCell: Map[String, CellType] = Map(
+  val railNameToCell: Map[String, CellType] = Map(
     "Metal rail" -> MetalRailType,
-    "Titanium rail" -> TitaniumRailType,
+    "Titanium rail" -> TitaniumRailType
+  )
+
+  val stationNameToCell: Map[String, CellType] = Map(
     "Small station" -> SmallStationType,
     "Big station" -> BigStationType
   )
@@ -34,7 +38,10 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
 
   import ToolMappings.*
   import MapViewConstants.*
+  import scalafx.scene.control.Label
 
+  private val mapWidth = width
+  private val mapHeight = height
   private val gridPane = new GridPane
   private val toolsGroup = new ToggleGroup
   private val toolButtons = createToolButtons()
@@ -43,16 +50,21 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
   private val alert = new Alert(AlertType.Error):
     title = "Error"
 
-  private val toolPanel = new VBox:
-    spacing = 10
-    margin = Insets(10)
-    children = toolButtons ++ Seq(
-      new Button("Parse map"):
-        onAction = _ => controller.onNext()
-    )
+  private def sidebar: BorderPane =
+    new BorderPane:
+      prefWidth = 200
+      padding = DefaultPadding
+      margin = Insets(10)
 
-  left = toolPanel
+      top = new VBox:
+        spacing = DefaultSpacing
+        children = toolButtons
+
+      bottom = parseMapButton
+
+  right = sidebar
   center = gridPane
+  maxWidth = 1300
 
   initialize()
 
@@ -73,16 +85,33 @@ class MapView(width: Int, height: Int, controller: MapController) extends Border
       btn
     }
 
-  private def createToolButtons(): Seq[RadioButton] =
-    nameToCell.keys.toSeq.map: label =>
+  private def parseMapButton: Button = new Button("Parse Map"):
+    maxWidth = Double.MaxValue
+    onAction = _ => controller.onNext(mapWidth, mapHeight)
+
+  private def createToolButtons(): Seq[Node] =
+    val railLabel = new Label("Rails:")
+
+    val rails = railNameToCell.keys.toSeq.map { label =>
       new RadioButton(label):
         toggleGroup = toolsGroup
+    }
+
+    val stationLabel = new Label("Stations:")
+    val stations = stationNameToCell.keys.toSeq.map { label =>
+      new RadioButton(label):
+        toggleGroup = toolsGroup
+    }
+
+    rails ++ stations match
+      case allButtons =>
+        Seq(railLabel) ++ rails ++ Seq(stationLabel) ++ stations
 
   private def setupToolListener(): Unit =
     toolsGroup.selectedToggle.onChange { (_, _, newToggle) =>
       Option(newToggle)
         .collect { case rb: javafx.scene.control.RadioButton => RadioButton(rb) }
-        .flatMap(rb => nameToCell.get(rb.text()))
+        .flatMap(rb => railNameToCell.get(rb.text()).orElse(stationNameToCell.get(rb.text())))
         .foreach(controller.selectTool)
     }
 

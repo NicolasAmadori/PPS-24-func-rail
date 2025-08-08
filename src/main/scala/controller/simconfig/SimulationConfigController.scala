@@ -1,16 +1,31 @@
 package controller.simconfig
 
-import controller.BaseController
+import controller.{BaseController, MapController, ScreenTransition}
+import model.mapgrid.MapGrid
 import model.railway.Domain.StationCode
 import model.railway.Railway
 import model.simulation.Simulation
+import utils.StageManager
+import view.MapView
 import view.simconfig.SimulationConfigView
+
+class MapBuilderTransition(model: MapGrid)
+    extends ScreenTransition[MapController, MapView]:
+
+  def build(): (MapController, MapView) =
+    val controller = MapController(model)
+    val view = MapView(model.width, model.height, controller)
+    (controller, view)
+
+  override def afterAttach(controller: MapController, view: MapView): Unit =
+    StageManager.getStage.title = "Map Builder"
 
 /** Controller for managing the simulation configuration view.
   * @param model
   *   the Railway model that contains the railway data
   */
-class SimulationConfigController(model: Railway) extends BaseController[SimulationConfigView]:
+class SimulationConfigController(mapGrid: MapGrid, model: Railway)
+    extends BaseController[SimulationConfigView]:
 
   private var localState: SimulationFormState = SimulationFormState()
 
@@ -100,3 +115,7 @@ class SimulationConfigController(model: Railway) extends BaseController[Simulati
       case Left(error) => getView.showErrors(error)
       case Right(sim) =>
         println("Transitioning to simulation view")
+
+  def onBack(): Unit =
+    val transition = new MapBuilderTransition(mapGrid)
+    transition.transition()

@@ -2,22 +2,25 @@ package controller
 
 import controller.simconfig.SimulationConfigController
 import model.mapgrid.{CellType, MapGrid}
+import model.simulation.{Simulation, SimulationState}
+import model.util.RailwayMapper
 import model.railway.Railway
 
-import utils.ErrorMessage
+import utils.{ErrorMessage, StageManager}
 import view.simconfig.SimulationConfigView
-import view.{GraphUtil, MapView, ViewError}
+import view.{MapView, ViewError}
 
-class SimulationConfigTransition(model: Railway)
+class SimulationConfigTransition(mapGrid: MapGrid, model: Railway)
     extends ScreenTransition[SimulationConfigController, SimulationConfigView]:
 
   def build(): (SimulationConfigController, SimulationConfigView) =
-    val controller = SimulationConfigController(model)
+    val controller = SimulationConfigController(mapGrid, model)
     val view = SimulationConfigView(controller)
     (controller, view)
 
   override def afterAttach(controller: SimulationConfigController, view: SimulationConfigView): Unit =
     view.initGraph()
+    StageManager.getStage.title = "Simulation Configurator"
 
 class MapController(model: MapGrid) extends BaseController[MapView]:
 
@@ -28,6 +31,7 @@ class MapController(model: MapGrid) extends BaseController[MapView]:
 
   def setOnModelUpdated(callback: MapGrid => Unit): Unit =
     onModelUpdated = callback
+    onModelUpdated(currentModel)
 
   def selectTool(tool: CellType): Unit =
     selectedTool = Some(tool)
@@ -54,8 +58,9 @@ class MapController(model: MapGrid) extends BaseController[MapView]:
           case Left(error) =>
             showError(error, s"Placement failed")
 
-  def onNext(): Unit =
-    val parsedRailway = GraphUtil.createRailway()
+  def onNext(width: Int, height: Int): Unit =
+    val parsedRailway = RailwayMapper.convert(currentModel)
+    Simulation(parsedRailway, SimulationState.empty)
 
-    val transition = new SimulationConfigTransition(parsedRailway)
+    val transition = new SimulationConfigTransition(currentModel, parsedRailway)
     transition.transition()
