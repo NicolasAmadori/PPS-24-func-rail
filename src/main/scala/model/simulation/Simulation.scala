@@ -4,7 +4,22 @@ import model.railway.Domain.{StationCode, TrainCode}
 import model.railway.Railway
 import model.simulation.SimulationError.{EmptyTrainName, InvalidDeparture, InvalidRoute}
 
-case class Simulation(railway: Railway, state: SimulationState):
+case class Simulation(duration: Int, railway: Railway, state: SimulationState):
+
+  def start(): Simulation =
+    val newState = state.copy(simulationStep = 0)
+    copy(state = newState)
+
+  def doStep(): Either[SimulationError, (Simulation, List[String])] =
+    if state.simulationStep < 0 then
+      Left(SimulationError.NotStarted())
+    else
+      val nextStep = state.simulationStep + 1
+      val logs = List(s"Step $nextStep executed")
+      val newState = state.copy(simulationStep = nextStep)
+      Right((copy(state = newState), logs))
+
+  def isFinished: Boolean = state.simulationStep == duration
 
   def addTrains(trains: List[Train]): Either[List[SimulationError], Simulation] =
     val invalidTrains = trains.flatMap(validateTrain)
@@ -32,4 +47,4 @@ case class Simulation(railway: Railway, state: SimulationState):
     departure != StationCode.empty && railway.stations.exists(_.code == departure)
 
 object Simulation:
-  def withRailway(railway: Railway): Simulation = Simulation(railway, SimulationState.empty)
+  def withRailway(duration: Int, railway: Railway): Simulation = Simulation(duration, railway, SimulationState.empty)

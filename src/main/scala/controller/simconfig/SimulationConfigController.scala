@@ -97,11 +97,12 @@ class SimulationConfigController(mapGrid: MapGrid, model: Railway)
 
   /** Start the simulation by building the Simulation object and transitioning to the simulation view */
   def startSimulation(duration: Int): Unit =
-    val simulation = SimulationBuilder.build(model, duration, localState.trains)
+    val simulation = SimulationBuilder.build(duration, model, localState.trains)
     simulation match
       case Left(error) => getView.showErrors(error)
       case Right(sim) =>
-        println("Transitioning to simulation view")
+        val transition = new SimulationTransition(sim)
+        transition.transition()
 
   def onBack(): Unit =
     val transition = new MapBuilderTransition(mapGrid)

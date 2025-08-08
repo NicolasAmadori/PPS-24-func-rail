@@ -17,6 +17,8 @@ class SimulationTest extends AnyFlatSpec:
   val trainCode1 = "101"
   val trainCode2 = "202"
 
+  val simulationDuration = 100
+
   val train1: Train = normalTrain(trainCode1, StationCode.listOf(stationCode1, stationCode2))
   val train2: Train = highSpeedTrain(trainCode2, StationCode.listOf(stationCode2, stationCode3))
 
@@ -53,14 +55,14 @@ class SimulationTest extends AnyFlatSpec:
 
   "A Simulation" should "be created with a Railway and a SimulationState with trains" in {
     val state = SimulationState(List(train1, train2))
-    val simulation = Simulation(railway, state)
+    val simulation = Simulation(simulationDuration, railway, state)
 
     simulation.railway should be(railway)
   }
 
   it should "not allow adding a train with an invalid route" in {
     val invalidTrain = normalTrain(trainCode1, StationCode.listOf(stationCode1, "INVALID_STATION"))
-    val simulation = Simulation(railway, SimulationState.empty)
+    val simulation = Simulation(simulationDuration, railway, SimulationState.empty)
     val result = simulation.addTrains(List(invalidTrain))
 
     result should be(Left(List(SimulationError.InvalidRoute(invalidTrain.code))))

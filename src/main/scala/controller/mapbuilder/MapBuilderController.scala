@@ -4,7 +4,6 @@ import controller.simconfig.SimulationConfigController
 import controller.{BaseController, ScreenTransition}
 import model.mapgrid.{CellType, MapGrid}
 import model.railway.Railway
-import model.simulation.{Simulation, SimulationState}
 import model.util.RailwayMapper
 import utils.{ErrorMessage, StageManager}
 import view.mapbuilder.{MapBuilderView, MapBuilderViewError}
@@ -60,7 +59,5 @@ class MapBuilderController(model: MapGrid) extends BaseController[MapBuilderView
 
   def onNext(): Unit =
     val parsedRailway = RailwayMapper.convert(currentModel)
-    Simulation(parsedRailway, SimulationState.empty)
-
     val transition = new SimulationConfigTransition(currentModel, parsedRailway)
     transition.transition()

@@ -6,7 +6,8 @@ import model.railway.Rail
 case class SimulationState(
     trains: List[Train],
     trainStates: Map[TrainCode, TrainState],
-    railStates: Map[RailCode, RailState]
+    railStates: Map[RailCode, RailState],
+    simulationStep: Int = -1
 ) extends TrainOperations[SimulationState]:
   override def withTrains(newTrains: List[Train]): SimulationState = copy(trains = newTrains)
 
