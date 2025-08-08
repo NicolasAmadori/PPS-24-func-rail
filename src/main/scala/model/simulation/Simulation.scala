@@ -6,7 +6,20 @@ import model.simulation.SimulationError.{EmptyTrainName, InvalidDeparture, Inval
 
 case class Simulation(duration: Int, railway: Railway, state: SimulationState):
 
-  def start(): Unit = println("Simulation started")
+  def start(): Simulation =
+    val newState = state.copy(simulationStep = 0)
+    copy(state = newState)
+
+  def doStep(): Either[SimulationError, (Simulation, List[String])] =
+    if state.simulationStep < 0 then
+      Left(SimulationError.NotStarted())
+    else
+      val nextStep = state.simulationStep + 1
+      val logs = List(s"Step $nextStep executed")
+      val newState = state.copy(simulationStep = nextStep)
+      Right((copy(state = newState), logs))
+
+  def isFinished: Boolean = state.simulationStep == duration
 
   def addTrains(trains: List[Train]): Either[List[SimulationError], Simulation] =
     val invalidTrains = trains.flatMap(validateTrain)
