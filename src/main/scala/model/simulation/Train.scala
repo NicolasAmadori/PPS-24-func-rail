@@ -1,7 +1,6 @@
 package model.simulation
 
 import model.railway.Domain.{StationCode, TrainCode}
-import model.railway.Rail
 
 trait Train:
   def code: TrainCode

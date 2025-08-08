@@ -35,6 +35,14 @@ class SimulationConfigController(model: Railway) extends BaseController[Simulati
     localState = newState
     id
 
+  /** Remove a train by the given id.
+    *
+    * @param trainId
+    *   The id of the train to remove
+    */
+  def removeTrain(trainId: Int): Unit =
+    localState = localState.removeTrain(trainId)
+
   /** Updates the name of a train in the local state.
     * @param id
     *   the id of the train to update

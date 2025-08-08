@@ -1,7 +1,7 @@
 package model.simulation
 
 import model.railway.Domain.{RailCode, StationCode, TrainCode}
-import model.railway.{Rail, Railway}
+import model.railway.Rail
 
 case class SimulationState(
     trains: List[Train],

@@ -75,7 +75,17 @@ class SimulationConfigView(
   private def newTrainButton: Button = new Button("New train"):
     onAction = _ =>
       val id = controller.addTrain()
-      sidebarGroups = sidebarGroups ++ List(TrainConfigGroup(id, stations, controller))
+      var trainGroup: TrainConfigGroup = null
+      trainGroup = TrainConfigGroup(
+        id,
+        stations,
+        controller,
+        () =>
+          sidebarGroups = sidebarGroups.filterNot(_ eq trainGroup)
+          sidebarContainer.children = sidebarGroups
+          controller.removeTrain(id)
+      )
+      sidebarGroups = sidebarGroups :+ trainGroup
       sidebarContainer.children = sidebarGroups
 
   private def trainConfigScrollPane: ScrollPane = new ScrollPane():
@@ -113,7 +123,12 @@ class SimulationConfigView(
       ErrorBox(error, title)
     ) ++ sidebarGroups
 
-class TrainConfigGroup(trainId: Int, stations: List[StationCode], controller: SimulationConfigController) extends VBox:
+class TrainConfigGroup(
+    trainId: Int,
+    stations: List[StationCode],
+    controller: SimulationConfigController,
+    deletionCallable: () => Unit
+) extends VBox:
   import SimulationConfigViewConstants.*
 
   spacing = SmallSpacing
@@ -165,10 +180,16 @@ class TrainConfigGroup(trainId: Int, stations: List[StationCode], controller: Si
       spacing = SmallSpacing
       children = node.toSeq
 
+  private val deleteButton =
+    new Button("Delete train"):
+      style = "-fx-text-fill: red;"
+      onAction = _ => deletionCallable()
+
   children = Seq(
     sideBySide(trainNameTextField, highSpeedCheckBox),
     stationsComboBox,
-    stopsCheckboxes
+    stopsCheckboxes,
+    deleteButton
   )
 
 class ErrorBox(message: String, title: String = "") extends HBox:
