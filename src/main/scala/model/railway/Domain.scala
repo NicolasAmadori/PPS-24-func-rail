@@ -9,10 +9,16 @@ object Domain:
       (code1 :: codes.toList).map(StationCode(_))
     def empty: StationCode = StationCode("")
 
+  extension (code: StationCode)
+    def value: String = code
+
   opaque type RailCode = Int
   object RailCode:
     def apply(code: Int): RailCode = code
     def value(code: RailCode): Int = code
+    
+  extension (code: RailCode)
+    def value: Int = code
 
   opaque type TrainCode = String
   object TrainCode:

@@ -13,37 +13,6 @@ import view.simconfig.StationView;
 import java.util.List;
 
 public class GraphUtil {
-	
-	public static String STATION_A = "Station A";
-	public static String STATION_B = "Station B";
-	public static String STATION_C = "Station C";
-	public static String STATION_D = "Station D";
-	public static String STATION_E = "Station E";
-
-	public static Railway createRailway() {
-
-		List<Station> stations = List.of(
-			new SmallStation(STATION_A),
-			new BigStation(STATION_B),
-			new SmallStation(STATION_C),
-			new BigStation(STATION_D),
-			new BigStation(STATION_E)
-		);
-
-		List<Rail> rails = List.of(
-			new MetalRail(1, 100, stations.get(0).code(), stations.get(1).code()),
-			new TitaniumRail(2, 150, stations.get(1).code(), stations.get(2).code()),
-			new MetalRail(3, 200, stations.get(2).code(), stations.get(3).code()),
-			new TitaniumRail(4, 120, stations.get(0).code(), stations.get(3).code()),
-			new MetalRail(5, 120, stations.get(4).code(), stations.get(3).code())
-		);
-
-		var scalaStations = Converters.toImmutableList(stations);
-		var scalaRails = Converters.toImmutableList(rails);
-
-		return new RailwayImpl(scalaStations, scalaRails);
-	}
-
 	public static Graph<StationView, RailView> createGraph(Railway railway) {
 		Graph<StationView, RailView> graph = new GraphEdgeList<>();
 

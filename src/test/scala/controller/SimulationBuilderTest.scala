@@ -5,12 +5,13 @@ import model.railway.Domain.{StationCode, TrainCode}
 import model.simulation.SimulationError.{EmptyTrainName, InvalidDeparture, InvalidRoute}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
+import utils.SampleRailway
 import view.GraphUtil
 
 class SimulationBuilderTest extends AnyFlatSpec:
 
   private val DURATION = 100
-  private val railway = GraphUtil.createRailway()
+  private val railway = SampleRailway.railway2
 
   "SimulationBuilder" should "build a simulation from a configuration" in {
     val trainsConfig = List(

@@ -13,8 +13,6 @@ object SimConfigMain extends JFXApp3:
   val cols: Int = 70
 
   override def start(): Unit =
-    GraphUtil.createRailway()
-
     val cells = Vector(
       Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
       Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
