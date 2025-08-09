@@ -7,6 +7,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 import utils.SampleRailway
 import view.GraphUtil
+import utils.SampleRailway.SampleStation.*
 
 class SimulationBuilderTest extends AnyFlatSpec:
 
@@ -19,8 +20,8 @@ class SimulationBuilderTest extends AnyFlatSpec:
         0,
         "Train1",
         HighSpeed,
-        StationCode(GraphUtil.STATION_A),
-        List(StationCode(GraphUtil.STATION_B), StationCode(GraphUtil.STATION_C))
+        StationCode(StationA),
+        List(StationCode(StationB), StationCode(StationC))
       )
     )
     val simulation = SimulationBuilder.build(DURATION, railway, trainsConfig)
@@ -29,14 +30,14 @@ class SimulationBuilderTest extends AnyFlatSpec:
       case Right(sim) =>
         sim.state.trains should have size 1
         sim.state.trains.head.code should be("Train1")
-        sim.state.trains.head.stations.head should be(StationCode(GraphUtil.STATION_A))
+        sim.state.trains.head.stations.head should be(StationCode(StationA))
       case Left(_) => fail("Simulation should be built successfully")
 
   }
 
   it should "not accept trains with an empty name" in {
     val trainsConfig = List(
-      TrainConfig(0, "", HighSpeed, StationCode(GraphUtil.STATION_A), List(StationCode("InvalidStation")))
+      TrainConfig(0, "", HighSpeed, StationCode(StationA), List(StationCode("InvalidStation")))
     )
     val simulation = SimulationBuilder.build(DURATION, railway, trainsConfig)
     simulation.isLeft should be(true)
@@ -48,7 +49,7 @@ class SimulationBuilderTest extends AnyFlatSpec:
 
   it should "not accept trains with invalid stations" in {
     val trainsConfig = List(
-      TrainConfig(0, "Train1", HighSpeed, StationCode(GraphUtil.STATION_A), List(StationCode("InvalidStation")))
+      TrainConfig(0, "Train1", HighSpeed, StationCode(StationA), List(StationCode("InvalidStation")))
     )
     val simulation = SimulationBuilder.build(DURATION, railway, trainsConfig)
     simulation.isLeft should be(true)
@@ -60,7 +61,7 @@ class SimulationBuilderTest extends AnyFlatSpec:
 
   it should "not accept trains with no departure station" in {
     val trainsConfig = List(
-      TrainConfig(0, "Train1", HighSpeed, StationCode.empty, List(StationCode(GraphUtil.STATION_B)))
+      TrainConfig(0, "Train1", HighSpeed, StationCode.empty, List(StationCode(StationB)))
     )
     val simulation = SimulationBuilder.build(DURATION, railway, trainsConfig)
     simulation.isLeft should be(true)
