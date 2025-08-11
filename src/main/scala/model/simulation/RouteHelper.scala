@@ -13,10 +13,10 @@ case class UndirectedGraph(adj: Map[StationCode, List[Rail]]) extends Graph:
   def rails(s: StationCode): List[Rail] = adj.getOrElse(s, Nil)
 
 object Graph:
-  def undirectedGraph(rails: List[Rail]): Graph =
+  def undirectedGraph(rails: List[Rail], mapper: Rail => Int): Graph =
     val reversedRails = rails.map {
-      case r: MetalRail => metalRail(r.code.value, r.length, r.stationB.value, r.stationA.value)
-      case r: TitaniumRail => titaniumRail(r.code.value, r.length, r.stationB.value, r.stationA.value)
+      case r: MetalRail => metalRail(r.code.value, mapper(r), r.stationB.value, r.stationA.value)
+      case r: TitaniumRail => titaniumRail(r.code.value, mapper(r), r.stationB.value, r.stationA.value)
     }
     UndirectedGraph((rails ++ reversedRails).groupBy(r => r.stationA).withDefaultValue(Nil))
 
@@ -30,13 +30,15 @@ object PathUtils:
       if distCompare != 0 then distCompare
       else a.code.value.compareTo(b.code.value)
 
-  /**
-   * Dijkstra implementation.
-   * @param graph
-   * @param start starting node
-   * @param end target node
-   * @return the shortest path between start and end on the graph if present, none otherwise
-   */
+  /** Dijkstra implementation.
+    * @param graph
+    * @param start
+    *   starting node
+    * @param end
+    *   target node
+    * @return
+    *   the shortest path between start and end on the graph if present, none otherwise
+    */
   def dijkstra(
       graph: Graph,
       start: StationCode,
@@ -87,13 +89,16 @@ object TSPHeuristics:
   private type PathInfo = List[Rail]
   private type ShortestPaths = Map[(StationCode, StationCode), PathInfo]
 
-  /**
-   * Compute the shortest path to visit all the given stops with a greedy approach.
-   * @param start starting node
-   * @param stops stops to be done
-   * @param shortestPaths shortest paths between all permutations of stops
-   * @return the shortest path as List of rails
-   */
+  /** Compute the shortest path to visit all the given stops with a greedy approach.
+    * @param start
+    *   starting node
+    * @param stops
+    *   stops to be done
+    * @param shortestPaths
+    *   shortest paths between all permutations of stops
+    * @return
+    *   the shortest path as List of rails
+    */
   def greedyTSP(
       start: StationCode,
       stops: Set[StationCode],
@@ -140,18 +145,24 @@ object RouteStrategy:
   given RouteStrategy[NormalTrain] with
     def computeRoute(railway: Railway, departure: StationCode, stops: List[StationCode]): Option[List[Rail]] =
       val rails = railway.rails.collect { case c: MetalRail => c }
-      computeRouteFromRails(departure, stops.toSet, rails)
+      computeRouteFromRails(departure, stops.toSet, rails, _.length)
 
   given RouteStrategy[HighSpeedTrain] with
-    def computeRoute(railway: Railway, departure: StationCode, stops: List[StationCode]): Option[List[Rail]] =
-      computeRouteFromRails(departure, stops.toSet, railway.rails)
+    def computeRoute(railway: Railway, departure: StationCode, stops: List[StationCode]): Option[List[Rail]] = {
+      val mapper: Rail => Int = rail => rail match {
+        case _: MetalRail => rail.length * 3
+        case _: TitaniumRail => rail.length
+      }
+      computeRouteFromRails(departure, stops.toSet, railway.rails, mapper)
+    }
 
   private def computeRouteFromRails(
       departure: StationCode,
       stops: Set[StationCode],
-      rails: List[Rail]
+      rails: List[Rail],
+      mapper: Rail => Int
   ): Option[List[Rail]] =
-    val graph = undirectedGraph(rails)
+    val graph = undirectedGraph(rails, mapper)
     val metaGraph = (for
       src <- stops
       dest <- stops
