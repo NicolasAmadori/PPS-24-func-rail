@@ -2,7 +2,7 @@ package utils
 
 import model.railway.Rail.{metalRail, titaniumRail}
 import model.railway.Station.{bigStation, smallStation}
-import model.railway.{BigStation, MetalRail, Rail, Railway, RailwayImpl, SmallStation, Station}
+import model.railway.{Rail, Railway, RailwayImpl, Station}
 
 object SampleRailway:
 
@@ -14,7 +14,7 @@ object SampleRailway:
     val StationE = "Station E"
 
   import SampleStation.*
-  
+
   def railway1: Railway =
     val stations = List(
       smallStation(StationA),

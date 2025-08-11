@@ -4,7 +4,7 @@ import model.util.RailwayMapper
 import scalafx.application.JFXApp3
 import scalafx.scene.Scene
 import utils.StageManager
-import view.GraphUtil
+
 import view.simconfig.SimulationConfigView
 
 object SimConfigMain extends JFXApp3:

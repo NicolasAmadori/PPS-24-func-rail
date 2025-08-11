@@ -1,7 +1,7 @@
 package model
 
 import model.railway.Domain.{StationCode, TrainCode}
-import model.simulation.Train.{highSpeed, highSpeedTrain, normalSpeed, normalTrain}
+import model.simulation.Train.{highSpeed, highSpeedTrain, defaultSpeed, normalTrain}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -17,7 +17,7 @@ class TrainTest extends AnyFlatSpec:
   "A Train" should "be created with code" in {
     val train = normalTrain(trainCode1, StationCode.listOf(stationCode1, stationCode2))
     train.code should be(TrainCode(trainCode1))
-    train.speed should be(normalSpeed)
+    train.speed should be(defaultSpeed)
 
     val fastTrain = highSpeedTrain(trainCode2, StationCode.listOf(stationCode2, stationCode3))
     fastTrain.code should be(TrainCode(trainCode2))

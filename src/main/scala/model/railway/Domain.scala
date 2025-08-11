@@ -16,7 +16,7 @@ object Domain:
   object RailCode:
     def apply(code: Int): RailCode = code
     def value(code: RailCode): Int = code
-    
+
   extension (code: RailCode)
     def value: Int = code
 

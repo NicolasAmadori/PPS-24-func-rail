@@ -10,7 +10,6 @@ import model.simulation.TrainRoute.toRoute
 /** Builder for creating a Simulation instance based on a Railway and a list of TrainConfig.
   */
 object SimulationBuilder:
-  import RouteHelper.given
 
   /** Builds a [[model.simulation.Simulation]] object using the provided [[model.railway.Railway]] and parsing the train
     * configurations.

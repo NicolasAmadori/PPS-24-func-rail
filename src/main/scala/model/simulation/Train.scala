@@ -2,7 +2,7 @@ package model.simulation
 
 import model.railway.Domain.{StationCode, TrainCode}
 import model.railway.Rail
-import model.simulation.SimulationError.{EmptyTrainName, InvalidDeparture, InvalidRoute}
+
 import model.simulation.TrainRoute.TrainRoute
 
 trait Train:
@@ -22,17 +22,17 @@ case class HighSpeedTrain(code: TrainCode, speed: Float, stations: List[StationC
   def withRoute(route: TrainRoute): Train = copy(route = route)
 
 object Train:
-  val normalSpeed: Float = 100.0f
+  val defaultSpeed: Float = 100.0f
   val highSpeed: Float = 300.0f
 
   def normalTrain(code: String, stations: List[StationCode]): NormalTrain =
     validateStops(stations)
-    NormalTrain(TrainCode(code), normalSpeed, stations, TrainRoute.empty)
+    NormalTrain(TrainCode(code), defaultSpeed, stations, TrainRoute.empty)
 
   def highSpeedTrain(code: String, stations: List[StationCode]): HighSpeedTrain =
     validateStops(stations)
     HighSpeedTrain(TrainCode(code), highSpeed, stations, TrainRoute.empty)
-    
+
   private def validateStops(stops: List[StationCode]): Unit =
     if stops.isEmpty then throw new IllegalArgumentException("Route cannot be empty.")
     if stops.distinct.size != stops.size then
@@ -49,6 +49,6 @@ object TrainRoute:
 
     def stationsInRoute: Set[StationCode] =
       tr.flatMap(r => List(r.stationA, r.stationB)).toSet
-  
+
   extension (rl: List[Rail])
     def toRoute: TrainRoute = rl

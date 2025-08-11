@@ -1,9 +1,7 @@
 package model.simulation
 
-import model.railway.Domain.{StationCode, TrainCode}
+import model.railway.Domain.TrainCode
 import model.railway.Railway
-import model.simulation.SimulationError.{CannotComputeRoute, EmptyTrainName, InvalidDeparture, InvalidRoute}
-import model.simulation.TrainRoute.TrainRoute
 
 case class Simulation(duration: Int, railway: Railway, state: SimulationState):
 

@@ -7,7 +7,6 @@ import org.scalatest.matchers.should.Matchers.*
 import utils.SampleRailway
 import SampleRailway.SampleStation.*
 
-
 class RouteHelperTest extends AnyFlatSpec:
 
   private val trainCode = "T1"

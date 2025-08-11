@@ -3,13 +3,15 @@ package model.simulation
 import model.railway.Domain.{RailCode, StationCode, TrainCode}
 import model.simulation.TrainPosition.AtStation
 
-/**
- * Represent the mutable state of the simulation.
- * @param trains
- * @param trainStates map of [[model.Domain.TrainCode]] and corresponding state
- * @param railStates occupancy of rails
- * @param simulationStep counter for simulation progression
- */
+/** Represent the mutable state of the simulation.
+  * @param trains
+  * @param trainStates
+  *   map of [[model.Domain.TrainCode]] and corresponding state
+  * @param railStates
+  *   occupancy of rails
+  * @param simulationStep
+  *   counter for simulation progression
+  */
 case class SimulationState(
     trains: List[Train],
     trainStates: Map[TrainCode, TrainState],
@@ -21,6 +23,7 @@ case class SimulationState(
 object SimulationState:
   /** Creates a simulation state with trains */
   def apply(trains: List[Train]): SimulationState = SimulationState(trains, Map.empty, Map.empty)
+
   /** Defines an empty simulation with empty train list */
   def empty: SimulationState = SimulationState(List.empty)
 
