@@ -17,9 +17,7 @@ class RouteHelperTest extends AnyFlatSpec:
     val stations = List(StationB, StationD, StationE).map(StationCode(_))
     val result = RouteHelper.getRouteForTrain(
       normalTrain(trainCode, stations),
-      railway,
-      StationCode(StationB),
-      stations.filterNot(_.value == StationB)
+      railway
     )
 
     val stationsInResult = result.get.flatMap(r => List(r.stationA, r.stationB)).toSet
@@ -31,9 +29,7 @@ class RouteHelperTest extends AnyFlatSpec:
     val stations = List(StationB, StationD, StationE).map(StationCode(_))
     val result = RouteHelper.getRouteForTrain(
       normalTrain(trainCode, stations),
-      railway,
-      StationCode(StationB),
-      stations.filterNot(_.value == StationB)
+      railway
     )
 
     result should be(None)
@@ -46,15 +42,11 @@ class RouteHelperTest extends AnyFlatSpec:
     val highSpeed = highSpeedTrain(trainCode, stations)
     val resultForNormal = RouteHelper.getRouteForTrain(
       normal,
-      railway,
-      StationCode(StationB),
-      stations.filterNot(_.value == StationB)
+      railway
     )
     val resultForHighSpeed = RouteHelper.getRouteForTrain(
       highSpeed,
-      railway,
-      StationCode(StationB),
-      stations.filterNot(_.value == StationB)
+      railway
     )
     resultForNormal should be(None)
     val stationsInResult = resultForHighSpeed.get.flatMap(r => List(r.stationA, r.stationB)).toSet

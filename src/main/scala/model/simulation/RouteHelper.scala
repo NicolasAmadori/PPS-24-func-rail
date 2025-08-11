@@ -3,7 +3,6 @@ package model.simulation
 import model.railway.Domain.StationCode
 import model.railway.Rail.{metalRail, titaniumRail}
 import model.railway.{MetalRail, Rail, Railway, TitaniumRail}
-
 import scala.annotation.tailrec
 import scala.collection.immutable.TreeSet
 
@@ -126,19 +125,19 @@ object RouteStrategy:
   given RouteStrategy[NormalTrain] with
     def computeRoute(railway: Railway, departure: StationCode, stops: List[StationCode]): Option[List[Rail]] =
       val rails = railway.rails.collect { case c: MetalRail => c }
-      computeRouteFromRails(departure, stops, rails)
+      computeRouteFromRails(departure, stops.toSet, rails)
 
   given RouteStrategy[HighSpeedTrain] with
     def computeRoute(railway: Railway, departure: StationCode, stops: List[StationCode]): Option[List[Rail]] =
-      computeRouteFromRails(departure, stops, railway.rails)
+      computeRouteFromRails(departure, stops.toSet, railway.rails)
 
   private def computeRouteFromRails(
       departure: StationCode,
-      stops: List[StationCode],
+      stops: Set[StationCode],
       rails: List[Rail]
   ): Option[List[Rail]] =
     val graph = undirectedGraph(rails)
-    val relevantNodes = departure +: stops
+    val relevantNodes = stops + departure
     val metaGraph = (for
       src <- relevantNodes
       dest <- relevantNodes
@@ -147,7 +146,7 @@ object RouteStrategy:
       val result = dijkstra(graph, src, dest)
       (src, dest) -> result.getOrElse(Nil)
     ).toMap
-    val route = greedyTSP(departure, stops.toSet, metaGraph)
+    val route = greedyTSP(departure, stops, metaGraph)
     val routeStations = route.flatMap(r => List(r.stationA, r.stationB)).distinct
     if relevantNodes.forall(n => routeStations.contains(n)) then
       Some(route)
@@ -155,7 +154,7 @@ object RouteStrategy:
       None
 
 object RouteHelper:
-  def getRouteForTrain[T <: Train](train: T, railway: Railway, dep: StationCode, stops: List[StationCode])(using
+  def getRouteForTrain[T <: Train](train: T, railway: Railway)(using
       strategy: RouteStrategy[T]
   ): Option[List[Rail]] =
-    strategy.computeRoute(railway, dep, stops)
+    strategy.computeRoute(railway, train.departureStation, train.stations)

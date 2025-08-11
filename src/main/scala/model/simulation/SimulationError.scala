@@ -14,3 +14,6 @@ object SimulationError:
     override def toString: String = s"Invalid route for train $code"
   case class InvalidDeparture(code: TrainCode) extends SimulationError:
     override def toString: String = s"Invalid departure station for train $code"
+  case class CannotComputeRoute(code: TrainCode) extends SimulationError:
+    override def toString: String = s"Cannot compute $code route"
+    

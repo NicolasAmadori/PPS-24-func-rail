@@ -2,7 +2,7 @@ package model.simulation
 
 import model.railway.Domain.{StationCode, TrainCode}
 import model.railway.Railway
-import model.simulation.SimulationError.{EmptyTrainName, InvalidDeparture, InvalidRoute}
+import model.simulation.SimulationError.{CannotComputeRoute, EmptyTrainName, InvalidDeparture, InvalidRoute}
 
 case class Simulation(duration: Int, railway: Railway, state: SimulationState):
 
@@ -21,13 +21,21 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState):
 
   def isFinished: Boolean = state.simulationStep == duration
 
+  /** Adds the train list to the state initializing the state for each by computing the route.
+    * @param trains
+    * @return
+    *   either a list of errors if train's data are invalid or if the route cannot be computed, or the updated
+    *   simulation
+    */
   def addTrains(trains: List[Train]): Either[List[SimulationError], Simulation] =
     val invalidTrains = trains.flatMap(validateTrain)
     if invalidTrains.nonEmpty then
       Left(invalidTrains)
     else
-      val updatedState = state.withTrains(state.trains ++ trains)
-      Right(copy(state = updatedState))
+      val updatedState = state.withTrains(state.trains ++ trains).assignRoutes(railway)
+      val errors = updatedState.routeErrors
+      if errors.nonEmpty then Left(errors)
+      else Right(copy(state = updatedState))
 
   private def validateTrain(train: Train): List[SimulationError] =
     val codeError = if !hasValidCode(train.code) then Some(EmptyTrainName()) else None
