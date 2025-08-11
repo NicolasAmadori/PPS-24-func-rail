@@ -44,7 +44,7 @@ class PassengerGenerator(railway: Railway):
         passengerIdCounter += 1
         (
           PassengerImpl(
-            PassengerCode(s"P-${passengerIdCounter}"),
+            PassengerCode(s"P${passengerIdCounter}"),
             departureStation.code,
             arrivalStation.code,
             getRandomRoute(departureStation, arrivalStation)
@@ -60,10 +60,10 @@ class PassengerGenerator(railway: Railway):
     * @param arrivalStation
     *   The station where the route ends.
     * @return
-    *   The randomly selected route.
+    *   The randomly selected route if one is available, None otherwise.
     */
-  private def getRandomRoute(departureStation: Station, arrivalStation: Station): Route =
-    Random.shuffle(getAllRoutes(departureStation, arrivalStation)).headOption.getOrElse(Route(List.empty))
+  private def getRandomRoute(departureStation: Station, arrivalStation: Station): Option[Route] =
+    Random.shuffle(getAllRoutes(departureStation, arrivalStation)).headOption
 
   /** Recursively finds all possible routes between two stations.
     *
