@@ -1,7 +1,10 @@
 package model.railway
 
+import model.railway.Domain.StationCode
+
 trait Railway:
   def stations: List[Station]
+  def stationCodes: List[StationCode] = stations.map(_.code)
   def rails: List[Rail]
 
 case class RailwayImpl(

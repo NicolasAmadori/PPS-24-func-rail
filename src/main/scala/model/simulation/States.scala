@@ -1,8 +1,6 @@
 package model.simulation
 
 import model.railway.Domain.{RailCode, StationCode, TrainCode}
-import model.railway.{Rail, Railway}
-import model.simulation.SimulationError.CannotComputeRoute
 import model.simulation.TrainPosition.AtStation
 
 /**
@@ -20,33 +18,6 @@ case class SimulationState(
 ) extends TrainOperations[SimulationState]:
   override def withTrains(newTrains: List[Train]): SimulationState = copy(trains = newTrains)
 
-  private def initTrainWithRoute(train: TrainCode, route: List[Rail], stops: List[StationCode]): SimulationState =
-    val trainState = TrainState(train, AtStation(stops.head), TrainRoute(route, stops))
-    copy(trainStates = trainStates + (train -> trainState))
-
-  /** Uses [[simulation.RouteHelper]] to initialize trains with their route.
-    *
-    * @param railway
-    *   the railway on which compute routes
-    */
-  def assignRoutes(railway: Railway): SimulationState =
-    trains.foldLeft(this) { (acc, t) =>
-      import RouteStrategy.given
-      val route = (t match
-        case normal: NormalTrain => RouteHelper.getRouteForTrain(normal, railway)
-        case highSpeed: HighSpeedTrain => RouteHelper.getRouteForTrain(highSpeed, railway)
-      ).getOrElse(Nil)
-      acc.initTrainWithRoute(t.code, route, t.stations)
-    }
-
-  /** @return
-    *   a list of error for those trains that have empty route
-    */
-  def routeErrors: List[SimulationError] =
-    trainStates.collect {
-      case (code, ts) if ts.trainRoute.isEmpty => CannotComputeRoute(code)
-    }.toList
-
 object SimulationState:
   /** Creates a simulation state with trains */
   def apply(trains: List[Train]): SimulationState = SimulationState(trains, Map.empty, Map.empty)
@@ -57,40 +28,24 @@ trait TrainState:
   def trainCode: TrainCode
   def position: TrainPosition
   def progress: Float
-  def trainRoute: TrainRoute
 
 case class TrainStateImpl(
     trainCode: TrainCode,
     position: TrainPosition,
     progress: Float,
-    trainRoute: TrainRoute
+    currentRouteIndex: Int = 0,
+    forward: Boolean = true
 ) extends TrainState
 
 object TrainState:
   def apply(
       trainCode: TrainCode,
-      position: TrainPosition,
-      trainRoute: TrainRoute
-  ): TrainState = TrainStateImpl(trainCode, position, 0, trainRoute)
+      position: TrainPosition
+  ): TrainState = TrainStateImpl(trainCode, position, 0)
 
 enum TrainPosition:
   case OnRail(rail: RailCode)
   case AtStation(station: StationCode)
-
-case class TrainRoute(
-    fullRoute: List[Rail],
-    stops: List[StationCode],
-    currentRailIndex: Int = 0,
-    forward: Boolean = true
-)
-
-object TrainRoute:
-  def apply(rails: List[Rail], stops: List[StationCode]): TrainRoute =
-    new TrainRoute(rails, stops)
-
-  extension (tr: TrainRoute)
-    def isEmpty: Boolean =
-      tr.fullRoute == Nil || tr.stops == Nil
 
 trait RailState:
   def railCode: RailCode

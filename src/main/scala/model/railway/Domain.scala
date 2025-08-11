@@ -27,3 +27,4 @@ object Domain:
 
     extension (code: TrainCode)
       def isEmpty: Boolean = code == empty
+      def value: String = code

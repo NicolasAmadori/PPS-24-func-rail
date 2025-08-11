@@ -32,7 +32,6 @@ class SimulationBuilderTest extends AnyFlatSpec:
         sim.state.trains.head.code should be("Train1")
         sim.state.trains.head.stations.head should be(StationCode(StationA))
       case Left(_) => fail("Simulation should be built successfully")
-
   }
 
   it should "not accept trains with an empty name" in {
@@ -55,7 +54,7 @@ class SimulationBuilderTest extends AnyFlatSpec:
     simulation.isLeft should be(true)
     simulation match
       case Left(error) =>
-        error.head should be(InvalidRoute(TrainCode("Train1")))
+        error.head should be(InvalidRoute("Train1"))
       case Right(_) => fail("Simulation should not be built with invalid stations")
   }
 
@@ -67,6 +66,6 @@ class SimulationBuilderTest extends AnyFlatSpec:
     simulation.isLeft should be(true)
     simulation match
       case Left(error) =>
-        error.head should be(InvalidDeparture(TrainCode("Train1")))
+        error.head should be(InvalidDeparture("Train1"))
       case Right(_) => fail("Simulation should not be built with no departure station")
   }
