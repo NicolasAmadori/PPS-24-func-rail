@@ -6,8 +6,17 @@ import model.simulation.SimulationError.{EmptyTrainName, InvalidDeparture, Inval
 
 case class Simulation(duration: Int, railway: Railway, state: SimulationState):
 
+  private val INITIAL_PASSENGER_NUMBER: Int = 100
+
+  private val passengerGenerator = PassengerGenerator(railway)
+
   def start(): Simulation =
-    val newState = state.copy(simulationStep = 0)
+    val initialPassengers = passengerGenerator.generate(INITIAL_PASSENGER_NUMBER)
+    val newState = state.copy(
+      simulationStep = 0,
+      passengers = initialPassengers.map(t => t._1),
+      passengerStates = initialPassengers.map(t => t._1.id -> t._2).toMap
+    )
     copy(state = newState)
 
   def doStep(): Either[SimulationError, (Simulation, List[String])] =

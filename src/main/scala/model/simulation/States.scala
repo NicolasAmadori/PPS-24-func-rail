@@ -2,17 +2,20 @@ package model.simulation
 
 import model.railway.Domain.{RailCode, StationCode, TrainCode}
 import model.railway.Rail
+import model.simulation.Domain.PassengerCode
 
 case class SimulationState(
     trains: List[Train],
     trainStates: Map[TrainCode, TrainState],
     railStates: Map[RailCode, RailState],
+    passengers: List[Passenger],
+    passengerStates: Map[PassengerCode, PassengerState],
     simulationStep: Int = -1
 ) extends TrainOperations[SimulationState]:
   override def withTrains(newTrains: List[Train]): SimulationState = copy(trains = newTrains)
 
 object SimulationState:
-  def apply(trains: List[Train]): SimulationState = SimulationState(trains, Map.empty, Map.empty)
+  def apply(trains: List[Train]): SimulationState = SimulationState(trains, Map.empty, Map.empty, List.empty, Map.empty)
   def empty: SimulationState = SimulationState(List.empty)
 
 trait TrainState:
