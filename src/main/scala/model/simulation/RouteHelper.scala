@@ -30,6 +30,13 @@ object PathUtils:
       if distCompare != 0 then distCompare
       else a.code.value.compareTo(b.code.value)
 
+  /**
+   * Dijkstra implementation.
+   * @param graph
+   * @param start starting node
+   * @param end target node
+   * @return the shortest path between start and end on the graph if present, none otherwise
+   */
   def dijkstra(
       graph: Graph,
       start: StationCode,
@@ -79,6 +86,14 @@ object PathUtils:
 object TSPHeuristics:
   private type PathInfo = List[Rail]
   private type ShortestPaths = Map[(StationCode, StationCode), PathInfo]
+
+  /**
+   * Compute the shortest path to visit all the given stops with a greedy approach.
+   * @param start starting node
+   * @param stops stops to be done
+   * @param shortestPaths shortest paths between all permutations of stops
+   * @return the shortest path as List of rails
+   */
   def greedyTSP(
       start: StationCode,
       stops: Set[StationCode],
@@ -137,10 +152,9 @@ object RouteStrategy:
       rails: List[Rail]
   ): Option[List[Rail]] =
     val graph = undirectedGraph(rails)
-    val relevantNodes = stops + departure
     val metaGraph = (for
-      src <- relevantNodes
-      dest <- relevantNodes
+      src <- stops
+      dest <- stops
       if src != dest
     yield
       val result = dijkstra(graph, src, dest)
@@ -148,7 +162,7 @@ object RouteStrategy:
     ).toMap
     val route = greedyTSP(departure, stops, metaGraph)
     val routeStations = route.flatMap(r => List(r.stationA, r.stationB)).distinct
-    if relevantNodes.forall(n => routeStations.contains(n)) then
+    if stops.forall(n => routeStations.contains(n)) then
       Some(route)
     else
       None

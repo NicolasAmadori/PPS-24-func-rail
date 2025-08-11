@@ -50,7 +50,7 @@ case class SimulationState(
 object SimulationState:
   /** Creates a simulation state with trains */
   def apply(trains: List[Train]): SimulationState = SimulationState(trains, Map.empty, Map.empty)
-  /** Defines a empty simulation with empty train list */
+  /** Defines an empty simulation with empty train list */
   def empty: SimulationState = SimulationState(List.empty)
 
 trait TrainState:
@@ -86,9 +86,6 @@ case class TrainRoute(
 
 object TrainRoute:
   def apply(rails: List[Rail], stops: List[StationCode]): TrainRoute =
-    val railsStations = rails.flatMap(r => List(r.stationA, r.stationB)).distinct
-    if !stops.forall(s => railsStations.contains(s)) then
-      throw new IllegalArgumentException("Some stops are not part of the train route.")
     new TrainRoute(rails, stops)
 
   extension (tr: TrainRoute)
