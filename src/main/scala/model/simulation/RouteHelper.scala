@@ -211,31 +211,31 @@ given WeightCalculator[Rail, HighSpeedTrain] with
     case _: TitaniumRail => edge.length / train.speed
 
 /** Strategy to handle routes */
-trait RouteStrategy[T <: Train, E]:
-  def computeRoute(railway: Railway, departure: StationCode, stops: List[StationCode], train: T): Option[List[E]]
+trait RouteStrategy[T <: Train]:
+  def computeRoute(railway: Railway, departure: StationCode, stops: List[StationCode], train: T): Option[Route]
 
 object RouteStrategy:
 
   import PathUtils.*
 
   /** Strategy to compute route for normal trains, involves selecting only the rails that the normal trains can cross */
-  given normalTrainStrategy: RouteStrategy[NormalTrain, Rail] with
+  given normalTrainStrategy: RouteStrategy[NormalTrain] with
     def computeRoute(
         railway: Railway,
         departure: StationCode,
         stops: List[StationCode],
         train: NormalTrain
-    ): Option[List[Rail]] =
+    ): Option[Route] =
       val rails = railway.rails.collect { case c: MetalRail => c }
       computeRouteFromRails(departure, stops.toSet, rails, train)
 
-  given highSpeedStrategy: RouteStrategy[HighSpeedTrain, Rail] with
+  given highSpeedStrategy: RouteStrategy[HighSpeedTrain] with
     def computeRoute(
         railway: Railway,
         departure: StationCode,
         stops: List[StationCode],
         train: HighSpeedTrain
-    ): Option[List[Rail]] =
+    ): Option[Route] =
       computeRouteFromRails(departure, stops.toSet, railway.rails, train)
 
   private def computeRouteFromRails(
@@ -243,7 +243,7 @@ object RouteStrategy:
       stops: Set[StationCode],
       rails: List[Rail],
       train: Train
-  ): Option[List[Rail]] =
+  ): Option[Route] =
     val graph = Graph.undirectedGraph(rails, summon[EdgeLike[Rail]])
     val metaGraph = (for
       src <- stops
@@ -257,12 +257,12 @@ object RouteStrategy:
       (src, dest) -> result.getOrElse(Nil)
     ).toMap
     // Pattern-matching required to instruct scala to use the correct given instance
-    val route = train match
+    val railSeq = train match
       case t: NormalTrain => greedyTSP(departure, stops, metaGraph, t)
       case t: HighSpeedTrain => greedyTSP(departure, stops, metaGraph, t)
-    val routeStations = route.flatMap(r => List(r.stationA, r.stationB)).distinct
+    val routeStations = railSeq.flatMap(r => List(r.stationA, r.stationB)).distinct
     if stops.forall(n => routeStations.contains(n)) then
-      Some(route)
+      Some(Route(railSeq))
     else
       None
 
@@ -281,6 +281,6 @@ object RouteHelper:
     *   the route of the train if present, None otherwise
     */
   def getRouteForTrain[T <: Train, E <: Rail](train: T, railway: Railway)(using
-      strategy: RouteStrategy[T, E]
-  ): Option[List[Rail]] =
+      strategy: RouteStrategy[T]
+  ): Option[Route] =
     strategy.computeRoute(railway, train.departureStation, train.stations, train)
