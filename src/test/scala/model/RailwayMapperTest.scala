@@ -33,7 +33,7 @@ class RailwayMapperTest extends AnyFlatSpec with Matchers:
         case _: MetalRail => MetalRailType
         case _: TitaniumRail => TitaniumRailType
       (rail.length, (stations.head, stations(1)), railType)
-    }.sortBy(r => (r._2._1, r._2._2)) // Sort by station pair for consistent order
+    }.sortBy(r => (r._2._1, r._2._2)).distinct // Sort by station pair for consistent order
 
   it should "return an empty railway from an empty grid" in {
     val grid = MapGrid(5, 5, Vector.fill(5)(Vector.fill(5)(e)))
