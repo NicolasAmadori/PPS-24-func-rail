@@ -1,6 +1,6 @@
 package controller.simconfig
 
-import model.railway.Domain.StationCode
+import model.railway.EntityCodes.StationCode
 
 sealed trait TrainType
 object HighSpeed extends TrainType

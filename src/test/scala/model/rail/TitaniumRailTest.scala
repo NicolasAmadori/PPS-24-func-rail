@@ -1,6 +1,6 @@
 package model.rail
 
-import model.railway.Domain.StationCode
+import model.railway.EntityCodes.StationCode
 import model.railway.Rail.titaniumRail
 import model.simulation.Train.{highSpeedTrain, normalTrain}
 import model.railway.TitaniumRail

@@ -1,6 +1,6 @@
 package controller.simconfig
 
-import model.railway.Domain.StationCode
+import model.railway.EntityCodes.StationCode
 import model.railway.Railway
 import model.simulation.SimulationError.{CannotComputeRoute, EmptyTrainName, InvalidDeparture, InvalidRoute}
 import model.simulation.Train.{highSpeedTrain, normalTrain}

@@ -1,7 +1,7 @@
 package view.simconfig
 
 import controller.simconfig.SimulationConfigController
-import model.railway.Domain.StationCode
+import model.railway.EntityCodes.StationCode
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.geometry.Pos.{BottomCenter, Center}

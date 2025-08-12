@@ -1,7 +1,7 @@
 package model.simulation
 
 import model.railway.Rail
-import model.railway.Domain.StationCode
+import model.railway.EntityCodes.StationCode
 
 /** Represents a specific path between stations.
   * @param rails

@@ -1,7 +1,7 @@
 package controller
 
 import controller.simconfig.{HighSpeed, NormalSpeed, SimulationFormState}
-import model.railway.Domain.StationCode
+import model.railway.EntityCodes.StationCode
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 

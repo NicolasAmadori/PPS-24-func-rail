@@ -1,6 +1,6 @@
 package model.simulation
 
-import model.railway.Domain.StationCode
+import model.railway.EntityCodes.StationCode
 import model.railway.Rail.{metalRail, titaniumRail}
 import model.simulation.TSPHeuristics.greedyTSP
 

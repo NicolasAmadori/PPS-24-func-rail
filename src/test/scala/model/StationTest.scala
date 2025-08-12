@@ -1,6 +1,6 @@
 package model
 
-import model.railway.Domain.StationCode
+import model.railway.EntityCodes.StationCode
 import model.railway.Station.smallStation
 
 import org.scalatest.flatspec.AnyFlatSpec

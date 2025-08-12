@@ -1,6 +1,6 @@
 package model
 
-import model.railway.Domain.StationCode
+import model.railway.EntityCodes.StationCode
 import model.railway.Rail.metalRail
 import model.railway.Station.{bigStation, smallStation}
 import model.railway.{Rail, Railway, Station}

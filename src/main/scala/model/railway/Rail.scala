@@ -1,6 +1,6 @@
 package model.railway
 
-import model.railway.Domain.{RailCode, StationCode}
+import model.railway.EntityCodes.{RailCode, StationCode}
 import model.*
 import model.simulation.{HighSpeedTrain, Train}
 

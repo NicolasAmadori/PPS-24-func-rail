@@ -1,6 +1,6 @@
 package model.railway
 
-import model.railway.Domain.StationCode
+import model.railway.EntityCodes.StationCode
 
 trait Station:
   def code: StationCode

@@ -1,6 +1,6 @@
 package model.railway
 
-object Domain:
+object EntityCodes:
   opaque type StationCode = String
   object StationCode:
     def apply(code: String): StationCode = code

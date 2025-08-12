@@ -6,7 +6,7 @@
 package model.util
 
 import model.mapgrid.{BigStationBorderPiece, BigStationCenterPiece, BigStationType, Cell, CellType, MapGrid, MetalRailPiece, MetalRailType, SmallStationPiece, SmallStationType, TitaniumRailPiece, TitaniumRailType}
-import model.railway.Domain.{RailCode, StationCode}
+import model.railway.EntityCodes.{RailCode, StationCode}
 import model.railway.Rail.{metalRail, titaniumRail}
 import model.railway.Station.{bigStation, smallStation}
 import model.railway.{MetalRail, TitaniumRail, Rail, Railway, Station}

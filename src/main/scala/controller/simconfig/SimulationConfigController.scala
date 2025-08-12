@@ -2,7 +2,7 @@ package controller.simconfig
 
 import controller.BaseController
 import model.mapgrid.MapGrid
-import model.railway.Domain.StationCode
+import model.railway.EntityCodes.StationCode
 import model.railway.Railway
 import model.simulation.Simulation
 import view.simconfig.SimulationConfigView

@@ -1,6 +1,6 @@
 package model.simulation
 
-import model.railway.Domain.StationCode
+import model.railway.EntityCodes.StationCode
 import model.railway.{BigStation, Rail, Railway, SmallStation, Station}
 import model.simulation.Domain.PassengerCode
 import model.simulation.PassengerState.AtStation
