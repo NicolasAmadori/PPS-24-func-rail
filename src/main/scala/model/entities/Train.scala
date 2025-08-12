@@ -1,7 +1,6 @@
 package model.entities
 
 import model.entities.EntityCodes.{StationCode, TrainCode}
-import model.simulation.Route
 
 trait Train:
   def code: TrainCode

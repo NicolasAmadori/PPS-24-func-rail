@@ -1,7 +1,7 @@
 package model.simulation
 
 import model.entities.EntityCodes.StationCode
-import model.entities.{HighSpeedTrain, MetalRail, NormalTrain, Rail, TitaniumRail, Train}
+import model.entities.{HighSpeedTrain, MetalRail, NormalTrain, Rail, Route, TitaniumRail, Train}
 import model.entities.Rail.{metalRail, titaniumRail}
 import model.railway.*
 import model.util.TSPHeuristics.greedyTSP

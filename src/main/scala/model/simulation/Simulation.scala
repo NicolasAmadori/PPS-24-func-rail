@@ -3,6 +3,7 @@ package model.simulation
 import model.entities.EntityCodes.TrainCode
 import model.entities.Train
 import model.railway.Railway
+import model.util.PassengerGenerator
 
 case class Simulation(duration: Int, railway: Railway, state: SimulationState):
 

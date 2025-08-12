@@ -1,10 +1,9 @@
-package model.simulation
+package model.util
 
-import model.entities.EntityCodes.StationCode
-import model.entities.{BigStation, Rail, SmallStation, Station}
+import model.entities.EntityCodes.{StationCode, PassengerCode}
+import model.entities.PassengerState.AtStation
+import model.entities.*
 import model.railway.Railway
-import model.simulation.Domain.PassengerCode
-import model.simulation.PassengerState.AtStation
 
 import scala.util.Random
 

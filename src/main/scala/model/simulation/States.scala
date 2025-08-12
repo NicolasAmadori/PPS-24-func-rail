@@ -1,8 +1,7 @@
 package model.simulation
 
-import model.entities.EntityCodes.{RailCode, StationCode, TrainCode}
-import model.entities.{Rail, Train}
-import model.simulation.Domain.PassengerCode
+import model.entities.EntityCodes.{RailCode, StationCode, TrainCode, PassengerCode}
+import model.entities.{Passenger, PassengerState, Rail, Train}
 import model.simulation.TrainPosition.AtStation
 
 /** Represent the mutable state of the simulation.

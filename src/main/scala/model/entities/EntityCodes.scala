@@ -28,3 +28,9 @@ object EntityCodes:
     extension (code: TrainCode)
       def isEmpty: Boolean = code == empty
       def value: String = code
+
+  opaque type PassengerCode = String
+  object PassengerCode:
+    def apply(code: String): PassengerCode = code
+  
+    def value(code: PassengerCode): String = code

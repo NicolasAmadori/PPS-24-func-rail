@@ -123,9 +123,10 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
 
   private def toCssColor(color: String): String = s"-fx-background-color: $color"
 
-  def showError(error: ErrorMessage, msg: String = ""): Unit =
+  def showError(title: String = "", error: ErrorMessage): Unit =
     Platform.runLater:
-      alert.setContentText(s"$msg: $error")
+      alert.contentText = error.toString
+      alert.headerText = title
       alert.showAndWait()
 
   override def getRoot: Parent = this

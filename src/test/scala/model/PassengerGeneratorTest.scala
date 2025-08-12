@@ -5,8 +5,8 @@ import model.entities.{Rail, Station}
 import model.entities.Rail.metalRail
 import model.entities.Station.{bigStation, smallStation}
 import model.railway.Railway
-import model.simulation.PassengerGenerator
-import model.simulation.PassengerState.AtStation
+import model.entities.PassengerState.AtStation
+import model.util.PassengerGenerator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
