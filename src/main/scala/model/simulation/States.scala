@@ -2,7 +2,17 @@ package model.simulation
 
 import model.railway.Domain.{RailCode, StationCode, TrainCode}
 import model.railway.Rail
+import model.simulation.TrainPosition.AtStation
 
+/** Represent the mutable state of the simulation.
+  * @param trains
+  * @param trainStates
+  *   map of [[model.Domain.TrainCode]] and corresponding state
+  * @param railStates
+  *   occupancy of rails
+  * @param simulationStep
+  *   counter for simulation progression
+  */
 case class SimulationState(
     trains: List[Train],
     trainStates: Map[TrainCode, TrainState],
@@ -12,47 +22,39 @@ case class SimulationState(
   override def withTrains(newTrains: List[Train]): SimulationState = copy(trains = newTrains)
 
 object SimulationState:
+  /** Creates a simulation state with trains */
   def apply(trains: List[Train]): SimulationState = SimulationState(trains, Map.empty, Map.empty)
+
+  /** Creates a simulation state with rails occupancy */
+  def withRails(rails: List[Rail]): SimulationState =
+    val railStates = rails.map(r => r.code -> RailState(r.code)).toMap
+    SimulationState(List.empty, Map.empty, railStates)
+
+  /** Defines an empty simulation with empty train list */
   def empty: SimulationState = SimulationState(List.empty)
 
 trait TrainState:
   def trainCode: TrainCode
   def position: TrainPosition
   def progress: Float
-  def trainRoute: TrainRoute
 
 case class TrainStateImpl(
     trainCode: TrainCode,
     position: TrainPosition,
     progress: Float,
-    trainRoute: TrainRoute
+    currentRouteIndex: Int = 0,
+    forward: Boolean = true
 ) extends TrainState
 
 object TrainState:
   def apply(
       trainCode: TrainCode,
-      position: TrainPosition,
-      progress: Float,
-      trainRoute: TrainRoute
-  ): TrainState = TrainStateImpl(trainCode, position, progress, trainRoute)
+      position: TrainPosition
+  ): TrainState = TrainStateImpl(trainCode, position, 0)
 
 enum TrainPosition:
   case OnRail(rail: RailCode)
   case AtStation(station: StationCode)
-
-case class TrainRoute(
-    fullRoute: List[Rail],
-    stops: List[StationCode],
-    currentRailIndex: Int = 0,
-    forward: Boolean = true
-)
-
-object TrainRoute:
-  def apply(rails: List[Rail], stops: List[StationCode]): TrainRoute =
-    val railsStations = rails.flatMap(r => List(r.stationA, r.stationB)).distinct
-    if !stops.forall(s => railsStations.contains(s)) then
-      throw new IllegalArgumentException("Some stops are not part of the train route.")
-    new TrainRoute(rails, stops)
 
 trait RailState:
   def railCode: RailCode
