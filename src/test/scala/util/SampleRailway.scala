@@ -1,8 +1,8 @@
-package utils
+package util
 
-import model.entities.{Rail, Station}
 import model.entities.Rail.{metalRail, titaniumRail}
 import model.entities.Station.{bigStation, smallStation}
+import model.entities.{Rail, Station}
 import model.railway.{Railway, RailwayImpl}
 
 object SampleRailway:
