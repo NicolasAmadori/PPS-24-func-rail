@@ -11,6 +11,8 @@ trait Rail:
   def stationB: StationCode
   def canAcceptTrain(train: Train): Boolean = true
 
+  override def toString: String = s"[$code]: \"$stationA\" <-($length)-> \"$stationB\""
+
 case class MetalRail(code: RailCode, length: Int, stationA: StationCode, stationB: StationCode)
     extends Rail
 
@@ -26,12 +28,12 @@ case class TitaniumRail(
       case _ => false
 
 object Rail:
-  def metalRail(code: Int, length: Int, stationA: String, stationB: String): MetalRail =
+  def metalRail(code: Int, length: Int, stationA: String, stationB: String): Rail =
     MetalRail(
-      RailCode.fromInt(code),
+      RailCode(code),
       length,
-      StationCode.fromString(stationA),
-      StationCode.fromString(stationB)
+      StationCode(stationA),
+      StationCode(stationB)
     )
 
   def titaniumRail(
@@ -39,10 +41,10 @@ object Rail:
       length: Int,
       stationA: String,
       stationB: String
-  ): TitaniumRail =
+  ): Rail =
     TitaniumRail(
-      RailCode.fromInt(code),
+      RailCode(code),
       length,
-      StationCode.fromString(stationA),
-      StationCode.fromString(stationB)
+      StationCode(stationA),
+      StationCode(stationB)
     )

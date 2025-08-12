@@ -10,7 +10,7 @@ import org.scalatest.matchers.should.Matchers.*
 
 class RailTest extends AnyFlatSpec:
 
-  val trainCode: Int = 1
+  val trainCode: String = "1"
   val railCode: Int = 1
   val railLength: Int = 10
 
@@ -21,15 +21,15 @@ class RailTest extends AnyFlatSpec:
   "A MetalRail" should "be created with code, length, stations" in {
     val rail = metalRail(railCode, railLength, stationA, stationB)
     rail.length should be(railLength)
-    rail.stationA should be(StationCode.fromString(stationA))
-    rail.stationB should be(StationCode.fromString(stationB))
+    rail.stationA should be(StationCode(stationA))
+    rail.stationB should be(StationCode(stationB))
     rail shouldBe a[MetalRail]
   }
 
   it can "be connected to SmallStation or BigStation" in {
     val rail = metalRail(railCode, railLength, stationA, stationC)
-    rail.stationA should be(StationCode.fromString(stationA))
-    rail.stationB should be(StationCode.fromString(stationC))
+    rail.stationA should be(StationCode(stationA))
+    rail.stationB should be(StationCode(stationC))
   }
 
   it should "accept a normal train and a high speed train" in {

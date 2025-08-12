@@ -1,25 +1,69 @@
 package model.simulation
 
-import model.railway.Domain.{RailCode, TrainCode}
+import model.railway.Domain.{RailCode, StationCode, TrainCode}
+import model.railway.Rail
+import model.simulation.Domain.PassengerCode
+import model.simulation.TrainPosition.AtStation
 
-case class SimulationState(trains: List[Train], trainStates: Map[TrainCode, TrainState])
-    extends TrainOperations[SimulationState]:
+/** Represent the mutable state of the simulation.
+  * @param trains
+  * @param trainStates
+  *   map of [[model.Domain.TrainCode]] and corresponding state
+  * @param railStates
+  *   occupancy of rails
+  * @param simulationStep
+  *   counter for simulation progression
+  */
+case class SimulationState(
+    trains: List[Train],
+    trainStates: Map[TrainCode, TrainState],
+    railStates: Map[RailCode, RailState],
+    passengers: List[Passenger],
+    passengerStates: Map[PassengerCode, PassengerState],
+    simulationStep: Int = -1
+) extends TrainOperations[SimulationState]:
   override def withTrains(newTrains: List[Train]): SimulationState = copy(trains = newTrains)
 
 object SimulationState:
-  def apply(trains: List[Train]): SimulationState = SimulationState(trains, Map.empty)
+  /** Creates a simulation state with trains */
+  def apply(trains: List[Train]): SimulationState = SimulationState(trains, Map.empty, Map.empty, List.empty, Map.empty)
 
-  def empty: SimulationState = SimulationState(Nil, Map.empty)
+  /** Creates a simulation state with rails occupancy */
+  def withRails(rails: List[Rail]): SimulationState =
+    val railStates = rails.map(r => r.code -> RailState(r.code)).toMap
+    SimulationState(List.empty, Map.empty, railStates, List.empty, Map.empty)
+
+  /** Defines an empty simulation with empty train list */
+  def empty: SimulationState = SimulationState(List.empty)
 
 trait TrainState:
   def trainCode: TrainCode
-  def currentRail: RailCode
+  def position: TrainPosition
   def progress: Float
-  def trainRoute: TrainRoute
 
 case class TrainStateImpl(
     trainCode: TrainCode,
-    currentRail: RailCode,
+    position: TrainPosition,
     progress: Float,
-    trainRoute: TrainRoute
+    currentRouteIndex: Int = 0,
+    forward: Boolean = true
 ) extends TrainState
+
+object TrainState:
+  def apply(
+      trainCode: TrainCode,
+      position: TrainPosition
+  ): TrainState = TrainStateImpl(trainCode, position, 0)
+
+enum TrainPosition:
+  case OnRail(rail: RailCode)
+  case AtStation(station: StationCode)
+
+trait RailState:
+  def railCode: RailCode
+  def occupied: Boolean
+
+case class RailStateImpl(railCode: RailCode, occupied: Boolean) extends RailState
+
+object RailState:
+  def apply(railCode: RailCode): RailState = RailStateImpl(railCode, false)
