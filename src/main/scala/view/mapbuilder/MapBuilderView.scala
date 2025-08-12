@@ -87,7 +87,7 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
     onAction = _ => controller.onNext()
 
   private def createToolButtons(): Seq[Node] =
-    val railLabel = new Label("Rails:")
+    val railLabel = new Label("Rails (50 km each):")
 
     val rails = railNameToCell.keys.toSeq.map { label =>
       new RadioButton(label):
