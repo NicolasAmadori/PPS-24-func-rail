@@ -27,7 +27,7 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState):
       val newState = state.copy(simulationStep = nextStep)
       Right((copy(state = newState), logs))
 
-  def isFinished: Boolean = state.simulationStep == duration
+  def isFinished: Boolean = state.simulationStep == duration * 24
 
   /** Adds the train list to the state initializing the state for each by computing the route.
     * @param trains

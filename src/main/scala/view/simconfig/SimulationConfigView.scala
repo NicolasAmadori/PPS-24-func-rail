@@ -90,7 +90,8 @@ class SimulationConfigView(
           new HBox:
             spacing = SmallSpacing
             alignment = Center
-            children = Seq(simulationDurationBox(startButton), new Label("(Days)")),
+            children = Seq(simulationDurationBox(startButton), new Label("(Days)"))
+          ,
           startButton
         )
 
