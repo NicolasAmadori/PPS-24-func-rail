@@ -1,7 +1,7 @@
 package model.simulation
 
-import model.railway.EntityCodes.StationCode
-import model.simulation.Train.{highSpeedTrain, normalTrain}
+import model.entities.EntityCodes.StationCode
+import model.entities.Train.{highSpeedTrain, normalTrain}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 import utils.SampleRailway

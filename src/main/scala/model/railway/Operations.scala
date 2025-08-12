@@ -1,5 +1,7 @@
 package model.railway
 
+import model.entities.{Rail, Station}
+
 trait StationsOperations[S <: StationsOperations[S]]:
   self: S =>
   def stations: List[Station]

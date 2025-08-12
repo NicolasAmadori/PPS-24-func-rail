@@ -1,8 +1,7 @@
-package model.railway
+package model.entities
 
-import model.railway.EntityCodes.{RailCode, StationCode}
 import model.*
-import model.simulation.{HighSpeedTrain, Train}
+import model.entities.EntityCodes.{RailCode, StationCode}
 
 trait Rail:
   def code: RailCode

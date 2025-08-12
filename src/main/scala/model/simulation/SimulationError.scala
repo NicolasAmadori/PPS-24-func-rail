@@ -1,6 +1,6 @@
 package model.simulation
 
-import model.railway.EntityCodes.TrainCode
+import model.entities.EntityCodes.TrainCode
 import utils.ErrorMessage
 
 sealed trait SimulationError extends ErrorMessage

@@ -1,6 +1,7 @@
 package model.simulation
 
-import model.railway.EntityCodes.TrainCode
+import model.entities.EntityCodes.TrainCode
+import model.entities.Train
 import model.railway.Railway
 
 case class Simulation(duration: Int, railway: Railway, state: SimulationState):

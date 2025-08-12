@@ -1,4 +1,4 @@
-package model.railway
+package model.entities
 
 object EntityCodes:
   opaque type StationCode = String

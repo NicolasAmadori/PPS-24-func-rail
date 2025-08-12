@@ -1,10 +1,10 @@
 package model.rail
 
-import model.railway.EntityCodes.StationCode
-import model.railway.Rail.metalRail
+import model.entities.EntityCodes.StationCode
+import model.entities.MetalRail
+import model.entities.Rail.metalRail
 
-import model.simulation.Train.{highSpeedTrain, normalTrain}
-import model.railway.MetalRail
+import model.entities.Train.{highSpeedTrain, normalTrain}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 

@@ -1,7 +1,7 @@
 package model
 
-import model.railway.Rail.{metalRail, titaniumRail}
-import model.railway.Station.{bigStation, smallStation}
+import model.entities.Rail.{metalRail, titaniumRail}
+import model.entities.Station.{bigStation, smallStation}
 
 import model.railway.Railway
 import org.scalatest.flatspec.AnyFlatSpec

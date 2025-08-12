@@ -1,7 +1,7 @@
 package model.simulation
 
-import model.railway.EntityCodes.{RailCode, StationCode, TrainCode}
-import model.railway.Rail
+import model.entities.EntityCodes.{RailCode, StationCode, TrainCode}
+import model.entities.{Rail, Train}
 import model.simulation.Domain.PassengerCode
 import model.simulation.TrainPosition.AtStation
 

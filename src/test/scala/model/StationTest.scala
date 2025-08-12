@@ -1,7 +1,7 @@
 package model
 
-import model.railway.EntityCodes.StationCode
-import model.railway.Station.smallStation
+import model.entities.EntityCodes.StationCode
+import model.entities.Station.smallStation
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
