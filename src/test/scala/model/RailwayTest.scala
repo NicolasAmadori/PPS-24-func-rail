@@ -39,10 +39,10 @@ class RailwayTest extends AnyFlatSpec:
   it should "be created with rails" in {
     val railway =
       Railway.empty.withRails(List(
-          metalRail(1, 200, station1, station2),
-          metalRail(2, 500, station2, station3),
-          titaniumRail(3, 300, station1, station3)
-        ))
+        metalRail(1, 200, station1, station2),
+        metalRail(2, 500, station2, station3),
+        titaniumRail(3, 300, station1, station3)
+      ))
     railway.stations should be(empty)
     railway.rails should not be empty
   }
