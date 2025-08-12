@@ -36,4 +36,5 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState):
     require(train.stations.forall(railway.stationCodes.contains(_)))
 
 object Simulation:
-  def withRailway(duration: Int, railway: Railway): Simulation = Simulation(duration, railway, SimulationState.empty)
+  def withRailway(duration: Int, railway: Railway): Simulation =
+    Simulation(duration, railway, SimulationState.withRails(railway.rails))

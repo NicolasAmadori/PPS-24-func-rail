@@ -50,5 +50,4 @@ class RouteHelperTest extends AnyFlatSpec:
     resultForNormal should be(None)
     val stationsInResult = resultForHighSpeed.get.flatMap(r => List(r.stationA, r.stationB)).toSet
     stations.foreach(s => stationsInResult should contain(s))
-
   }

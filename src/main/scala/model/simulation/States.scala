@@ -1,6 +1,7 @@
 package model.simulation
 
 import model.railway.Domain.{RailCode, StationCode, TrainCode}
+import model.railway.Rail
 import model.simulation.TrainPosition.AtStation
 
 /** Represent the mutable state of the simulation.
@@ -23,6 +24,11 @@ case class SimulationState(
 object SimulationState:
   /** Creates a simulation state with trains */
   def apply(trains: List[Train]): SimulationState = SimulationState(trains, Map.empty, Map.empty)
+
+  /** Creates a simulation state with rails occupancy */
+  def withRails(rails: List[Rail]): SimulationState =
+    val railStates = rails.map(r => r.code -> RailState(r.code)).toMap
+    SimulationState(List.empty, Map.empty, railStates)
 
   /** Defines an empty simulation with empty train list */
   def empty: SimulationState = SimulationState(List.empty)
