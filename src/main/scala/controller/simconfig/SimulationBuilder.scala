@@ -4,8 +4,7 @@ import model.railway.Domain.StationCode
 import model.railway.Railway
 import model.simulation.SimulationError.{CannotComputeRoute, EmptyTrainName, InvalidDeparture, InvalidRoute}
 import model.simulation.Train.{highSpeedTrain, normalTrain}
-import model.simulation.{HighSpeedTrain, NormalTrain, RouteHelper, Simulation, SimulationError, Train}
-import model.simulation.TrainRoute.toRoute
+import model.simulation.{HighSpeedTrain, NormalTrain, Route, RouteHelper, Simulation, SimulationError, Train}
 
 /** Builder for creating a Simulation instance based on a Railway and a list of TrainConfig.
   */
@@ -68,6 +67,6 @@ object SimulationBuilder:
         (t match
           case n: NormalTrain => RouteHelper.getRouteForTrain(n, railway)
           case hs: HighSpeedTrain => RouteHelper.getRouteForTrain(hs, railway)
-        ).getOrElse(Nil).toRoute
+        ).getOrElse(Route.empty)
       )
     )
