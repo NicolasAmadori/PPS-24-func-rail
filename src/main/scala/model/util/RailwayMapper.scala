@@ -18,6 +18,8 @@ object RailwayMapper:
   private val SMALL_STATION_PREFIX: String = "ST"
   private val BIG_STATION_PREFIX: String = "BST"
 
+  val BLOCK_TO_KM_MULTIPLIER: Int = 50
+
   /** A set of coordinates for cells that have already been visited during rail mapping. This prevents infinite loops
     * and redundant processing.
     */
@@ -286,7 +288,7 @@ object RailwayMapper:
         updatedChecked,
         createRailFunction(
           RailCode.value(rail.code),
-          rail.length + 1,
+          rail.length + (1 * BLOCK_TO_KM_MULTIPLIER),
           StationCode.value(rail.stationA),
           nearStationCode
         )
@@ -295,7 +297,7 @@ object RailwayMapper:
     val newRail =
       createRailFunction(
         RailCode.value(rail.code),
-        rail.length + 1,
+        rail.length + (1 * BLOCK_TO_KM_MULTIPLIER),
         StationCode.value(rail.stationA),
         StationCode.value(rail.stationB)
       )

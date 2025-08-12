@@ -4,7 +4,7 @@ import model.mapgrid.*
 import scalafx.application.Platform
 import scalafx.geometry.Insets
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.control.{Alert, Button, RadioButton, ToggleGroup, Label}
+import scalafx.scene.control.{Alert, Button, Label, RadioButton, ToggleGroup}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.{Node, Parent}
 import utils.ErrorMessage
@@ -13,6 +13,7 @@ import view.View
 import MapViewConstants.*
 import ToolMappings.*
 import controller.mapbuilder.MapBuilderController
+import model.util.RailwayMapper
 
 object ToolMappings:
   val railNameToCell: Map[String, CellType] = Map(
@@ -87,7 +88,7 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
     onAction = _ => controller.onNext()
 
   private def createToolButtons(): Seq[Node] =
-    val railLabel = new Label("Rails (50 km each):")
+    val railLabel = new Label("Rails (" + RailwayMapper.BLOCK_TO_KM_MULTIPLIER + " km each):")
 
     val rails = railNameToCell.keys.toSeq.map { label =>
       new RadioButton(label):
