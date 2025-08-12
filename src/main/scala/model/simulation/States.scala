@@ -19,7 +19,11 @@ case class SimulationState(
     railStates: Map[RailCode, RailState],
     simulationStep: Int = -1
 ) extends TrainOperations[SimulationState]:
-  override def withTrains(newTrains: List[Train]): SimulationState = copy(trains = newTrains)
+  override def withTrains(newTrains: List[Train]): SimulationState =
+    val newTrainStates = trains.map { t =>
+      t.code -> TrainState(t.code, AtStation(t.departureStation))
+    }.toMap
+    copy(trains = newTrains, trainStates = trainStates ++ newTrainStates)
 
 object SimulationState:
   /** Creates a simulation state with trains */
