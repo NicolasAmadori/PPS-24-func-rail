@@ -12,6 +12,8 @@ object SimulationBuilder:
 
   /** Builds a [[model.simulation.Simulation]] object using the provided [[model.railway.Railway]] and parsing the train
     * configurations.
+    * @param duration
+    *   The duration (in days) of the simulation
     * @param railway
     *   the reference Railway
     * @param configs
