@@ -9,7 +9,7 @@ import model.mapgrid.{BigStationBorderPiece, BigStationCenterPiece, BigStationTy
 import model.railway.Domain.{RailCode, StationCode}
 import model.railway.Rail.{metalRail, titaniumRail}
 import model.railway.Station.{bigStation, smallStation}
-import model.railway.{Rail, Railway, Station}
+import model.railway.{MetalRail, TitaniumRail, Rail, Railway, Station}
 
 import scala.annotation.tailrec
 
@@ -39,10 +39,15 @@ object RailwayMapper:
 
     val allStations: List[(Station, Int, Int)] = smallStations ++ expandedBigStations
     val rails: List[Rail] = extractRails(mapGrid)(allStations)
-
+    val invertedRails: List[Rail] = rails.map {
+      case r: MetalRail =>
+        metalRail(RailCode.value(r.code), r.length, StationCode.value(r.stationB), StationCode.value(r.stationA))
+      case r: TitaniumRail =>
+        titaniumRail(RailCode.value(r.code), r.length, StationCode.value(r.stationB), StationCode.value(r.stationA))
+    }
     Railway
       .withStations(smallStations.map(_._1) ++ bigStations.map(_._1))
-      .withRails(rails)
+      .withRails(rails ++ invertedRails)
 
   /** Expands the representation of big stations to include their surrounding border cells.
     *
@@ -196,7 +201,9 @@ object RailwayMapper:
           case Some((updatedSet, rail)) =>
             alreadyCheckedCells = updatedSet
             Some(rail)
-          case None => None
+          case None =>
+            railCounter -= 1
+            None
       }
     }
 

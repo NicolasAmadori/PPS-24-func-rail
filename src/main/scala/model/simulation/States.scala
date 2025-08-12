@@ -2,6 +2,7 @@ package model.simulation
 
 import model.railway.Domain.{RailCode, StationCode, TrainCode}
 import model.railway.Rail
+import model.simulation.Domain.PassengerCode
 import model.simulation.TrainPosition.AtStation
 
 /** Represent the mutable state of the simulation.
@@ -17,18 +18,20 @@ case class SimulationState(
     trains: List[Train],
     trainStates: Map[TrainCode, TrainState],
     railStates: Map[RailCode, RailState],
+    passengers: List[Passenger],
+    passengerStates: Map[PassengerCode, PassengerState],
     simulationStep: Int = -1
 ) extends TrainOperations[SimulationState]:
   override def withTrains(newTrains: List[Train]): SimulationState = copy(trains = newTrains)
 
 object SimulationState:
   /** Creates a simulation state with trains */
-  def apply(trains: List[Train]): SimulationState = SimulationState(trains, Map.empty, Map.empty)
+  def apply(trains: List[Train]): SimulationState = SimulationState(trains, Map.empty, Map.empty, List.empty, Map.empty)
 
   /** Creates a simulation state with rails occupancy */
   def withRails(rails: List[Rail]): SimulationState =
     val railStates = rails.map(r => r.code -> RailState(r.code)).toMap
-    SimulationState(List.empty, Map.empty, railStates)
+    SimulationState(List.empty, Map.empty, railStates, List.empty, Map.empty)
 
   /** Defines an empty simulation with empty train list */
   def empty: SimulationState = SimulationState(List.empty)

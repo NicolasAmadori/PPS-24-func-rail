@@ -18,7 +18,7 @@ public class GraphUtil {
 
 		railway.stations().map(StationView::new).foreach(graph::insertVertex);
 		var stations = graph.vertices().stream().map(Vertex::element).toList();
-		railway.rails().foreach(r -> {
+		railway.rails().distinctBy(Rail::code).foreach(r -> {
 			StationView stationA = stations.stream()
 					.filter(s -> s.stationCode().equals(r.stationA())).findFirst().orElseThrow();
 			StationView stationB = stations.stream()
