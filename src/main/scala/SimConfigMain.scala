@@ -4,7 +4,7 @@ import model.util.RailwayMapper
 import scalafx.application.JFXApp3
 import scalafx.scene.Scene
 import utils.StageManager
-import view.GraphUtil
+
 import view.simconfig.SimulationConfigView
 
 object SimConfigMain extends JFXApp3:
@@ -13,8 +13,6 @@ object SimConfigMain extends JFXApp3:
   val cols: Int = 70
 
   override def start(): Unit =
-    GraphUtil.createRailway()
-
     val cells = Vector(
       Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
       Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
