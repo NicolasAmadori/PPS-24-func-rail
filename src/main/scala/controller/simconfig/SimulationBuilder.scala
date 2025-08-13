@@ -1,11 +1,11 @@
 package controller.simconfig
 
-import model.railway.Domain.StationCode
+import model.entities.EntityCodes.StationCode
+import model.entities.{HighSpeedTrain, NormalTrain, Route, Train}
 import model.railway.Railway
 import model.simulation.SimulationError.{CannotComputeRoute, EmptyTrainName, InvalidDeparture, InvalidRoute}
-import model.simulation.Train.{highSpeedTrain, normalTrain}
-import model.simulation.{HighSpeedTrain, NormalTrain, RouteHelper, Simulation, SimulationError, Train}
-import model.simulation.TrainRoute.toRoute
+import model.entities.Train.{highSpeedTrain, normalTrain}
+import model.simulation.{RouteHelper, Simulation, SimulationError}
 
 /** Builder for creating a Simulation instance based on a Railway and a list of TrainConfig.
   */
@@ -13,6 +13,8 @@ object SimulationBuilder:
 
   /** Builds a [[model.simulation.Simulation]] object using the provided [[model.railway.Railway]] and parsing the train
     * configurations.
+    * @param duration
+    *   The duration (in days) of the simulation
     * @param railway
     *   the reference Railway
     * @param configs
@@ -68,6 +70,6 @@ object SimulationBuilder:
         (t match
           case n: NormalTrain => RouteHelper.getRouteForTrain(n, railway)
           case hs: HighSpeedTrain => RouteHelper.getRouteForTrain(hs, railway)
-        ).getOrElse(Nil).toRoute
+        ).getOrElse(Route.empty)
       )
     )

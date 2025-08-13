@@ -3,14 +3,10 @@ package view;
 import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graph.GraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Vertex;
-import com.brunomnsilva.smartgraph.graphview.SmartGraphEdge;
+import model.entities.Rail;
 import model.railway.*;
-import scala.jdk.javaapi.CollectionConverters;
-import utils.Converters;
 import view.simconfig.RailView;
 import view.simconfig.StationView;
-
-import java.util.List;
 
 public class GraphUtil {
 	public static Graph<StationView, RailView> createGraph(Railway railway) {

@@ -1,9 +1,9 @@
 package model
 
+import model.entities.{MetalRail, Rail, Station, TitaniumRail}
 import model.mapgrid.*
 
-import model.railway.Station.{bigStation, smallStation}
-import model.railway.{MetalRail, Rail, Station, TitaniumRail}
+import model.entities.Station.{bigStation, smallStation}
 import model.util.RailwayMapper
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -51,7 +51,7 @@ class RailwayMapperTest extends AnyFlatSpec with Matchers:
 
     val expectedStations = List(smallStation("ST1"), smallStation("ST2"))
     val expectedRails = List(
-      (3, ("ST1", "ST2"), MetalRailType)
+      (3 * RailwayMapper.BLOCK_TO_KM_MULTIPLIER, ("ST1", "ST2"), MetalRailType)
     )
 
     railway.stations should contain theSameElementsAs expectedStations
@@ -70,7 +70,7 @@ class RailwayMapperTest extends AnyFlatSpec with Matchers:
 
     val expectedStations = List(smallStation("ST1"), smallStation("ST2"))
     val expectedRails = List(
-      (4, ("ST1", "ST2"), MetalRailType)
+      (4 * RailwayMapper.BLOCK_TO_KM_MULTIPLIER, ("ST1", "ST2"), MetalRailType)
     )
 
     railway.stations should contain theSameElementsAs expectedStations
@@ -89,7 +89,7 @@ class RailwayMapperTest extends AnyFlatSpec with Matchers:
 
     val expectedStations = List(bigStation("BST1"), smallStation("ST2"))
     val expectedRails = List(
-      (1, ("BST1", "ST2"), MetalRailType)
+      (1 * RailwayMapper.BLOCK_TO_KM_MULTIPLIER, ("BST1", "ST2"), MetalRailType)
     )
 
     railway.stations should contain theSameElementsAs expectedStations
@@ -107,8 +107,8 @@ class RailwayMapperTest extends AnyFlatSpec with Matchers:
 
     val expectedStations = List(smallStation("ST1"), smallStation("ST2"), smallStation("ST3"))
     val expectedRails = List(
-      (1, ("ST1", "ST2"), MetalRailType),
-      (1, ("ST2", "ST3"), TitaniumRailType)
+      (1 * RailwayMapper.BLOCK_TO_KM_MULTIPLIER, ("ST1", "ST2"), MetalRailType),
+      (1 * RailwayMapper.BLOCK_TO_KM_MULTIPLIER, ("ST2", "ST3"), TitaniumRailType)
     )
 
     railway.stations should contain theSameElementsAs expectedStations
@@ -133,9 +133,9 @@ class RailwayMapperTest extends AnyFlatSpec with Matchers:
 
     val expectedStations = List(smallStation("ST1"), smallStation("ST2"), smallStation("ST3"), smallStation("ST4"))
     val expectedRails = List(
-      (1, ("ST1", "ST3"), MetalRailType),
-      (1, ("ST2", "ST3"), MetalRailType),
-      (1, ("ST3", "ST4"), MetalRailType)
+      (1 * RailwayMapper.BLOCK_TO_KM_MULTIPLIER, ("ST1", "ST3"), MetalRailType),
+      (1 * RailwayMapper.BLOCK_TO_KM_MULTIPLIER, ("ST2", "ST3"), MetalRailType),
+      (1 * RailwayMapper.BLOCK_TO_KM_MULTIPLIER, ("ST3", "ST4"), MetalRailType)
     )
 
     railway.stations should contain theSameElementsAs expectedStations
@@ -188,8 +188,8 @@ class RailwayMapperTest extends AnyFlatSpec with Matchers:
 
     val expectedStations = List(bigStation("BST1"), smallStation("ST2"), smallStation("ST3"))
     val expectedRails = List(
-      (1, ("BST1", "ST2"), MetalRailType),
-      (2, ("BST1", "ST3"), TitaniumRailType)
+      (1 * RailwayMapper.BLOCK_TO_KM_MULTIPLIER, ("BST1", "ST2"), MetalRailType),
+      (2 * RailwayMapper.BLOCK_TO_KM_MULTIPLIER, ("BST1", "ST3"), TitaniumRailType)
     )
 
     railway.stations should contain theSameElementsAs expectedStations

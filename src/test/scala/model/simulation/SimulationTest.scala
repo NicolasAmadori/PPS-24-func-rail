@@ -1,9 +1,10 @@
 package model.simulation
 
-import model.railway.Domain.StationCode
-import model.railway.Rail.metalRail
-import model.railway.{Rail, Railway, Station}
-import model.simulation.Train.{highSpeedTrain, normalTrain}
+import model.entities.EntityCodes.StationCode
+import model.entities.{Rail, Station, Train}
+import model.entities.Rail.metalRail
+import model.railway.Railway
+import model.entities.Train.{highSpeedTrain, normalTrain}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -41,14 +42,14 @@ class SimulationTest extends AnyFlatSpec:
   }
 
   it should "allow adding a train" in {
-    val state = SimulationState.empty.addTrain(train1)
+    val state = SimulationState.empty.withTrains(List(train1))
 
     state.trains should contain(train1)
   }
 
   it should "not allow adding a train with the same code" in {
     val train = normalTrain(trainCode1, StationCode.listOf(stationCode3, stationCode2))
-    val state = SimulationState(List(train)).addTrain(train)
+    val state = SimulationState(List(train)).withTrains(List(train))
 
     state.trains.count(_.code == train.code) should be(1)
   }

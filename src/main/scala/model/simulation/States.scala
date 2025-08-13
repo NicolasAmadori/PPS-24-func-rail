@@ -1,8 +1,7 @@
 package model.simulation
 
-import model.railway.Domain.{RailCode, StationCode, TrainCode}
-import model.railway.Rail
-import model.simulation.Domain.PassengerCode
+import model.entities.EntityCodes.{RailCode, StationCode, TrainCode, PassengerCode}
+import model.entities.{Passenger, PassengerState, Rail, Train}
 import model.simulation.TrainPosition.AtStation
 
 /** Represent the mutable state of the simulation.
@@ -21,8 +20,12 @@ case class SimulationState(
     passengers: List[Passenger],
     passengerStates: Map[PassengerCode, PassengerState],
     simulationStep: Int = -1
-) extends TrainOperations[SimulationState]:
-  override def withTrains(newTrains: List[Train]): SimulationState = copy(trains = newTrains)
+):
+  def withTrains(newTrains: List[Train]): SimulationState =
+    val newTrainStates = trains.map { t =>
+      t.code -> TrainState(t.code, AtStation(t.departureStation))
+    }.toMap
+    copy(trains = newTrains, trainStates = trainStates ++ newTrainStates)
 
 object SimulationState:
   /** Creates a simulation state with trains */

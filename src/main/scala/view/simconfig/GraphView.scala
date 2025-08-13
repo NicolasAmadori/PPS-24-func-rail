@@ -5,9 +5,10 @@ import com.brunomnsilva.smartgraph.graphview.{SmartCircularSortedPlacementStrate
 import javafx.beans.property.BooleanProperty
 import scalafx.scene.Parent
 import scalafx.scene.layout.StackPane
-import utils.Converters
+import view.util.Converters
 
 /** GraphView is a wrapper around SmartGraphPanel to provide a view for a graph.
+  *
   * @param graph
   * @tparam V
   *   vertices type

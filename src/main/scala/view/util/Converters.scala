@@ -1,4 +1,4 @@
-package utils
+package view.util
 
 import scala.jdk.javaapi.CollectionConverters
 

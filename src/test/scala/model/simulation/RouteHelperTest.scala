@@ -1,10 +1,10 @@
 package model.simulation
 
-import model.railway.Domain.StationCode
-import model.simulation.Train.{highSpeedTrain, normalTrain}
+import model.entities.EntityCodes.StationCode
+import model.entities.Train.{highSpeedTrain, normalTrain}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
-import utils.SampleRailway
+import util.SampleRailway
 import SampleRailway.SampleStation.*
 
 class RouteHelperTest extends AnyFlatSpec:
@@ -19,8 +19,10 @@ class RouteHelperTest extends AnyFlatSpec:
       railway
     )
 
-    val stationsInResult = result.get.flatMap(r => List(r.stationA, r.stationB)).toSet
-    stations.foreach(s => stationsInResult should contain(s))
+    result match
+      case Some(r) =>
+        stations.foreach(s => r.stations should contain(s))
+      case _ => fail("Test should retrieve some result")
   }
 
   it should "be empty if there is no path" in {
@@ -48,6 +50,8 @@ class RouteHelperTest extends AnyFlatSpec:
       railway
     )
     resultForNormal should be(None)
-    val stationsInResult = resultForHighSpeed.get.flatMap(r => List(r.stationA, r.stationB)).toSet
-    stations.foreach(s => stationsInResult should contain(s))
+    resultForHighSpeed match
+      case Some(r) =>
+        stations.foreach(s => r.stations should contain(s))
+      case _ => fail("High speed trains should retrieve some result")
   }

@@ -1,7 +1,7 @@
 package view.simconfig
 
 import controller.simconfig.SimulationConfigController
-import model.railway.Domain.StationCode
+import model.entities.EntityCodes.StationCode
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.geometry.Pos.{BottomCenter, Center}
@@ -11,6 +11,8 @@ import scalafx.scene.control.ScrollPane.ScrollBarPolicy.{AsNeeded, Never}
 import scalafx.scene.layout.*
 import utils.ErrorMessage
 import view.{GraphUtil, View}
+
+import scala.language.postfixOps
 
 object SimulationConfigViewConstants:
   val DefaultWindowMinWidth = 1300
@@ -83,10 +85,15 @@ class SimulationConfigView(
         fillHeight = true
         alignment = BottomCenter // oppure BottomCenter
         maxWidth = Double.MaxValue
-        children = Seq(backButton, simulationDurationBox(startButton), startButton)
-        HBox.setHgrow(backButton, Priority.Always)
-        HBox.setHgrow(simulationDurationBox(startButton), Priority.Always)
-        HBox.setHgrow(startSimulationButton, Priority.Always)
+        children = Seq(
+          backButton,
+          new HBox:
+            spacing = SmallSpacing
+            alignment = Center
+            children = Seq(simulationDurationBox(startButton), new Label("(Days)"))
+          ,
+          startButton
+        )
 
   private def newTrainButton: Button = new Button("New train"):
     onAction = _ =>
@@ -115,6 +122,7 @@ class SimulationConfigView(
 
   private def simulationDurationBox(startSimulationButton: Button): TextField =
     val field = new TextField()
+    field.maxWidth = 70
     field.promptText = "Simulation duration"
     field.text = simulationDuration.toString
     field.onKeyTyped = _ =>
