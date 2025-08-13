@@ -1,10 +1,9 @@
 import controller.simconfig.SimulationConfigController
-import model.mapgrid.{EmptyCell, MapGrid, MetalRailPiece, SmallStationPiece, TitaniumRailPiece}
+import model.mapgrid.{BigStationBorderPiece, BigStationCenterPiece, EmptyCell, MapGrid, MetalRailPiece, SmallStationPiece, TitaniumRailPiece}
 import model.util.RailwayMapper
 import scalafx.application.JFXApp3
 import scalafx.scene.Scene
 import utils.StageManager
-
 import view.simconfig.SimulationConfigView
 
 object SimConfigMain extends JFXApp3:
@@ -13,23 +12,46 @@ object SimConfigMain extends JFXApp3:
   val cols: Int = 70
 
   override def start(): Unit =
+//    val cells = Vector(
+//      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+//      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+//      Vector(
+//        EmptyCell,
+//        SmallStationPiece(1),
+//        MetalRailPiece(),
+//        MetalRailPiece(),
+//        SmallStationPiece(2),
+//        TitaniumRailPiece(),
+//        SmallStationPiece(3),
+//        EmptyCell
+//      ),
+//      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+//      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell)
+//    )
+//    val grid = MapGrid(8, 5, cells, 3)
     val cells = Vector(
-      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
-      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
-      Vector(
-        EmptyCell,
-        SmallStationPiece(1),
-        MetalRailPiece(),
-        MetalRailPiece(),
-        SmallStationPiece(2),
-        TitaniumRailPiece(),
-        SmallStationPiece(3),
-        EmptyCell
-      ),
-      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
-      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell)
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, SmallStationPiece(2), MetalRailPiece(), MetalRailPiece(), MetalRailPiece(), MetalRailPiece(), MetalRailPiece(), MetalRailPiece(), MetalRailPiece(), SmallStationPiece(3), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, MetalRailPiece(), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, MetalRailPiece(), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, MetalRailPiece(), SmallStationPiece(4), MetalRailPiece(), MetalRailPiece(), MetalRailPiece(), MetalRailPiece(), MetalRailPiece(), MetalRailPiece(), SmallStationPiece(5), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, TitaniumRailPiece(), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, TitaniumRailPiece(), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, TitaniumRailPiece(), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, SmallStationPiece(6), TitaniumRailPiece(), TitaniumRailPiece(), TitaniumRailPiece(), TitaniumRailPiece(), TitaniumRailPiece(), TitaniumRailPiece(), TitaniumRailPiece(), TitaniumRailPiece(), SmallStationPiece(7), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, TitaniumRailPiece(), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, TitaniumRailPiece(), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, SmallStationPiece(8), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, TitaniumRailPiece(), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, TitaniumRailPiece(), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, TitaniumRailPiece(), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, TitaniumRailPiece(), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, BigStationBorderPiece(1), BigStationBorderPiece(1), BigStationBorderPiece(1), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, BigStationBorderPiece(1), BigStationCenterPiece(1), BigStationBorderPiece(1), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, BigStationBorderPiece(1), BigStationBorderPiece(1), BigStationBorderPiece(1), EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell),
+      Vector(EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell, EmptyCell)
     )
-    val grid = MapGrid(8, 5, cells, 3)
+    val grid = MapGrid(20, 20, cells, 10)
 
     val controller = SimulationConfigController(grid, RailwayMapper.convert(grid))
     val view = SimulationConfigView(controller)
