@@ -1,5 +1,7 @@
 package model.mapgrid
 
+import model.mapgrid.PlacementError.NonIsolatedStation
+
 object MapGrid:
   def empty(width: Int, height: Int): MapGrid =
     val emptyRow = Vector.fill(width)(EmptyCell)
@@ -21,7 +23,8 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
         placeBigStation(x, y)
       case SmallStationType =>
         placeSmallStation(x, y)
-      case EmptyType => Right(copy())
+      case EmptyType =>
+        erasePiece(x, y)
 
   /** Check if a coordinate is inside grid bounds
     * @param x
@@ -43,6 +46,18 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
     *   True if the cell is empty, False otherwise.
     */
   private def isEmpty(x: Int, y: Int): Boolean = cells(y)(x) == EmptyCell
+
+  /** Checks if the cell at the specified coordinates is a rail.
+    *
+    * @param x
+    *   The x-coordinate of the cell.
+    * @param y
+    *   The y-coordinate of the cell.
+    * @return
+    *   True if the cell is a rail, False otherwise.
+    */
+  private def isRail(x: Int, y: Int): Boolean =
+    cells(y)(x).cellType == MetalRailType || cells(y)(x).cellType == TitaniumRailType
 
   /** Checks whether there are any station pieces adjacent to the specified cell, considering all neighboring cells
     * (both cardinal and diagonal).
@@ -147,6 +162,62 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
         stationCounter = nextId,
         cells = cells.updated(y, cells(y).updated(x, SmallStationPiece(nextId)))
       ))
+
+  /** Attempts to erase a piece at the given coordinates, applying rules for rails and stations.
+    *
+    * Rules:
+    *   - Rail: remove it without checks.
+    *   - Big Station: remove only if all adjacents are Big Stations and none are near rails.
+    *   - Small Station: remove only if no adjacent cell has rails.
+    *
+    * @param x
+    *   X-coordinate of the cell (0-based).
+    * @param y
+    *   Y-coordinate of the cell (0-based).
+    * @return
+    *   `Right(updatedGrid)` if erased, or `Left(PlacementError)` if not allowed.
+    */
+  private def erasePiece(x: Int, y: Int): Either[PlacementError, MapGrid] =
+    if !isInBounds(x, y) then
+      return Left(PlacementError.OutOfBounds(x, y))
+    if isEmpty(x, y) then
+      return Right(this)
+
+    def selfAndAdjacentCoords(cx: Int, cy: Int): Seq[(Int, Int)] =
+      ((0, 0) +: (diagonalOffsets ++ cardinalOffsets)).map { case (dx, dy) => (cx + dx, cy + dy) }
+
+    def clearCells(coords: Seq[(Int, Int)]): MapGrid =
+      copy(cells = coords.foldLeft(cells) {
+        case (grid, (cx, cy)) if isInBounds(cx, cy) =>
+          grid.updated(cy, grid(cy).updated(cx, EmptyCell))
+        case (grid, _) => grid
+      })
+
+    cells(y)(x).cellType match
+      case t if isRail(x, y) =>
+        Right(copy(cells = cells.updated(y, cells(y).updated(x, EmptyCell))))
+
+      case BigStationType =>
+        val adj = adjacentCells(x, y)
+        val allBigStation = adj.forall(_.exists(_.cellType == BigStationType))
+        if allBigStation then
+          val allCells = selfAndAdjacentCoords(x, y)
+          val noRailsAround = allCells.forall { case (cx, cy) =>
+            !selfAndAdjacentCoords(cx, cy).exists { case (ax, ay) => isRail(ax, ay) }
+          }
+          if noRailsAround then
+            Right(clearCells(allCells))
+          else
+            Left(NonIsolatedStation(x, y))
+        else Right(this)
+
+      case _ =>
+        val adjCoords = selfAndAdjacentCoords(x, y)
+        val noRailsAround = !adjCoords.exists { case (ax, ay) => isRail(ax, ay) }
+        if noRailsAround then
+          Right(copy(cells = cells.updated(y, cells(y).updated(x, EmptyCell))))
+        else
+          Left(NonIsolatedStation(x, y))
 
   /** Attempts to place a Big Station centered at the specified coordinates.
     *
