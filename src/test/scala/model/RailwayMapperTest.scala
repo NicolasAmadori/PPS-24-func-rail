@@ -1,9 +1,9 @@
 package model
 
+import model.entities.{MetalRail, Rail, Station, TitaniumRail}
 import model.mapgrid.*
 
-import model.railway.Station.{bigStation, smallStation}
-import model.railway.{MetalRail, Rail, Station, TitaniumRail}
+import model.entities.Station.{bigStation, smallStation}
 import model.util.RailwayMapper
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers

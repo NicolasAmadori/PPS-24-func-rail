@@ -1,15 +1,21 @@
-package model.simulation
+package model.entities
 
-import model.railway.Rail
-import model.railway.Domain.StationCode
+import model.entities.EntityCodes.StationCode
 
 /** Represents a specific path between stations.
+  *
   * @param rails
   *   The sequence of rails that make up the route.
   */
 case class Route(rails: List[Rail]):
   /** Calculates the total length of the route by summing the length of each rail. */
   def length: Double = rails.map(_.length).sum
+
+  /** @return true if there is no rail, false otherwise */
+  def isEmpty: Boolean = rails.isEmpty
+
+  /** @return a list of the stations visited by the route */
+  def stations: List[StationCode] = rails.flatMap(rail => List(rail.stationA, rail.stationB)).distinct
 
   /** Returns the station where the route begins. */
   def startStation: Option[StationCode] = rails.headOption.map(_.stationA)
@@ -25,3 +31,7 @@ case class Route(rails: List[Rail]):
       val start = s"${rails.head.stationA}"
       val path = rails.map(rail => s" --(${rail.length})--> ${rail.stationB}").mkString("")
       s"Route: $start$path"
+
+object Route:
+  /** Creates an empty Route */
+  def empty: Route = Route(Nil)

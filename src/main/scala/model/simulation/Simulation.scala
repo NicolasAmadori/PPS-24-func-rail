@@ -1,16 +1,28 @@
 package model.simulation
 
-import model.railway.Domain.TrainCode
+import model.entities.EntityCodes.TrainCode
+import model.entities.Train
+import model.entities.Train.highSpeedTrain
 import model.railway.Railway
+import model.util.PassengerGenerator
 
 case class Simulation(duration: Int, railway: Railway, state: SimulationState):
 
-  private val INITIAL_PASSENGER_NUMBER: Int = 100
-
-  private val passengerGenerator = PassengerGenerator(railway)
+  private val passengerGenerator = PassengerGenerator(railway, state.trains)
 
   def start(): Simulation =
-    val initialPassengers = passengerGenerator.generate(INITIAL_PASSENGER_NUMBER)
+    val departureStation = railway.stations.filter(s => s.code.toString == "ST3").head.code
+    val arrivalStation = railway.stations.filter(s => s.code.toString == "ST4").head.code
+
+    val t1 = highSpeedTrain("T1", List(departureStation, arrivalStation))
+    val train1 = t1.withRoute(RouteHelper.getRouteForTrain(t1, railway).get)
+    println(train1.route)
+
+    val itineraries = PassengerGenerator(railway, List(train1)).findAllItineraries(departureStation, arrivalStation)
+    itineraries.foreach(println)
+
+//    val initialPassengers = passengerGenerator.generate(INITIAL_PASSENGER_NUMBER)
+    val initialPassengers = passengerGenerator.generate(1)
     val newState = state.copy(
       simulationStep = 0,
       passengers = initialPassengers.map(t => t._1),

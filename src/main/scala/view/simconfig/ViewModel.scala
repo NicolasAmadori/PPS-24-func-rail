@@ -1,8 +1,8 @@
 package view.simconfig
 
 import com.brunomnsilva.smartgraph.graphview.SmartRadiusSource
-import model.railway.Domain.{RailCode, StationCode}
-import model.railway.{BigStation, Rail, Station}
+import model.entities.EntityCodes.{RailCode, StationCode}
+import model.entities.{BigStation, Rail, Station}
 
 class StationView(station: Station):
 

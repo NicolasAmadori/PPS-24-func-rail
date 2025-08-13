@@ -27,7 +27,7 @@ class MapBuilderController(model: MapGrid) extends BaseController[MapBuilderView
       Right(true)
 
   private def showError(error: ErrorMessage, title: String): Unit =
-    getView.showError(error, title)
+    getView.showError(title, error)
 
   def placeAt(x: Int, y: Int): Unit =
     validation match
