@@ -10,6 +10,8 @@ import model.entities.EntityCodes.StationCode
 case class Route(rails: List[Rail]):
   /** Calculates the total length of the route by summing the length of each rail. */
   def length: Double = rails.map(_.length).sum
+  
+  def railsCount: Int = rails.length
 
   /** @return true if there is no rail, false otherwise */
   def isEmpty: Boolean = rails.isEmpty
@@ -22,6 +24,12 @@ case class Route(rails: List[Rail]):
 
   /** Returns the station where the route ends. */
   def endStation: Option[StationCode] = rails.lastOption.map(_.stationB)
+  
+  def getRailAt(index: Int): Rail = rails(index)
+  
+  def getEndStationAt(index: Int, forward: Boolean): StationCode =
+    val rail = rails(index)
+    if forward then rail.stationB else rail.stationA
 
   /** Provides a string representation of the route, showing the sequence of stations and rail lengths. */
   override def toString: String =
