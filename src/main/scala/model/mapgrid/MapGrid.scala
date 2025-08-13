@@ -184,7 +184,7 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
       return Right(this)
 
     def selfAndAdjacentCoords(cx: Int, cy: Int): Seq[(Int, Int)] =
-      (0, 0) +: (diagonalOffsets ++ cardinalOffsets).map { case (dx, dy) => (cx + dx, cy + dy) }
+      ((0, 0) +: (diagonalOffsets ++ cardinalOffsets)).map { case (dx, dy) => (cx + dx, cy + dy) }
 
     def clearCells(coords: Seq[(Int, Int)]): MapGrid =
       copy(cells = coords.foldLeft(cells) {
