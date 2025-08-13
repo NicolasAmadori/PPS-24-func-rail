@@ -1,7 +1,7 @@
 package model.util
 
 import model.entities.EntityCodes.{StationCode, PassengerCode}
-import model.entities.PassengerState.AtStation
+import model.entities.PassengerPosition.AtStation
 import model.entities.*
 import model.railway.Railway
 
@@ -12,7 +12,7 @@ import scala.util.Random
   * @param railway
   *   The railway system containing stations and rails.
   */
-class PassengerGenerator(railway: Railway):
+class PassengerGenerator(railway: Railway, trains: List[Train]):
   private val BIG_STATION_MULTIPLIER = 9
 
   private var passengerIdCounter = 0
@@ -47,59 +47,54 @@ class PassengerGenerator(railway: Railway):
             PassengerCode(s"P${passengerIdCounter}"),
             departureStation.code,
             arrivalStation.code,
-            getRandomRoute(departureStation, arrivalStation)
+            getRandomItinerary(departureStation, arrivalStation)
           ),
-          AtStation(departureStation.code)
+          PassengerState(AtStation(departureStation.code))
         )
       }.toList
 
-  /** Selects a random route from all available routes between two given stations.
-    *
-    * @param departureStation
-    *   The station where the route begins.
-    * @param arrivalStation
-    *   The station where the route ends.
-    * @return
-    *   The randomly selected route if one is available, None otherwise.
-    */
-  private def getRandomRoute(departureStation: Station, arrivalStation: Station): Option[Route] =
-    Random.shuffle(getAllRoutes(departureStation, arrivalStation)).headOption
+  private def getRandomItinerary(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
+    Random.shuffle(findAllItineraries(departureStation.code, arrivalStation.code)).headOption
 
-  /** Recursively finds all possible routes between two stations.
-    *
-    * This is a depth-first search (DFS) algorithm that explores all paths from the departure station to the arrival
-    * one.
-    *
-    * @param departureStation
-    *   The current station in the search.
-    * @param arrivalStation
-    *   The final destination station.
-    * @return
-    *   A list of all possible routes.
-    */
-  private def getAllRoutes(
-      departureStation: Station,
-      arrivalStation: Station
-  ): List[Route] =
+  /** Return all the possible itineraries between two stations */
+  def findAllItineraries(
+      start: StationCode,
+      end: StationCode
+  ): List[Itinerary] =
+    dfs(current = start, target = end, visited = Set(start))
 
-    def _getAllRoutes(
-        departureStation: Station,
-        arrivalStation: Station,
-        visitedNodes: Set[StationCode] = Set.empty,
-        route: List[Rail] = List.empty,
-        usedRails: Set[Rail] = Set.empty
-    ): List[Route] =
-      if departureStation.code == arrivalStation.code then
-        List(Route(route))
-      else
-        val outgoingRails: List[Rail] = railway.rails.filter(r => r.stationA == departureStation.code)
-        outgoingRails
-          .filterNot(usedRails.contains)
-          .filterNot(r => visitedNodes.contains(r.stationB))
-          .flatMap { r =>
-            val neighbor = railway.stations.find(_.code == r.stationB).get
-            val newUsedRails = usedRails ++ railway.rails.filter(r2 => r2.code == r.code)
-            _getAllRoutes(neighbor, arrivalStation, visitedNodes + r.stationB, route :+ r, newUsedRails)
-          }
+  /** DFS that explore all possible paths */
+  private def dfs(
+      current: StationCode,
+      target: StationCode,
+      visited: Set[StationCode],
+      currentLegs: List[ItineraryLeg] = Nil
+  ): List[Itinerary] =
+    if current == target then
+      List(Itinerary(currentLegs.reverse))
+    else
+      trains
+        .filter(_.stations.contains(current))
+        .flatMap { train =>
+          val idx = train.stations.indexOf(current)
+          val neighbors =
+            train.stations.lift(idx - 1).toList ++
+              train.stations.lift(idx + 1).toList
 
-    _getAllRoutes(departureStation, arrivalStation, Set(departureStation.code))
+          neighbors
+            .filterNot(visited.contains)
+            .flatMap { next =>
+              val newLegs =
+                currentLegs match
+                  case Nil =>
+                    List(ItineraryLeg(train, current, next))
+                  case head :: tail if head.train == train =>
+                    // Continue the same ItineraryLeg
+                    List(ItineraryLeg(train, head.from, next)) ::: tail
+                  case _ =>
+                    // New ItineraryLeg with a different train
+                    ItineraryLeg(train, current, next) :: currentLegs
+
+              dfs(next, target, visited + next, newLegs)
+            }
+        }
