@@ -8,7 +8,7 @@ import scalafx.scene.layout.StackPane
 import view.util.Converters
 
 /** GraphView is a wrapper around SmartGraphPanel to provide a view for a graph.
- *
+  *
   * @param graph
   * @tparam V
   *   vertices type
