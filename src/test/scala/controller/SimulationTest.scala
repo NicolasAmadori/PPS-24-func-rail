@@ -84,7 +84,6 @@ class SimulationTest extends AnyFlatSpec:
     val rail = route.getRailAt(0)
     trainState1.position should be(OnRail(rail.code))
     trainState2.position should be(AtStation(rail.stationA))
-    println(state.railStates)
     state.railStates(rail.code).free should be(false)
     trainState1.position should not equal(trainState2.position)
   }

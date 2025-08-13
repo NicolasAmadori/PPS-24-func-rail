@@ -24,10 +24,9 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState):
     if state.simulationStep < 0 then
       Left(SimulationError.NotStarted())
     else
-      val stateWithTrainsAndRailsUpdated = state.updateTrains()
-      
+      val (stateWithTrainsAndRailsUpdated, trainsLogs) = state.updateTrains()
       val nextStep = state.simulationStep + 1
-      val logs = List(s"Step $nextStep executed")
+      val logs = List(s"Step $nextStep executed") ++ trainsLogs
       val newState = stateWithTrainsAndRailsUpdated.copy(simulationStep = nextStep)
       Right((copy(state = newState), logs))
 

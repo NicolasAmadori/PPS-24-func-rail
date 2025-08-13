@@ -34,29 +34,39 @@ case class SimulationState(
     }.toMap
     copy(trains = newTrains, trainStates = newTrainStates)
 
-  /** Updates simulation state moving trains of a step and managing rails occupancies */
-  def updateTrains(): SimulationState =
+  /** Updates simulation state moving trains of a step and managing rails occupancies
+    * @return
+    *   the updated simulation state and the list of logs
+    */
+  def updateTrains(): (SimulationState, List[String]) =
     val currentState = this
-    trainStates.foldLeft(currentState) { (acc, ts) =>
+    trainStates.foldLeft((currentState, List.empty[String])) { (acc, ts) =>
+      val (state, logs) = acc
       val (code, trainState) = (ts._1, ts._2)
-      val (newTrainState, newPosition) = trainState.update(trains.find(code == _.code).get, acc.railStates)
-      val updatedTrainStates = acc.trainStates.updated(code, newTrainState)
-      val updatedRailStates = updateRailStateOn(acc.railStates, trainState.position, newPosition)
-      acc.copy(trainStates = updatedTrainStates, railStates = updatedRailStates)
+      val (newTrainState, newPosition) = trainState.update(trains.find(code == _.code).get, state.railStates)
+      val updatedTrainStates = state.trainStates.updated(code, newTrainState)
+      val (updatedRailStates, log) = updateRailStateOn(ts._1, state.railStates, trainState.position, newPosition)
+      (state.copy(trainStates = updatedTrainStates, railStates = updatedRailStates), appendLog(logs, log))
     }
 
+  private def appendLog(logs: List[String], log: Option[String]): List[String] =
+    log match
+      case Some(l) => logs :+ l
+      case _ => logs
+
   private def updateRailStateOn(
+      trainCode: TrainCode,
       states: Map[RailCode, RailState],
       oldPosition: TrainPosition,
       newPosition: TrainPosition
-  ): Map[RailCode, RailState] =
-    if oldPosition != newPosition then
+  ): (Map[RailCode, RailState], Option[String]) =
       (oldPosition, newPosition) match
-        case (AtStation(_), OnRail(r)) => states.updated(r, states(r).occupyRail)
-        case (OnRail(r), AtStation(_)) => states.updated(r, states(r).freeRail)
-        case _ => throw IllegalStateException()
-    else
-      states
+        case (AtStation(s), OnRail(r)) =>
+          (states.updated(r, states(r).occupyRail), Some(s"Train $trainCode leaved station $s on rail $r"))
+        case (OnRail(r), AtStation(s)) =>
+          (states.updated(r, states(r).freeRail), Some(s"Train $trainCode arrived at station $s"))
+        case (AtStation(s), AtStation(_)) => (states, Some(s"Train $trainCode is waiting at station $s"))
+        case (OnRail(_), OnRail(_)) => (states, None)
 
 object SimulationState:
   /** Creates a simulation state with trains */
