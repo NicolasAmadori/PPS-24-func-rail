@@ -1,6 +1,6 @@
 package view.simconfig
 
-import model.railway.{BigStation, MetalRail, SmallStation, TitaniumRail}
+import model.entities.{BigStation, MetalRail, SmallStation, TitaniumRail}
 
 /** Strategy trait for defining styles for vertices and edges in a graph.
   */

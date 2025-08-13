@@ -1,13 +1,13 @@
 package controller
 
 import controller.simconfig.{HighSpeed, SimulationBuilder, TrainConfig}
-import model.railway.Domain.StationCode
+import model.entities.EntityCodes.StationCode
 import model.simulation.SimulationError.{EmptyTrainName, InvalidDeparture, InvalidRoute}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
-import utils.SampleRailway
+import util.SampleRailway
 
-import utils.SampleRailway.SampleStation.*
+import SampleRailway.SampleStation.*
 
 class SimulationBuilderTest extends AnyFlatSpec:
 

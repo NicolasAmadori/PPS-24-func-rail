@@ -6,10 +6,11 @@
 package model.util
 
 import model.mapgrid.{BigStationBorderPiece, BigStationCenterPiece, BigStationType, Cell, CellType, MapGrid, MetalRailPiece, MetalRailType, SmallStationPiece, SmallStationType, TitaniumRailPiece, TitaniumRailType}
-import model.railway.Domain.{RailCode, StationCode}
-import model.railway.Rail.{metalRail, titaniumRail}
-import model.railway.Station.{bigStation, smallStation}
-import model.railway.{MetalRail, TitaniumRail, Rail, Railway, Station}
+import model.entities.EntityCodes.{RailCode, StationCode}
+import model.entities.{MetalRail, Rail, Station, TitaniumRail}
+import model.entities.Rail.{metalRail, titaniumRail}
+import model.entities.Station.{bigStation, smallStation}
+import model.railway.Railway
 
 import scala.annotation.tailrec
 

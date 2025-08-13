@@ -1,9 +1,9 @@
-package model.simulation
+package model.entities
 
-import model.railway.Rail
-import model.railway.Domain.StationCode
+import model.entities.EntityCodes.StationCode
 
 /** Represents a specific path between stations.
+  *
   * @param rails
   *   The sequence of rails that make up the route.
   */

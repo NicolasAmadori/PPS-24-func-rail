@@ -1,10 +1,11 @@
 package controller.simconfig
 
-import model.railway.Domain.StationCode
+import model.entities.EntityCodes.StationCode
+import model.entities.{HighSpeedTrain, NormalTrain, Route, Train}
 import model.railway.Railway
 import model.simulation.SimulationError.{CannotComputeRoute, EmptyTrainName, InvalidDeparture, InvalidRoute}
-import model.simulation.Train.{highSpeedTrain, normalTrain}
-import model.simulation.{HighSpeedTrain, NormalTrain, Route, RouteHelper, Simulation, SimulationError, Train}
+import model.entities.Train.{highSpeedTrain, normalTrain}
+import model.simulation.{RouteHelper, Simulation, SimulationError}
 
 /** Builder for creating a Simulation instance based on a Railway and a list of TrainConfig.
   */

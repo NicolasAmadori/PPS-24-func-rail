@@ -1,6 +1,6 @@
-package model.railway
+package model.entities
 
-object Domain:
+object EntityCodes:
   opaque type StationCode = String
   object StationCode:
     def apply(code: String): StationCode = code
@@ -28,3 +28,9 @@ object Domain:
     extension (code: TrainCode)
       def isEmpty: Boolean = code == empty
       def value: String = code
+
+  opaque type PassengerCode = String
+  object PassengerCode:
+    def apply(code: String): PassengerCode = code
+
+    def value(code: PassengerCode): String = code

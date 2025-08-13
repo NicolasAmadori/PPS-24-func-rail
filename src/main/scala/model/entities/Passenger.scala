@@ -1,7 +1,6 @@
-package model.simulation
+package model.entities
 
-import model.railway.Domain.{StationCode, TrainCode}
-import model.simulation.Domain.PassengerCode
+import model.entities.EntityCodes.{StationCode, TrainCode, PassengerCode}
 
 trait Passenger:
   def id: PassengerCode

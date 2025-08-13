@@ -135,15 +135,18 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
     *   Either a PlacementError indicating why placement failed, or the updated MapGrid with the Small Station placed.
     */
   private def placeSmallStation(x: Int, y: Int): Either[PlacementError, MapGrid] =
-    if !isInBounds(x, y) then return Left(PlacementError.OutOfBounds(x, y))
-    if !isEmpty(x, y) then return Left(PlacementError.NonEmptyCell(x, y))
-    if hasNearStations(x, y) then return Left(PlacementError.InvalidPlacement(x, y, SmallStationType))
-
-    val nextId = stationCounter + 1
-    Right(copy(
-      stationCounter = nextId,
-      cells = cells.updated(y, cells(y).updated(x, SmallStationPiece(nextId)))
-    ))
+    if !isInBounds(x, y) then
+      Left(PlacementError.OutOfBounds(x, y))
+    else if !isEmpty(x, y) then
+      Left(PlacementError.NonEmptyCell(x, y))
+    else if hasNearStations(x, y) then
+      Left(PlacementError.InvalidPlacement(x, y, SmallStationType))
+    else
+      val nextId = stationCounter + 1
+      Right(copy(
+        stationCounter = nextId,
+        cells = cells.updated(y, cells(y).updated(x, SmallStationPiece(nextId)))
+      ))
 
   /** Attempts to place a Big Station centered at the specified coordinates.
     *
@@ -206,11 +209,14 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
     *   Either a PlacementError or the updated MapGrid.
     */
   private def placeGenericRail(x: Int, y: Int, railType: RailType): Either[PlacementError, MapGrid] =
-    if !isInBounds(x, y) then return Left(PlacementError.OutOfBounds(x, y))
-    if !isEmpty(x, y) then return Left(PlacementError.NonEmptyCell(x, y))
-    railType match
-      case MetalRailType => placeRail(x, y, railType, MetalRailPiece())
-      case TitaniumRailType => placeRail(x, y, railType, TitaniumRailPiece())
+    if !isInBounds(x, y) then
+      Left(PlacementError.OutOfBounds(x, y))
+    else if !isEmpty(x, y) then
+      Left(PlacementError.NonEmptyCell(x, y))
+    else
+      railType match
+        case MetalRailType => placeRail(x, y, railType, MetalRailPiece())
+        case TitaniumRailType => placeRail(x, y, railType, TitaniumRailPiece())
 
   /** Check if placing a RailPiece in a certain position creates a 2x2 square of rails which would invalidate the
     * designed railway

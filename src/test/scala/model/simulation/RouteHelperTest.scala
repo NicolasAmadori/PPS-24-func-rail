@@ -1,10 +1,10 @@
 package model.simulation
 
-import model.railway.Domain.StationCode
-import model.simulation.Train.{highSpeedTrain, normalTrain}
+import model.entities.EntityCodes.StationCode
+import model.entities.Train.{highSpeedTrain, normalTrain}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
-import utils.SampleRailway
+import util.SampleRailway
 import SampleRailway.SampleStation.*
 
 class RouteHelperTest extends AnyFlatSpec:
