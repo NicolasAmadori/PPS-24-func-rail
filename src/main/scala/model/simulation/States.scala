@@ -34,21 +34,29 @@ case class SimulationState(
     }.toMap
     copy(trains = newTrains, trainStates = newTrainStates)
 
+  /** Updates simulation state moving trains of a step and managing rails occupancies */
   def updateTrains(): SimulationState =
     val currentState = this
     trainStates.foldLeft(currentState) { (acc, ts) =>
       val (code, trainState) = (ts._1, ts._2)
       val (newTrainState, newPosition) = trainState.update(trains.find(code == _.code).get, acc.railStates)
       val updatedTrainStates = acc.trainStates.updated(code, newTrainState)
-      if newPosition != trainState.position then
-        val updatedRailStates = (trainState.position, newPosition) match
-          case (AtStation(_), OnRail(r)) => acc.railStates.updated(r, acc.railStates(r).occupyRail)
-          case (OnRail(r), AtStation(_)) => acc.railStates.updated(r, acc.railStates(r).freeRail)
-          case _ => throw IllegalStateException()
-        copy(trainStates = updatedTrainStates, railStates = updatedRailStates)
-      else
-        copy(trainStates = updatedTrainStates)
+      val updatedRailStates = updateRailStateOn(acc.railStates, trainState.position, newPosition)
+      acc.copy(trainStates = updatedTrainStates, railStates = updatedRailStates)
     }
+
+  private def updateRailStateOn(
+      states: Map[RailCode, RailState],
+      oldPosition: TrainPosition,
+      newPosition: TrainPosition
+  ): Map[RailCode, RailState] =
+    if oldPosition != newPosition then
+      (oldPosition, newPosition) match
+        case (AtStation(_), OnRail(r)) => states.updated(r, states(r).occupyRail)
+        case (OnRail(r), AtStation(_)) => states.updated(r, states(r).freeRail)
+        case _ => throw IllegalStateException()
+    else
+      states
 
 object SimulationState:
   /** Creates a simulation state with trains */
