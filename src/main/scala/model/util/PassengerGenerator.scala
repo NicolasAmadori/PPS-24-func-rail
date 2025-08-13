@@ -57,7 +57,7 @@ class PassengerGenerator(railway: Railway, trains: List[Train]):
     Random.shuffle(findAllItineraries(departureStation.code, arrivalStation.code)).headOption
 
   /** Return all the possible itineraries between two stations */
-  private def findAllItineraries(
+  def findAllItineraries(
       start: StationCode,
       end: StationCode
   ): List[Itinerary] =

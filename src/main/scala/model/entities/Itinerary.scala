@@ -10,12 +10,12 @@ case class ItineraryLeg(train: Train, from: StationCode, to: StationCode):
 
   /** Returns the stations actually traveled on this leg. */
   def stationsOnLeg: List[StationCode] =
-    val startIndex = train.stations.indexOf(from)
-    val endIndex = train.stations.indexOf(to)
+    val startIndex = train.route.stations.indexOf(from)
+    val endIndex = train.route.stations.indexOf(to)
     if startIndex < endIndex then
-      train.stations.slice(startIndex, endIndex + 1)
+      train.route.stations.slice(startIndex, endIndex + 1)
     else
-      train.stations.slice(endIndex, startIndex + 1).reverse
+      train.route.stations.slice(endIndex, startIndex + 1).reverse
 
   /** Total length of the leg (by summing the rails of the train's Route that are part of the leg). */
   def length: Double =

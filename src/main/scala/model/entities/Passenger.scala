@@ -8,8 +8,12 @@ trait Passenger:
   def destination: StationCode
   def itinerary: Option[Itinerary]
 
-case class PassengerImpl(id: PassengerCode, departure: StationCode, destination: StationCode, itinerary: Option[Itinerary])
-    extends Passenger
+case class PassengerImpl(
+    id: PassengerCode,
+    departure: StationCode,
+    destination: StationCode,
+    itinerary: Option[Itinerary]
+) extends Passenger
 
 enum PassengerPosition:
   case AtStation(station: StationCode)
