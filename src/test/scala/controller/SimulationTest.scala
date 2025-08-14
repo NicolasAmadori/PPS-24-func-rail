@@ -2,7 +2,7 @@ package controller
 
 import model.entities.EntityCodes.{StationCode, TrainCode}
 import model.entities.Train
-import model.simulation.{RouteHelper, Simulation, SimulationState}
+import model.simulation.{RouteHelper, Simulation}
 import org.scalatest.flatspec.AnyFlatSpec
 import util.SampleRailway
 import model.entities.Train.normalTrain
@@ -28,10 +28,9 @@ class SimulationTest extends AnyFlatSpec:
   extension (simulation: Simulation)
     def loopFor(steps: Int): Simulation =
       val loopedSimulation = Range(0, steps).foldLeft(simulation) { (acc, _) =>
-        acc.doStep() match {
+        acc.doStep() match
           case Right(sim) => sim._1
           case Left(e) => fail(e.toString)
-        }
       }
       loopedSimulation
 
@@ -85,6 +84,5 @@ class SimulationTest extends AnyFlatSpec:
     trainState1.position should be(OnRail(rail.code))
     trainState2.position should be(AtStation(rail.stationA))
     state.railStates(rail.code).free should be(false)
-    trainState1.position should not equal(trainState2.position)
+    trainState1.position should not equal (trainState2.position)
   }
-

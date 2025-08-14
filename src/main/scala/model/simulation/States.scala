@@ -62,13 +62,13 @@ case class SimulationState(
       oldPosition: TrainPosition,
       newPosition: TrainPosition
   ): (Map[RailCode, RailState], Option[TrainLog]) =
-      (oldPosition, newPosition) match
-        case (AtStation(s), OnRail(r)) =>
-          (states.updated(r, states(r).occupyRail), Some(LeavedStation(trainCode, s, r)))
-        case (OnRail(r), AtStation(s)) =>
-          (states.updated(r, states(r).freeRail), Some(EnteredStation(trainCode, s)))
-        case (AtStation(s), AtStation(_)) => (states, Some(WaitingAt(trainCode, s)))
-        case (OnRail(_), OnRail(_)) => (states, None)
+    (oldPosition, newPosition) match
+      case (AtStation(s), OnRail(r)) =>
+        (states.updated(r, states(r).occupyRail), Some(LeavedStation(trainCode, s, r)))
+      case (OnRail(r), AtStation(s)) =>
+        (states.updated(r, states(r).freeRail), Some(EnteredStation(trainCode, s)))
+      case (AtStation(s), AtStation(_)) => (states, Some(WaitingAt(trainCode, s)))
+      case (OnRail(_), OnRail(_)) => (states, None)
 
 object SimulationState:
   /** Creates a simulation state with trains */
