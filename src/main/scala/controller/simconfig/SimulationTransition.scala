@@ -7,7 +7,8 @@ import utils.StageManager
 import view.simconfig.{GraphView, RailView, StationView}
 import view.simulation.SimulationView
 
-class SimulationTransition(simulation: Simulation, graphView: GraphView[StationView, RailView]) extends ScreenTransition[SimulationController, SimulationView]:
+class SimulationTransition(simulation: Simulation, graphView: GraphView[StationView, RailView])
+    extends ScreenTransition[SimulationController, SimulationView]:
 
   def build(): (SimulationController, SimulationView) =
     val controller = SimulationController(simulation)

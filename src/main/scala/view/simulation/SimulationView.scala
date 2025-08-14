@@ -19,7 +19,7 @@ class SimulationView(controller: SimulationController, graphView: GraphView[Stat
   private val logs = ObservableBuffer[String]()
 
   private val listView = new ListView[String](logs):
-    prefWidth =  DefaultWindowMinWidth - OneThirdMinWidth
+    prefWidth = DefaultWindowMinWidth - OneThirdMinWidth
     prefHeight = 760
 
   private val hBox = new HBox(listView, graphView.getView(OneThirdMinWidth)):
