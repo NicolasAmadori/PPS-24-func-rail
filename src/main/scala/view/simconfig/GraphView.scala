@@ -42,3 +42,8 @@ class GraphView[V, E](graph: Graph[V, E]):
   /** Gets the graph pane */
   def getView: Parent = new StackPane:
     children.add(graphView)
+
+  /** Gets the graph pane */
+  def getView(screenWidth: Int): Parent = new StackPane:
+    prefWidth = screenWidth
+    children.add(graphView)
