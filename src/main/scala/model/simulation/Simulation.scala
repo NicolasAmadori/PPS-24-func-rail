@@ -29,7 +29,7 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState, p
 
       val (stateWithTrainsAndRailsUpdated, trainsLogs) = state.updateTrains() // Update trains
       // Update passengers states
-      val (stateWithTrainsAndRailsAndPassengerUpdated, passengersLogs) = state.updatePassengers()
+      val (stateWithTrainsAndRailsAndPassengerUpdated, passengersLogs) = stateWithTrainsAndRailsUpdated.updatePassengers()
       // Generate new passengers
       val (newGenerator, newPassengers, newPassengersLogs) =
         passengerGenerator.generate(NEW_STEP_PASSENGER_NUMBER)

@@ -57,6 +57,15 @@ case class SimulationState(
 
   def updatePassengers(): (SimulationState, List[PassengerLog]) = (copy(), List.empty)
 
+  def generatePassengers(n: Int): (SimulationState, List[PassengerLog]) = ???
+//    val (newGenerator, initialPassengers, initialPassengersLogs) =
+//      passengerGenerator.generate(INITIAL_PASSENGER_NUMBER)
+//    val newState = state.copy(
+//      simulationStep = 0,
+//      passengers = initialPassengers.map(p => p._1),
+//      passengerStates = initialPassengers.map(pS => pS._1.id -> pS._2).toMap
+//    )
+
   private def appendLog(logs: List[TrainLog], log: Option[TrainLog]): List[TrainLog] =
     log match
       case Some(l) => logs :+ l

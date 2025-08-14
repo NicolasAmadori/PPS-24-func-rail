@@ -23,7 +23,8 @@ class SimulationTest extends AnyFlatSpec:
   private val trainWithRoute2 = train2.withRoute(route)
 
   private def createSimulationWithTrains(trains: List[Train]): Simulation =
-    Simulation.withRailway(1, railway).addTrains(trains).start()
+    val (simulation, logs) = Simulation.withRailway(1, railway).addTrains(trains).start()
+    simulation
 
   extension (simulation: Simulation)
     def loopFor(steps: Int): Simulation =
