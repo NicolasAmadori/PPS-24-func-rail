@@ -2,27 +2,18 @@ package model.simulation
 
 import model.entities.EntityCodes.TrainCode
 import model.entities.Train
-import model.entities.Train.highSpeedTrain
 import model.railway.Railway
-import model.util.PassengerGenerator
+import model.util.{Log, PassengerGenerator}
+import model.util.SimulationLog.StepExecuted
 
 case class Simulation(duration: Int, railway: Railway, state: SimulationState):
+
+  private val INITIAL_PASSENGER_NUMBER = 100
 
   private val passengerGenerator = PassengerGenerator(railway, state.trains)
 
   def start(): Simulation =
-    val departureStation = railway.stations.filter(s => s.code.toString == "ST3").head.code
-    val arrivalStation = railway.stations.filter(s => s.code.toString == "ST4").head.code
-
-    val t1 = highSpeedTrain("T1", List(departureStation, arrivalStation))
-    val train1 = t1.withRoute(RouteHelper.getRouteForTrain(t1, railway).get)
-    println(train1.route)
-
-    val itineraries = PassengerGenerator(railway, List(train1)).findAllItineraries(departureStation, arrivalStation)
-    itineraries.foreach(println)
-
-//    val initialPassengers = passengerGenerator.generate(INITIAL_PASSENGER_NUMBER)
-    val initialPassengers = passengerGenerator.generate(1)
+    val initialPassengers = passengerGenerator.generate(INITIAL_PASSENGER_NUMBER)
     val newState = state.copy(
       simulationStep = 0,
       passengers = initialPassengers.map(t => t._1),
@@ -30,13 +21,14 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState):
     )
     copy(state = newState)
 
-  def doStep(): Either[SimulationError, (Simulation, List[String])] =
+  def doStep(): Either[SimulationError, (Simulation, List[Log])] =
     if state.simulationStep < 0 then
       Left(SimulationError.NotStarted())
     else
+      val (stateWithTrainsAndRailsUpdated, trainsLogs) = state.updateTrains()
       val nextStep = state.simulationStep + 1
-      val logs = List(s"Step $nextStep executed")
-      val newState = state.copy(simulationStep = nextStep)
+      val logs = StepExecuted(nextStep) +: trainsLogs
+      val newState = stateWithTrainsAndRailsUpdated.copy(simulationStep = nextStep)
       Right((copy(state = newState), logs))
 
   def isFinished: Boolean = state.simulationStep == duration * 24
