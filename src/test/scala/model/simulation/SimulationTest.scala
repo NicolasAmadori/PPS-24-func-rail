@@ -64,6 +64,11 @@ class SimulationTest extends AnyFlatSpec:
 
   it should "not allow adding a train with an invalid route" in {
     val invalidTrain = normalTrain(trainCode1, StationCode.listOf(stationCode1, "INVALID_STATION"))
-    val simulation = Simulation(simulationDuration, railway, SimulationState.empty, PassengerGenerator(railway, SimulationState.empty.trains))
+    val simulation = Simulation(
+      simulationDuration,
+      railway,
+      SimulationState.empty,
+      PassengerGenerator(railway, SimulationState.empty.trains)
+    )
     assertThrows[IllegalArgumentException](simulation.addTrains(List(invalidTrain)))
   }

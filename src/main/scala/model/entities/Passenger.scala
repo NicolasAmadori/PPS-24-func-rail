@@ -3,13 +3,13 @@ package model.entities
 import model.entities.EntityCodes.{StationCode, TrainCode, PassengerCode}
 
 trait Passenger:
-  def id: PassengerCode
+  def code: PassengerCode
   def departure: StationCode
   def destination: StationCode
   def itinerary: Option[Itinerary]
 
 case class PassengerImpl(
-    id: PassengerCode,
+    code: PassengerCode,
     departure: StationCode,
     destination: StationCode,
     itinerary: Option[Itinerary]

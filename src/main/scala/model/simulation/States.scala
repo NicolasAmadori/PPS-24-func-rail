@@ -1,7 +1,7 @@
 package model.simulation
 
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
-import model.entities.{Passenger, PassengerState, Rail, Train}
+import model.entities.{Passenger, PassengerPosition, PassengerState, Rail, Train}
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import model.simulation.TrainState.InitialRouteIndex
 import model.util.{PassengerGenerator, PassengerLog, TrainLog}
@@ -55,15 +55,64 @@ case class SimulationState(
       (state.copy(trainStates = updatedTrainStates, railStates = updatedRailStates), appendLog(logs, log))
     }
 
-  def updatePassengers(): (SimulationState, List[PassengerLog]) = (copy(), List.empty)
+  def updatePassengers(): (SimulationState, List[PassengerLog]) =
+    val (_, boardingLogs) = boardPassengers()
+    val (_, deboardingLogs) = deboardPassengers()
+    val (newState, waitingLogs) = waitPassengers()
+    (newState, boardingLogs ++ deboardingLogs ++ waitingLogs)
 
-  def generatePassengers(passengerGenerator: PassengerGenerator)(n: Int): (SimulationState, PassengerGenerator, List[PassengerLog]) =
+  private def boardPassengers(): (SimulationState, List[PassengerLog]) =
+    val waitingPassengers: Map[Passenger, StationCode] =
+      (for
+        p <- passengers
+        if p.itinerary.isDefined
+        state <- passengerStates.get(p.code)
+        station <- state.currentPosition match
+          case PassengerPosition.AtStation(s) => Some(s)
+          case _ => None
+      yield p -> station).toMap
+
+    val trainsAtStations: Map[TrainCode, StationCode] =
+      (for
+        (code, state) <- trainStates
+        stationCode <- state.position match
+          case TrainPosition.AtStation(s) => Some(s)
+          case _ => None
+      yield code -> stationCode).toMap
+
+    val passengerReadyToGetOnTrain: Map[PassengerCode, TrainCode] = waitingPassengers
+      .filter((p, s) =>
+        val waitingTrain: Train = p.itinerary.get.legs.filter(l => l.from == s).head.train
+        trainsAtStations(waitingTrain.code) == s
+      )
+      .map((p, s) =>
+        val waitingTrain: Train = p.itinerary.get.legs.filter(l => l.from == s).head.train
+        p.code -> waitingTrain.code
+      )
+
+    val newPassengerStates: Map[PassengerCode, PassengerState] = passengerReadyToGetOnTrain.map((pCode, tCode) =>
+      val oldState = passengerStates.get(pCode)
+      pCode -> oldState.get.changePosition(PassengerPosition.OnTrain(tCode))
+    )
+
+    val newPassengerLogs: List[PassengerLog] = passengerReadyToGetOnTrain.map((pCode, tCode) =>
+      PassengerLog.GetOnTrain(pCode, tCode)
+    ).toList
+
+    (copy(passengerStates = newPassengerStates), newPassengerLogs)
+
+  private def deboardPassengers(): (SimulationState, List[PassengerLog]) = (copy(), List.empty)
+
+  private def waitPassengers(): (SimulationState, List[PassengerLog]) = (copy(), List.empty)
+
+  def generatePassengers(passengerGenerator: PassengerGenerator)(n: Int)
+      : (SimulationState, PassengerGenerator, List[PassengerLog]) =
     val (newGenerator, newPassengers, newPassengersLogs) =
       passengerGenerator.generate(n)
     (
       copy(
         passengers = passengers ++ newPassengers.map(p => p._1),
-        passengerStates = passengerStates ++ newPassengers.map(pS => pS._1.id -> pS._2).toMap
+        passengerStates = passengerStates ++ newPassengers.map(pS => pS._1.code -> pS._2).toMap
       ),
       newGenerator,
       newPassengersLogs

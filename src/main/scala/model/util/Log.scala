@@ -1,7 +1,7 @@
 package model.util
 
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
-import model.entities.{Itinerary, ItineraryLeg, Passenger}
+import model.entities.{ItineraryLeg, Passenger}
 
 trait Log
 
@@ -33,18 +33,18 @@ enum TrainLog extends Log:
 
 enum PassengerLog extends Log:
   case StartTrip(passenger: Passenger)
-  case GetOnTrain(passenger: PassengerCode, previousLeg: ItineraryLeg, nextLeg: ItineraryLeg)
+  case GetOnTrain(passenger: PassengerCode, trainCode: TrainCode)
   case GetOffTrain(passenger: PassengerCode, previousLeg: ItineraryLeg, nextLeg: ItineraryLeg)
   case EndTrip(passenger: Passenger)
 
   override def toString: String = this match
     case StartTrip(passenger) =>
       if passenger.itinerary.isDefined then
-        s"Passenger ${passenger.id} started trip: ${passenger.itinerary}"
+        s"Passenger ${passenger.code} started trip: ${passenger.itinerary}"
       else
-        s"Passenger ${passenger.id} started trip from ${passenger.departure} to ${passenger.destination} but no itinerary is possible."
-    case GetOnTrain(passenger, previousLeg, nextLeg) =>
-      s"Passenger $passenger got on train ${nextLeg.train.code} from station ${previousLeg.to}"
+        s"Passenger ${passenger.code} started trip from ${passenger.departure} to ${passenger.destination} but no itinerary is possible."
+    case GetOnTrain(passenger, trainCode) =>
+      s"Passenger $passenger got on train $trainCode"
     case GetOffTrain(passenger, previousLeg, nextLeg) =>
       s"Passenger $passenger got off train ${previousLeg.train.code} at station ${previousLeg.to} and will wait for train ${nextLeg.train.code}"
     case EndTrip(passenger) =>

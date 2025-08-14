@@ -43,7 +43,7 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
 
     val (_, passengers1, _) = generator1.generate()
     val (_, passengers2, _) = generator2.generate()
-    
+
     passengers1 should be(empty)
     passengers2 should be(empty)
   }
@@ -58,7 +58,7 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
 
     val (passenger, state) = result.head
 
-    passenger.id.toString should be("P1")
+    passenger.code.toString should be("P1")
 
     // Departure and destination should be the two stations in the railway
     Set(passenger.departure, passenger.destination) should be(Set(st1.code, st2.code))
@@ -80,7 +80,7 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
     val (_, results, _) = generator.generate(3)
     results should have size 3
 
-    val passengerIds = results.map(_._1.id.toString).sorted
+    val passengerIds = results.map(_._1.code.toString).sorted
     passengerIds should be(List("P1", "P2", "P3"))
   }
 
