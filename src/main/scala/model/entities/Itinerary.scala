@@ -49,14 +49,9 @@ case class Itinerary(legs: List[ItineraryLeg]):
 
   override def toString: String =
     val legsStr = legs.map { leg =>
-      s"${leg.train.code.value}: " +
-        leg.stationsOnLeg.mkString(" -> ")
-    }.mkString("\n")
-    s"""Itinerary from $start to $end:
-       |Total length: $totalLength km
-       |Legs:
-       |$legsStr
-       |""".stripMargin
+      s"${leg.train.code.value}:${leg.from}→${leg.to}"
+    }.mkString(", ")
+    f"$start→$end | $legsStr | ${totalLength}%.1f km"
 
 object Itinerary:
   def apply(firstLeg: ItineraryLeg, otherLegs: ItineraryLeg*): Itinerary =

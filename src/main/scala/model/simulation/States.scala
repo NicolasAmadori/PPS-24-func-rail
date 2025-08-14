@@ -4,7 +4,7 @@ import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCo
 import model.entities.{Passenger, PassengerState, Rail, Train}
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import model.simulation.TrainState.InitialRouteIndex
-import model.util.TrainLog
+import model.util.{PassengerLog, TrainLog}
 import model.util.TrainLog.{EnteredStation, LeavedStation, WaitingAt}
 
 /** Represent the mutable state of the simulation.
@@ -54,6 +54,8 @@ case class SimulationState(
       val (updatedRailStates, log) = updateRailStateOn(ts._1, state.railStates, trainState.position, newPosition)
       (state.copy(trainStates = updatedTrainStates, railStates = updatedRailStates), appendLog(logs, log))
     }
+
+  def updatePassengers(): (SimulationState, List[PassengerLog]) = (copy(), List.empty)
 
   private def appendLog(logs: List[TrainLog], log: Option[TrainLog]): List[TrainLog] =
     log match

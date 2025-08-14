@@ -2,6 +2,7 @@ package controller.simulation
 
 import controller.BaseController
 import model.simulation.Simulation
+import model.util.SimulationLog
 import scalafx.application.Platform
 import view.simulation.SimulationView
 
@@ -28,13 +29,14 @@ class SimulationController(simulation: Simulation) extends BaseController[Simula
     Platform.runLater(() => progressIndicatorRaw(value))
 
   def startSimulation(): Unit =
-    sim = sim.start()
-    emitEvent("Simulation started")
+    val (newSim, logs) = sim.start()
+    sim = newSim
+    logs.map(_.toString).foreach(emitEvent)
     loopAsync(sim, 1000)
 
   private def loopAsync(current: Simulation, delayMs: Long): Unit =
     if current.isFinished then
-      emitEvent("Simulation finished")
+      emitEvent(SimulationLog.SimulationFinished().toString)
     else
       scheduler.schedule(
         new Runnable:

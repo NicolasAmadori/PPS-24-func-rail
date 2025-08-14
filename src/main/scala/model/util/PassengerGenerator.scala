@@ -12,10 +12,8 @@ import scala.util.Random
   * @param railway
   *   The railway system containing stations and rails.
   */
-class PassengerGenerator(railway: Railway, trains: List[Train]):
+class PassengerGenerator(railway: Railway, trains: List[Train], passengerIdCounter: Int = 0):
   private val BIG_STATION_MULTIPLIER = 9
-
-  private var passengerIdCounter = 0
 
   /** Generates a specified number of passengers.
     *
@@ -27,24 +25,24 @@ class PassengerGenerator(railway: Railway, trains: List[Train]):
     * @return
     *   A list of tuples, where each tuple contains a [[Passenger]] and its initial [[PassengerState]].
     */
-  def generate(n: Int = 1): List[(Passenger, PassengerState)] =
+  def generate(n: Int = 1): (PassengerGenerator, List[(Passenger, PassengerState)], List[PassengerLog]) =
     if railway.stations.size < 2 then
-      List.empty
+      (this, List.empty, List.empty)
     else
-      (1 to n).map { _ =>
-        val randomizedStations: List[Station] = railway.stations.flatMap(s =>
-          s match
-            case SmallStation(_) => List(s)
-            case BigStation(_) =>
-              List.fill(BIG_STATION_MULTIPLIER)(s) // Big stations has 9 times the possibilities of being chosen
-        )
+      val randomizedStations: List[Station] =
+        railway.stations.flatMap {
+          case s @ SmallStation(_) => List(s)
+          case s @ BigStation(_) => List.fill(BIG_STATION_MULTIPLIER)(s)
+        }
 
+      var counter = passengerIdCounter
+      val passengers = (1 to n).map { _ =>
         val departureStation = Random.shuffle(randomizedStations).head
-        val arrivalStation = Random.shuffle(randomizedStations.filter(s => s != departureStation)).head
-        passengerIdCounter += 1
+        val arrivalStation = Random.shuffle(randomizedStations.filter(_ != departureStation)).head
+        counter += 1
         (
           PassengerImpl(
-            PassengerCode(s"P${passengerIdCounter}"),
+            PassengerCode(s"P$counter"),
             departureStation.code,
             arrivalStation.code,
             getRandomItinerary(departureStation, arrivalStation)
@@ -53,11 +51,17 @@ class PassengerGenerator(railway: Railway, trains: List[Train]):
         )
       }.toList
 
+      (
+        new PassengerGenerator(railway, trains, counter),
+        passengers,
+        passengers.map(p => PassengerLog.StartTrip(p._1))
+      )
+
   private def getRandomItinerary(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
     Random.shuffle(findAllItineraries(departureStation.code, arrivalStation.code)).headOption
 
   /** Return all the possible itineraries between two stations */
-  def findAllItineraries(
+  private def findAllItineraries(
       start: StationCode,
       end: StationCode
   ): List[Itinerary] =
