@@ -133,7 +133,7 @@ class SimulationConfigView(
 
   private def startSimulationButton: Button = new Button("Start simulation"):
     maxWidth = Double.MaxValue
-    onAction = _ => controller.startSimulation(simulationDuration)
+    onAction = _ => controller.startSimulation(simulationDuration, graphView)
 
   private def backButton: Button = new Button("Back"):
     maxWidth = Double.MaxValue
