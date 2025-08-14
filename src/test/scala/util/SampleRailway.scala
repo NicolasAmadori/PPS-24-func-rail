@@ -16,6 +16,7 @@ object SampleRailway:
 
   import SampleStation.*
 
+  /** Railway with only metal rails */
   def railway1: Railway =
     val stations = List(
       smallStation(StationA),
@@ -33,6 +34,8 @@ object SampleRailway:
     )
     RailwayImpl(stations, rails)
 
+  /** Railway with both metal and titanium rails so that some stations cannot be reached without crossing titanium rail
+    */
   def railway2: Railway =
     val stations = List(
       smallStation(StationA),
@@ -47,5 +50,16 @@ object SampleRailway:
       metalRail(3, 200, StationC, StationD),
       titaniumRail(4, 120, StationD, StationA),
       metalRail(5, 120, StationD, StationE)
+    )
+    RailwayImpl(stations, rails)
+
+  /** Railway with only two stations and a metal rail */
+  def railway3: Railway =
+    val stations = List(
+      smallStation(StationA),
+      bigStation(StationB)
+    )
+    val rails = List(
+      metalRail(1, 1000, StationA, StationB)
     )
     RailwayImpl(stations, rails)

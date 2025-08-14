@@ -16,6 +16,10 @@ import controller.mapbuilder.MapBuilderController
 import model.util.RailwayMapper
 
 object ToolMappings:
+  val eraserNameToCell: Map[String, CellType] = Map(
+    "Eraser" -> EmptyType
+  )
+
   val railNameToCell: Map[String, CellType] = Map(
     "Metal rail" -> MetalRailType,
     "Titanium rail" -> TitaniumRailType
@@ -70,6 +74,11 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
     setupModelListener()
     setupToolListener()
 
+  import scalafx.Includes.*
+  import scalafx.scene.input.{MouseEvent, MouseDragEvent}
+
+  private var painting = false
+
   private def createGrid(cellSize: Int): Vector[Vector[Button]] =
     Vector.tabulate(height, width) { (row, col) =>
       val btn = new Button:
@@ -78,7 +87,22 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
         maxWidth = cellSize
         maxHeight = cellSize
         style = toCssColor(DefaultColor)
-      btn.onAction = _ => controller.placeAt(col, row)
+        focusTraversable = false
+
+      btn.onMousePressed = (_: MouseEvent) =>
+        controller.placeAt(col, row)
+
+      btn.onDragDetected = (e: MouseEvent) =>
+        painting = true
+        btn.startFullDrag()
+        e.consume()
+
+      btn.onMouseDragEntered = (_: MouseDragEvent) =>
+        if painting then controller.placeAt(col, row)
+
+      btn.onMouseReleased = (_: MouseEvent) =>
+        painting = false
+
       gridPane.add(btn, col, row)
       btn
     }
@@ -88,7 +112,11 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
     onAction = _ => controller.onNext()
 
   private def createToolButtons(): Seq[Node] =
+    val instructions = new Label("Click or drag to place pieces")
     val railLabel = new Label("Rails (" + RailwayMapper.BLOCK_TO_KM_MULTIPLIER + " km each):")
+
+    val eraser = new RadioButton("Eraser"):
+      toggleGroup = toolsGroup
 
     val rails = railNameToCell.keys.toSeq.map { label =>
       new RadioButton(label):
@@ -103,13 +131,15 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
 
     rails ++ stations match
       case allButtons =>
-        Seq(railLabel) ++ rails ++ Seq(stationLabel) ++ stations
+        List(instructions) ++ List(eraser) ++ (Seq(railLabel) ++ rails ++ Seq(stationLabel) ++ stations)
 
   private def setupToolListener(): Unit =
     toolsGroup.selectedToggle.onChange { (_, _, newToggle) =>
       Option(newToggle)
         .collect { case rb: javafx.scene.control.RadioButton => RadioButton(rb) }
-        .flatMap(rb => railNameToCell.get(rb.text()).orElse(stationNameToCell.get(rb.text())))
+        .flatMap(rb =>
+          railNameToCell.get(rb.text()).orElse(stationNameToCell.get(rb.text())).orElse(eraserNameToCell.get(rb.text()))
+        )
         .foreach(controller.selectTool)
     }
 
@@ -124,9 +154,10 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
   private def toCssColor(color: String): String = s"-fx-background-color: $color"
 
   def showError(title: String = "", error: ErrorMessage): Unit =
-    Platform.runLater:
-      alert.contentText = error.toString
-      alert.headerText = title
-      alert.showAndWait()
+    if !painting then
+      Platform.runLater:
+        alert.contentText = error.toString
+        alert.headerText = title
+        alert.showAndWait()
 
   override def getRoot: Parent = this
