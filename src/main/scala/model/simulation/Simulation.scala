@@ -3,7 +3,8 @@ package model.simulation
 import model.entities.EntityCodes.TrainCode
 import model.entities.Train
 import model.railway.Railway
-import model.util.PassengerGenerator
+import model.util.{Log, PassengerGenerator}
+import model.util.SimulationLog.StepExecuted
 
 case class Simulation(duration: Int, railway: Railway, state: SimulationState):
 
@@ -20,13 +21,13 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState):
     )
     copy(state = newState)
 
-  def doStep(): Either[SimulationError, (Simulation, List[String])] =
+  def doStep(): Either[SimulationError, (Simulation, List[Log])] =
     if state.simulationStep < 0 then
       Left(SimulationError.NotStarted())
     else
       val (stateWithTrainsAndRailsUpdated, trainsLogs) = state.updateTrains()
       val nextStep = state.simulationStep + 1
-      val logs = List(s"Step $nextStep executed") ++ trainsLogs
+      val logs = StepExecuted(nextStep) +: trainsLogs
       val newState = stateWithTrainsAndRailsUpdated.copy(simulationStep = nextStep)
       Right((copy(state = newState), logs))
 

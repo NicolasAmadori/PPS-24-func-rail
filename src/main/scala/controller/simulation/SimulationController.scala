@@ -42,7 +42,7 @@ class SimulationController(simulation: Simulation) extends BaseController[Simula
             current.doStep() match
               case Left(simError) => emitEvent(simError.toString)
               case Right((next, logs)) =>
-                logs.foreach(emitEvent)
+                logs.map(_.toString).foreach(emitEvent)
                 updateProgress(next.state.simulationStep.toDouble / (next.duration.toDouble * 24))
                 loopAsync(next, delayMs)
         ,

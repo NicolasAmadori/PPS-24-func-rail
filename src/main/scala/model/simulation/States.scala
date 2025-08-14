@@ -4,6 +4,8 @@ import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCo
 import model.entities.{Passenger, PassengerState, Rail, Train}
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import model.simulation.TrainState.InitialRouteIndex
+import model.util.TrainLog
+import model.util.TrainLog.{EnteredStation, LeavedStation, WaitingAt}
 
 /** Represent the mutable state of the simulation.
   * @param trains
@@ -38,9 +40,9 @@ case class SimulationState(
     * @return
     *   the updated simulation state and the list of logs
     */
-  def updateTrains(): (SimulationState, List[String]) =
+  def updateTrains(): (SimulationState, List[TrainLog]) =
     val currentState = this
-    trainStates.foldLeft((currentState, List.empty[String])) { (acc, ts) =>
+    trainStates.foldLeft((currentState, List.empty)) { (acc, ts) =>
       val (state, logs) = acc
       val (code, trainState) = (ts._1, ts._2)
       val (newTrainState, newPosition) = trainState.update(trains.find(code == _.code).get, state.railStates)
@@ -49,7 +51,7 @@ case class SimulationState(
       (state.copy(trainStates = updatedTrainStates, railStates = updatedRailStates), appendLog(logs, log))
     }
 
-  private def appendLog(logs: List[String], log: Option[String]): List[String] =
+  private def appendLog(logs: List[TrainLog], log: Option[TrainLog]): List[TrainLog] =
     log match
       case Some(l) => logs :+ l
       case _ => logs
@@ -59,13 +61,13 @@ case class SimulationState(
       states: Map[RailCode, RailState],
       oldPosition: TrainPosition,
       newPosition: TrainPosition
-  ): (Map[RailCode, RailState], Option[String]) =
+  ): (Map[RailCode, RailState], Option[TrainLog]) =
       (oldPosition, newPosition) match
         case (AtStation(s), OnRail(r)) =>
-          (states.updated(r, states(r).occupyRail), Some(s"Train $trainCode leaved station $s on rail $r"))
+          (states.updated(r, states(r).occupyRail), Some(LeavedStation(trainCode, s, r)))
         case (OnRail(r), AtStation(s)) =>
-          (states.updated(r, states(r).freeRail), Some(s"Train $trainCode arrived at station $s"))
-        case (AtStation(s), AtStation(_)) => (states, Some(s"Train $trainCode is waiting at station $s"))
+          (states.updated(r, states(r).freeRail), Some(EnteredStation(trainCode, s)))
+        case (AtStation(s), AtStation(_)) => (states, Some(WaitingAt(trainCode, s)))
         case (OnRail(_), OnRail(_)) => (states, None)
 
 object SimulationState:
