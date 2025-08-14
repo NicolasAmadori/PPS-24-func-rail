@@ -8,7 +8,7 @@ import util.SampleRailway
 import model.entities.Train.normalTrain
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import org.scalatest.matchers.should.Matchers.*
-import util.SampleRailway.SampleStation.{StationB, StationE}
+import util.SampleRailway.SampleStation.{StationB, StationA}
 
 class SimulationTest extends AnyFlatSpec:
 
@@ -16,8 +16,8 @@ class SimulationTest extends AnyFlatSpec:
   private val trainCode2 = "T2"
 
   private val railway = SampleRailway.railway3
-  private val train1 = normalTrain(trainCode1, List(StationB, StationE).map(StationCode(_)))
-  private val train2 = normalTrain(trainCode2, List(StationB, StationE).map(StationCode(_)))
+  private val train1 = normalTrain(trainCode1, List(StationA, StationB).map(StationCode(_)))
+  private val train2 = normalTrain(trainCode2, List(StationA, StationB).map(StationCode(_)))
   private val route = RouteHelper.getRouteForTrain(train1, railway).get
   private val trainWithRoute1 = train1.withRoute(route)
   private val trainWithRoute2 = train2.withRoute(route)
@@ -85,4 +85,17 @@ class SimulationTest extends AnyFlatSpec:
     trainState2.position should be(AtStation(rail.stationA))
     state.railStates(rail.code).free should be(false)
     trainState1.position should not equal (trainState2.position)
+  }
+
+  it should "correctly invert direction of trains when end of line reached" in {
+    val simulation = createSimulationWithTrains(List(trainWithRoute1))
+    val travelTime = trainWithRoute1.getTravelTime(route.getRailAt(0))
+    val loopedSimulation = simulation.loopFor(travelTime + 2)
+
+    val state = loopedSimulation.state
+    val trainState = state.trainStates(TrainCode(trainCode1))
+    val rail = route.getRailAt(0)
+    trainState.position should be(OnRail(rail.code))
+    state.railStates(rail.code).free should be(false)
+    trainState.forward should be(false)
   }

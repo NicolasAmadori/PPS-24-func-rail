@@ -53,20 +53,13 @@ object SampleRailway:
     )
     RailwayImpl(stations, rails)
 
-  /** Railway with only metal rail and longer lengths */
+  /** Railway with only two stations and a metal rail */
   def railway3: Railway =
     val stations = List(
       smallStation(StationA),
-      bigStation(StationB),
-      smallStation(StationC),
-      bigStation(StationD),
-      bigStation(StationE)
+      bigStation(StationB)
     )
     val rails = List(
-      metalRail(1, 1000, StationA, StationB),
-      metalRail(2, 1500, StationB, StationC),
-      metalRail(3, 2000, StationC, StationD),
-      metalRail(4, 1200, StationD, StationA),
-      metalRail(5, 1200, StationD, StationE)
+      metalRail(1, 1000, StationA, StationB)
     )
     RailwayImpl(stations, rails)

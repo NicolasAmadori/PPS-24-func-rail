@@ -20,12 +20,14 @@ class TrainTest extends AnyFlatSpec:
   "A Train" should "be created with code and stops" in {
     val train = normalTrain(trainCode1, StationCode.listOf(stationCode1, stationCode2))
     train.code should be(TrainCode(trainCode1))
+    train.code.value should be(trainCode1)
     train.speed should be(defaultSpeed)
     train.stations should be(List(stationCode1, stationCode2))
     train.route.isEmpty should be(true)
 
     val fastTrain = highSpeedTrain(trainCode2, StationCode.listOf(stationCode2, stationCode3))
     fastTrain.code should be(TrainCode(trainCode2))
+    fastTrain.code.value should be(trainCode2)
     fastTrain.speed should be(highSpeed)
     fastTrain.stations should be(List(stationCode2, stationCode3))
     fastTrain.route.isEmpty should be(true)

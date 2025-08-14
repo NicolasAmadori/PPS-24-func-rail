@@ -87,6 +87,7 @@ trait TrainState:
   def position: TrainPosition
   def progress: Int
   def travelTime: Int
+  def forward: Boolean
   def update(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition)
 
 case class TrainStateImpl(
