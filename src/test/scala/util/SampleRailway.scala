@@ -63,3 +63,14 @@ object SampleRailway:
       metalRail(1, 1000, StationA, StationB)
     )
     RailwayImpl(stations, rails)
+
+  /** Railway with no route for normal trains */
+  def railway4: Railway =
+    val stations = List(
+      smallStation(StationA),
+      bigStation(StationB)
+    )
+    val rails = List(
+      titaniumRail(1, 1000, StationA, StationB)
+    )
+    RailwayImpl(stations, rails)
