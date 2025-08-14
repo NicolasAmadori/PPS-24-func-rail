@@ -10,9 +10,13 @@ import model.util.TrainLog.{EnteredStation, LeavedStation, WaitingAt}
 /** Represent the mutable state of the simulation.
   * @param trains
   * @param trainStates
-  *   map of [[model.Domain.TrainCode]] and corresponding state
+  *   map of [[model.entities.EntityCodes.TrainCode]] and corresponding state
   * @param railStates
   *   occupancy of rails
+  * @param passengers
+  *   The list of passenger present in the simulation
+  * @param passengerStates
+  *   map of [[model.entities.EntityCodes.PassengerCode]] and corresponding state
   * @param simulationStep
   *   counter for simulation progression
   */
