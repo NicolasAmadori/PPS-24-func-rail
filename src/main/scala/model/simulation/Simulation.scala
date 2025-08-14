@@ -12,14 +12,15 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState, p
   private val NEW_STEP_PASSENGER_NUMBER = 1
 
   def start(): (Simulation, List[Log]) =
-    val (newGenerator, initialPassengers, initialPassengersLogs) =
-      passengerGenerator.generate(INITIAL_PASSENGER_NUMBER)
-    val newState = state.copy(
-      simulationStep = 0,
-      passengers = initialPassengers.map(p => p._1),
-      passengerStates = initialPassengers.map(pS => pS._1.id -> pS._2).toMap
+    val (newState, newGenerator, newPassengersLogs) =
+      state.generatePassengers(passengerGenerator)(INITIAL_PASSENGER_NUMBER)
+    (
+      copy(
+        state = newState.copy(simulationStep = 0),
+        passengerGenerator = newGenerator
+      ),
+      SimulationLog.SimulationStarted() +: newPassengersLogs
     )
-    (copy(state = newState, passengerGenerator = newGenerator), SimulationLog.SimulationStarted() +: initialPassengersLogs)
 
   def doStep(): Either[SimulationError, (Simulation, List[Log])] =
     if state.simulationStep < 0 then
@@ -27,21 +28,25 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState, p
     else
       val nextStep = state.simulationStep + 1
 
-      val (stateWithTrainsAndRailsUpdated, trainsLogs) = state.updateTrains() // Update trains
+      // Update trains
+      val (newState1, trainsLogs) = state.updateTrains()
       // Update passengers states
-      val (stateWithTrainsAndRailsAndPassengerUpdated, passengersLogs) = stateWithTrainsAndRailsUpdated.updatePassengers()
+      val (newState2, passengersLogs) =
+        newState1.updatePassengers()
       // Generate new passengers
-      val (newGenerator, newPassengers, newPassengersLogs) =
-        passengerGenerator.generate(NEW_STEP_PASSENGER_NUMBER)
+      val (newState3, newGenerator, newPassengersLogs) =
+        newState2.generatePassengers(passengerGenerator)(NEW_STEP_PASSENGER_NUMBER)
 
-      val newState = stateWithTrainsAndRailsAndPassengerUpdated.copy(
-        simulationStep = nextStep,
-        passengers = stateWithTrainsAndRailsAndPassengerUpdated.passengers ++ newPassengers.map(p => p._1),
-        passengerStates =
-          stateWithTrainsAndRailsAndPassengerUpdated.passengerStates ++ newPassengers.map(pS => pS._1.id -> pS._2).toMap
-      )
       val logs = StepExecuted(nextStep) +: (trainsLogs ++ passengersLogs ++ newPassengersLogs)
-      Right((copy(state = newState, passengerGenerator = newGenerator), logs))
+      Right(
+        (
+          copy(
+            state = newState3.copy(simulationStep = nextStep),
+            passengerGenerator = newGenerator
+          ),
+          logs
+        )
+      )
 
   def isFinished: Boolean = state.simulationStep == duration * 24
 

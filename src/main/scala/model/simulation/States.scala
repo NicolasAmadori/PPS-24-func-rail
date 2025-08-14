@@ -4,7 +4,7 @@ import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCo
 import model.entities.{Passenger, PassengerState, Rail, Train}
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import model.simulation.TrainState.InitialRouteIndex
-import model.util.{PassengerLog, TrainLog}
+import model.util.{PassengerGenerator, PassengerLog, TrainLog}
 import model.util.TrainLog.{EnteredStation, LeavedStation, WaitingAt}
 
 /** Represent the mutable state of the simulation.
@@ -57,14 +57,17 @@ case class SimulationState(
 
   def updatePassengers(): (SimulationState, List[PassengerLog]) = (copy(), List.empty)
 
-  def generatePassengers(n: Int): (SimulationState, List[PassengerLog]) = ???
-//    val (newGenerator, initialPassengers, initialPassengersLogs) =
-//      passengerGenerator.generate(INITIAL_PASSENGER_NUMBER)
-//    val newState = state.copy(
-//      simulationStep = 0,
-//      passengers = initialPassengers.map(p => p._1),
-//      passengerStates = initialPassengers.map(pS => pS._1.id -> pS._2).toMap
-//    )
+  def generatePassengers(passengerGenerator: PassengerGenerator)(n: Int): (SimulationState, PassengerGenerator, List[PassengerLog]) =
+    val (newGenerator, newPassengers, newPassengersLogs) =
+      passengerGenerator.generate(n)
+    (
+      copy(
+        passengers = passengers ++ newPassengers.map(p => p._1),
+        passengerStates = passengerStates ++ newPassengers.map(pS => pS._1.id -> pS._2).toMap
+      ),
+      newGenerator,
+      newPassengersLogs
+    )
 
   private def appendLog(logs: List[TrainLog], log: Option[TrainLog]): List[TrainLog] =
     log match
