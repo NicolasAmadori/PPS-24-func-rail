@@ -92,6 +92,7 @@ trait TrainState:
   def progress: Int
   def travelTime: Int
   def forward: Boolean
+  def previousPositions: List[TrainPosition]
   def update(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition)
 
 case class TrainStateImpl(
@@ -99,6 +100,7 @@ case class TrainStateImpl(
     position: TrainPosition,
     progress: Int,
     travelTime: Int,
+    previousPositions: List[TrainPosition],
     currentRouteIndex: Int = InitialRouteIndex,
     forward: Boolean = true
 ) extends TrainState:
@@ -133,24 +135,24 @@ case class TrainStateImpl(
     if occupancies(nextRail.code).free then
       val nextTravelTime = train.getTravelTime(nextRail)
       val nextPosition = OnRail(nextRail.code)
-      (copy(trainCode, nextPosition, 1, nextTravelTime, nextIndex, newDirection), nextPosition)
-    else (this, position)
+      (copy(trainCode, nextPosition, 1, nextTravelTime, previousPositions :+ position, nextIndex, newDirection), nextPosition)
+    else (copy(previousPositions = previousPositions :+ position), position)
 
   /** Updates progress and enter station if it's reached its travel time */
   private def move(train: Train): (TrainState, TrainPosition) =
     val newProgress = progress + 1
     if progress >= travelTime then
       val nextPosition = AtStation(train.route.getEndStationAt(currentRouteIndex, forward))
-      (copy(position = nextPosition), nextPosition)
+      (copy(position = nextPosition, previousPositions = previousPositions :+ position), nextPosition)
     else
-      (copy(progress = newProgress), position)
+      (copy(progress = newProgress, previousPositions = previousPositions :+ position), position)
 
 object TrainState:
   val InitialRouteIndex = -1
   def apply(
       trainCode: TrainCode,
       position: TrainPosition
-  ): TrainState = TrainStateImpl(trainCode, position, 0, 0)
+  ): TrainState = TrainStateImpl(trainCode, position, 0, 0, List.empty)
 
 enum TrainPosition:
   case OnRail(rail: RailCode)
