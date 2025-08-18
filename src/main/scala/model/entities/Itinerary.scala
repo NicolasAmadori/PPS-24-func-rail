@@ -8,6 +8,12 @@ case class ItineraryLeg(train: Train, from: StationCode, to: StationCode):
   require(train.stations.contains(to), s"Train ${train.code} does not stop at $to")
   require(from != to, "Departure and arrival stations must be different")
 
+  /** Return true if the leg utilize the reverse route of the train, false otherwise */
+  def isReverseRoute: Boolean =
+    val startIndex = train.route.stations.indexOf(from)
+    val endIndex = train.route.stations.indexOf(to)
+    startIndex > endIndex
+
   /** Returns the stations actually traveled on this leg. */
   def stationsOnLeg: List[StationCode] =
     val startIndex = train.route.stations.indexOf(from)
