@@ -150,7 +150,7 @@ case class TrainStateImpl(
   private def newDirectionIfEndOfRoute(position: TrainPosition, route: Route): (Boolean, Int) =
     position match
       case AtStation(s) =>
-        if route.isEndOrRoute(s) then (!forward, nextIndex(route.railsCount)) else (forward, currentRouteIndex)
+        if route.isEndOfRoute(s) then (!forward, nextIndex(route.railsCount)) else (forward, currentRouteIndex)
       case _ => throw IllegalStateException()
 
   /** Updates progress and enter station if it's reached its travel time */
