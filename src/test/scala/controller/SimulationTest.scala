@@ -12,6 +12,8 @@ import util.SampleRailway.SampleStation.{StationB, StationA}
 
 class SimulationTest extends AnyFlatSpec:
 
+  private val setupLoop = 1
+  private val enterStationLoop = 1
   private val trainCode1 = "T1"
   private val trainCode2 = "T2"
 
@@ -27,66 +29,66 @@ class SimulationTest extends AnyFlatSpec:
 
   "A train state" should "be updated in a simulation step" in {
     val simulation = createSimulationWithTrains(List(trainWithRoute1))
-    val updatedSim = simulation.loopFor(1)
+    val updatedSim = simulation.loopFor(setupLoop + 1)
 
     val state = updatedSim.state
-    state.simulationStep should be(1)
+    state.simulationStep should be(setupLoop + 1)
     val rail = route.getRailAt(0)
     state.railStates(rail.code).free should be(false)
     val trainState = state.trainStates(TrainCode(trainCode1))
-    trainState.position should be(OnRail(rail.code))
+    trainState.position.get should be(OnRail(rail.code))
     trainState.travelTime should be(train1.getTravelTime(rail))
   }
 
   it should "stay on the rail until crossed" in {
     val travelTime = train1.getTravelTime(route.getRailAt(0))
     val simulation = createSimulationWithTrains(List(trainWithRoute1))
-    val loopedSimulation = simulation.loopFor(travelTime)
+    val loopedSimulation = simulation.loopFor(travelTime + setupLoop)
 
     val state = loopedSimulation.state
     val trainState = state.trainStates(TrainCode(trainCode1))
     val rail = route.getRailAt(0)
-    state.simulationStep should be(10)
+    state.simulationStep should be(travelTime + setupLoop)
     state.railStates(rail.code).free should be(false)
-    trainState.position should be(OnRail(rail.code))
+    trainState.position.get should be(OnRail(rail.code))
   }
 
   it should "enter station when rail crossed" in {
     val travelTime = train1.getTravelTime(route.getRailAt(0))
     val simulation = createSimulationWithTrains(List(trainWithRoute1))
-    val loopedSimulation = simulation.loopFor(travelTime + 1)
+    val loopedSimulation = simulation.loopFor(setupLoop + travelTime + enterStationLoop)
 
     val state = loopedSimulation.state
     val trainState = state.trainStates(TrainCode(trainCode1))
     val rail = route.getRailAt(0)
-    state.simulationStep should be(travelTime + 1)
+    state.simulationStep should be(setupLoop + travelTime + enterStationLoop)
     state.railStates(rail.code).free should be(true)
-    trainState.position should be(AtStation(rail.stationB))
+    trainState.position.get should be(AtStation(rail.stationB))
   }
 
   it should "not allow two trains to be on the same rail" in {
     val simulation = createSimulationWithTrains(List(trainWithRoute1, trainWithRoute2))
-    val loopedSimulation = simulation.loopFor(1)
+    val loopedSimulation = simulation.loopFor(setupLoop + 1)
 
     val state = loopedSimulation.state
     val trainState1 = state.trainStates(TrainCode(trainCode1))
     val trainState2 = state.trainStates(TrainCode(trainCode2))
     val rail = route.getRailAt(0)
-    trainState1.position should be(OnRail(rail.code))
-    trainState2.position should be(AtStation(rail.stationA))
+    trainState1.position.get should be(OnRail(rail.code))
+    trainState2.position.get should be(AtStation(rail.stationA))
     state.railStates(rail.code).free should be(false)
-    trainState1.position should not equal (trainState2.position)
+    trainState1.position.get should not equal (trainState2.position)
   }
 
   it should "correctly invert direction of trains when end of line reached" in {
     val simulation = createSimulationWithTrains(List(trainWithRoute1))
     val travelTime = trainWithRoute1.getTravelTime(route.getRailAt(0))
-    val loopedSimulation = simulation.loopFor(travelTime + 2)
+    val loopedSimulation = simulation.loopFor(setupLoop + travelTime + enterStationLoop + 1)
 
     val state = loopedSimulation.state
     val trainState = state.trainStates(TrainCode(trainCode1))
     val rail = route.getRailAt(0)
-    trainState.position should be(OnRail(rail.code))
+    trainState.position.get should be(OnRail(rail.code))
     state.railStates(rail.code).free should be(false)
     trainState.forward should be(false)
   }
