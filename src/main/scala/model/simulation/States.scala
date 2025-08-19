@@ -135,7 +135,10 @@ case class TrainStateImpl(
     if occupancies(nextRail.code).free then
       val nextTravelTime = train.getTravelTime(nextRail)
       val nextPosition = OnRail(nextRail.code)
-      (copy(trainCode, nextPosition, 1, nextTravelTime, previousPositions :+ position, nextIndex, newDirection), nextPosition)
+      (
+        copy(trainCode, nextPosition, 1, nextTravelTime, previousPositions :+ position, nextIndex, newDirection),
+        nextPosition
+      )
     else (copy(previousPositions = previousPositions :+ position), position)
 
   /** Updates progress and enter station if it's reached its travel time */

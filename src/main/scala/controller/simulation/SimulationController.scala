@@ -8,7 +8,7 @@ import view.simulation.SimulationView
 
 import java.awt.Desktop
 import java.awt.Desktop.Action
-import java.io.File
+
 import java.util.concurrent.{Executors, TimeUnit}
 
 class SimulationController(simulation: Simulation) extends BaseController[SimulationView]:

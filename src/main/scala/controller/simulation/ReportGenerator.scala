@@ -1,9 +1,9 @@
 package controller.simulation
 
 import model.entities.EntityCodes.RailCode
-import model.entities.{Rail, Train}
+import model.entities.Rail
 import model.simulation.TrainPosition.{AtStation, OnRail}
-import model.simulation.{Simulation, TrainPosition, TrainState}
+import model.simulation.{Simulation, TrainPosition}
 
 trait Statistic:
   def getStringStat: String
@@ -13,34 +13,38 @@ object Statistic:
   case class MostUsedRails(rails: List[Rail]) extends Statistic:
     override def toString: String = "Most used rails"
     def getStringStat: String = rails.mkString(" - ")
-  case class AverageTrainWaiting(time: Double) extends Statistic:
+  case class AverageTrainWaiting(hours: Double) extends Statistic:
     override def toString: String = "Average train waiting"
-    def getStringStat: String = (if time / 24 < 1 then time else (time / 24)).toString
-    override def getMeasurementUnit: String = if time / 24 < 1 then "hours" else "days"
+    private def asDays: Double = hours / 24
+    def getStringStat: String =
+      if hours < 24 then f"$hours%.2f" else f"$asDays%.2f"
+    override def getMeasurementUnit: String =
+      if hours < 24 then "hours" else "days"
 
 object ReportGenerator:
   import Statistic.*
 
   def createReport(simulation: Simulation): List[Statistic] =
-    val railsStat = mostUsedRails(simulation.state.trains)
-    val averageTrainWaitingStat = averageTrainWaiting(simulation.state.trainStates.values.toList)
-    println("TRAIN WAIT! " + averageTrainWaitingStat.time + " is " + averageTrainWaitingStat.getStringStat)
+    val railsStat = mostUsedRails(simulation.state.trains.flatMap(_.route.rails))
+    val averageTrainWaitingStat =
+      averageTrainWaiting(simulation.state.trainStates.values.map(_.previousPositions).toList)
     List(railsStat, averageTrainWaitingStat)
 
-  private def mostUsedRails(trains: List[Train], n: Int = 3): MostUsedRails =
-    MostUsedRails(trains.flatMap(_.route.rails)
-      .groupBy(_.code)
-      .map((_, l) => (l.head, l.size)).toList
-      .sortBy((_, s) => -s).take(n)
-      .map((r, _) => r))
+  def mostUsedRails(routes: List[Rail], n: Int = 3): MostUsedRails =
+    val railUsage = routes.groupBy(_.code).map((_, l) => (l.head, l.size))
+    val maxUsage = railUsage.values.max
+    val mostUsed = railUsage.collect { case (rail, count) if count == maxUsage => rail }.toList
+    MostUsedRails(mostUsed)
 
-  private def averageTrainWaiting(trains: List[TrainState]): AverageTrainWaiting =
-    val waiting = trains.map(t =>
-      t.previousPositions.foldLeft((OnRail(RailCode.empty), 0)) { (a, p) =>
-        val (prevPos, wait) = a
-        p match
-          case AtStation(_) => if p == prevPos then (p, wait + 1) else (p, wait)
-          case _ => (p, wait)
-      }._2
-    ).sum()
-    AverageTrainWaiting(waiting / trains.size)
+  def averageTrainWaiting(trains: List[List[TrainPosition]]): AverageTrainWaiting =
+    val waiting = trains.map(waitingTime).sum
+    AverageTrainWaiting(waiting.toDouble / trains.size.toDouble)
+
+  /** Computes the total waiting time of a train. */
+  private def waitingTime(positions: List[TrainPosition]): Int =
+    positions.foldLeft((OnRail(RailCode.empty), 0)) {
+      case ((prevPos, wait), pos) =>
+        pos match
+          case AtStation(_) if pos == prevPos => (pos, wait + 1)
+          case _ => (pos, wait)
+    }._2

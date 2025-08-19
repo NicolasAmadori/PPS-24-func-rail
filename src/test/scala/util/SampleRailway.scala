@@ -28,7 +28,7 @@ object SampleRailway:
     val rails = List(
       metalRail(1, 100, StationA, StationB),
       metalRail(2, 150, StationB, StationC),
-      metalRail(3, 200, StationC, StationD),
+      metalRail(3, 500, StationC, StationD),
       metalRail(4, 120, StationD, StationA),
       metalRail(5, 120, StationD, StationE)
     )
@@ -72,5 +72,18 @@ object SampleRailway:
     )
     val rails = List(
       titaniumRail(1, 1000, StationA, StationB)
+    )
+    RailwayImpl(stations, rails)
+
+  /** Small railway with three stations and two metal rails */
+  def railway5: Railway =
+    val stations = List(
+      smallStation(StationA),
+      bigStation(StationB),
+      smallStation(StationC)
+    )
+    val rails = List(
+      metalRail(1, 300, StationA, StationB),
+      metalRail(2, 200, StationB, StationC)
     )
     RailwayImpl(stations, rails)

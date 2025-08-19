@@ -25,15 +25,6 @@ class SimulationTest extends AnyFlatSpec:
   private def createSimulationWithTrains(trains: List[Train]): Simulation =
     Simulation.withRailway(1, railway).addTrains(trains).start()
 
-  extension (simulation: Simulation)
-    def loopFor(steps: Int): Simulation =
-      val loopedSimulation = Range(0, steps).foldLeft(simulation) { (acc, _) =>
-        acc.doStep() match
-          case Right(sim) => sim._1
-          case Left(e) => fail(e.toString)
-      }
-      loopedSimulation
-
   "A train state" should "be updated in a simulation step" in {
     val simulation = createSimulationWithTrains(List(trainWithRoute1))
     val updatedSim = simulation.loopFor(1)
