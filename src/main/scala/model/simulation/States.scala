@@ -105,21 +105,21 @@ case class SimulationState(
     *   [[model.entities.EntityCodes.StationCode]] of the station where it is currently located
     */
   private def trainsAtStations: Map[TrainCode, StationCode] =
-    trainStates.collect { case (code, TrainStateImpl(_, AtStation(s), _, _, _, _, _)) => code -> s }
+    trainStates.collect { case (code, TrainStateImpl(Some(AtStation(s)), _, _, _, _, _)) => code -> s }
 
   /** Determines which passengers are ready to board a train.
-   *
-   * A passenger is considered "ready to board" if:
-   *   - they are currently waiting at a station
-   *   - their itinerary defines a leg starting from that station
-   *   - the corresponding train is currently at that station
-   *   - the train exists in [[trainStates]]
-   *   - the train’s current travel direction matches the itinerary leg’s expected direction
-   *
-   * @return
-   * a map associating each [[model.entities.EntityCodes.PassengerCode]] to the
-   * [[model.entities.EntityCodes.TrainCode]] of the train they are ready to board
-   */
+    *
+    * A passenger is considered "ready to board" if:
+    *   - they are currently waiting at a station
+    *   - their itinerary defines a leg starting from that station
+    *   - the corresponding train is currently at that station
+    *   - the train exists in [[trainStates]]
+    *   - the train’s current travel direction matches the itinerary leg’s expected direction
+    *
+    * @return
+    *   a map associating each [[model.entities.EntityCodes.PassengerCode]] to the
+    *   [[model.entities.EntityCodes.TrainCode]] of the train they are ready to board
+    */
   private def passengerReadyToGetOnTrain: Map[PassengerCode, TrainCode] =
     passengersWaitingAtStations.flatMap { (p, s) =>
       for
@@ -132,18 +132,18 @@ case class SimulationState(
     }
 
   /** Determines which passengers are ready to leave a train.
-   *
-   * A passenger is considered "ready to deboard" if:
-   *   - they are currently on a train
-   *   - their itinerary defines a leg involving the current train
-   *   - the train is currently located at the passenger’s destination station for that leg
-   *   - the train exists in [[trainStates]]
-   *   - the train’s current travel direction matches the itinerary leg’s expected direction
-   *
-   * @return
-   * a map associating each [[model.entities.EntityCodes.PassengerCode]] to the
-   * [[model.entities.EntityCodes.StationCode]] of the station where they should get off
-   */
+    *
+    * A passenger is considered "ready to deboard" if:
+    *   - they are currently on a train
+    *   - their itinerary defines a leg involving the current train
+    *   - the train is currently located at the passenger’s destination station for that leg
+    *   - the train exists in [[trainStates]]
+    *   - the train’s current travel direction matches the itinerary leg’s expected direction
+    *
+    * @return
+    *   a map associating each [[model.entities.EntityCodes.PassengerCode]] to the
+    *   [[model.entities.EntityCodes.StationCode]] of the station where they should get off
+    */
   private def passengerReadyToGetOffTrain: Map[PassengerCode, StationCode] =
     passengersOnTrains.flatMap { (p, t) =>
       for

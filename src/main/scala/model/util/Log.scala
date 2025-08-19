@@ -1,7 +1,7 @@
 package model.util
 
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
-import model.entities.{ItineraryLeg, Passenger}
+import model.entities.Passenger
 
 trait Log
 

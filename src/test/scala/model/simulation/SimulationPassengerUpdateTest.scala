@@ -6,7 +6,7 @@ import model.entities.Rail.metalRail
 import model.entities.{HighSpeedTrain, NormalTrain, Passenger, PassengerPosition, Station, Train}
 import model.entities.Train.{highSpeedTrain, normalTrain}
 import model.railway.Railway
-import model.util.{Log, PassengerGenerator}
+import model.util.PassengerGenerator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -115,7 +115,7 @@ class SimulationPassengerUpdateTest extends AnyFlatSpec:
       sim = s
     )
 
-    //Assert that every passenger arrived at their destination
+    // Assert that every passenger arrived at their destination
     sim.state.passengerStates.foreach((pCode, pState) =>
       val p = sim.state.passengers.find(p => p.code == pCode)
       if p.isDefined && p.get.itinerary.isDefined then
@@ -152,8 +152,8 @@ class SimulationPassengerUpdateTest extends AnyFlatSpec:
       val (s, l) = res.toOption.get
       sim = s
     )
-    
-    //Assert that every passenger arrived at their destination
+
+    // Assert that every passenger arrived at their destination
     sim.state.passengerStates.foreach((pCode, pState) =>
       val p = sim.state.passengers.find(p => p.code == pCode)
       if p.isDefined && p.get.itinerary.isDefined then
