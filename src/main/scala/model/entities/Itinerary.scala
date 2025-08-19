@@ -8,6 +8,12 @@ case class ItineraryLeg(train: Train, from: StationCode, to: StationCode):
   require(train.stations.contains(to), s"Train ${train.code} does not stop at $to")
   require(from != to, "Departure and arrival stations must be different")
 
+  /** Return true if the leg utilize the reverse route of the train, false otherwise */
+  def isForwardRoute: Boolean =
+    val startIndex = train.route.stations.indexOf(from)
+    val endIndex = train.route.stations.indexOf(to)
+    startIndex < endIndex
+
   /** Returns the stations actually traveled on this leg. */
   def stationsOnLeg: List[StationCode] =
     val startIndex = train.route.stations.indexOf(from)
@@ -49,14 +55,9 @@ case class Itinerary(legs: List[ItineraryLeg]):
 
   override def toString: String =
     val legsStr = legs.map { leg =>
-      s"${leg.train.code.value}: " +
-        leg.stationsOnLeg.mkString(" -> ")
-    }.mkString("\n")
-    s"""Itinerary from $start to $end:
-       |Total length: $totalLength km
-       |Legs:
-       |$legsStr
-       |""".stripMargin
+      s"${leg.train.code.value}:${leg.from}→${leg.to}"
+    }.mkString(", ")
+    f"$start→$end | $legsStr | ${totalLength}%.1f km"
 
 object Itinerary:
   def apply(firstLeg: ItineraryLeg, otherLegs: ItineraryLeg*): Itinerary =

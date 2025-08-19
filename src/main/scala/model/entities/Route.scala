@@ -25,6 +25,9 @@ case class Route(rails: List[Rail]):
   /** Returns the station where the route ends. */
   def endStation: Option[StationCode] = rails.lastOption.map(_.stationB)
 
+  def isEndOfRoute(stationCode: StationCode): Boolean =
+    stationCode == startStation.get || stationCode == endStation.get
+
   def getRailAt(index: Int): Rail = rails(index)
 
   def getEndStationAt(index: Int, forward: Boolean): StationCode =
@@ -37,7 +40,7 @@ case class Route(rails: List[Rail]):
       "Empty Route"
     else
       val start = s"${rails.head.stationA}"
-      val path = rails.map(rail => s" --(${rail.length})--> ${rail.stationB}").mkString("")
+      val path = rails.map(rail => s" <--(${rail.length})--> ${rail.stationB}").mkString("")
       s"Route: $start$path"
 
 object Route:
