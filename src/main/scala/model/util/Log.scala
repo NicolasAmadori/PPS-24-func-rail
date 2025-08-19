@@ -16,7 +16,9 @@ enum SimulationLog extends Log:
     case SimulationFinished() =>
       "Simulation finished"
     case StepExecuted(step) =>
-      s"Step $step executed"
+      val day = step / 24 + 1
+      val hour = step % 24
+      f"[Day $day%02d Hour $hour%02d]"
 
 enum TrainLog extends Log:
   case EnteredStation(train: TrainCode, station: StationCode)
