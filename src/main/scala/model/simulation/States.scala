@@ -1,7 +1,7 @@
 package model.simulation
 
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
-import model.entities.{Passenger, PassengerState, Rail, Train}
+import model.entities.{Passenger, PassengerState, Rail, Route, Train}
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import model.simulation.TrainState.InitialRouteIndex
 import model.util.TrainLog
@@ -92,6 +92,7 @@ trait TrainState:
   def progress: Int
   def travelTime: Int
   def forward: Boolean
+  def previousPositions: List[TrainPosition]
   def update(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition)
 
 case class TrainStateImpl(
@@ -99,6 +100,7 @@ case class TrainStateImpl(
     position: TrainPosition,
     progress: Int,
     travelTime: Int,
+    previousPositions: List[TrainPosition],
     currentRouteIndex: Int = InitialRouteIndex,
     forward: Boolean = true
 ) extends TrainState:
@@ -116,41 +118,65 @@ case class TrainStateImpl(
       case AtStation(s) => tryMoveOnRail(train, occupancies)
       case OnRail(r) => move(train)
 
-  /** Computes new index keeping it in route bounds inverting direction if needed */
-  private def nextIndexAndDirection(routeLength: Int): (Int, Boolean) =
+  /** Computes new index based on the direction keeping it in route bounds */
+  private def nextIndex(routeLength: Int): Int =
     val updated = if forward then currentRouteIndex + 1 else currentRouteIndex - 1
     if updated < 0 then
-      (0, true)
+      0
     else if updated >= routeLength then
-      (routeLength - 1, false)
+      routeLength - 1
     else
-      (updated, forward)
+      updated
 
   /** Updates train position to rail if it's free, does nothing otherwise */
   private def tryMoveOnRail(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition) =
-    val (nextIndex, newDirection) = nextIndexAndDirection(train.route.railsCount)
-    val nextRail = train.route.getRailAt(nextIndex)
+    val next = nextIndex(train.route.railsCount)
+    val nextRail = train.route.getRailAt(next)
     if occupancies(nextRail.code).free then
       val nextTravelTime = train.getTravelTime(nextRail)
       val nextPosition = OnRail(nextRail.code)
-      (copy(trainCode, nextPosition, 1, nextTravelTime, nextIndex, newDirection), nextPosition)
-    else (this, position)
+      (
+        copy(
+          position = nextPosition,
+          progress = 1,
+          travelTime = nextTravelTime,
+          previousPositions = previousPositions :+ position,
+          currentRouteIndex = next
+        ),
+        nextPosition
+      )
+    else (copy(previousPositions = previousPositions :+ position), position)
+
+  private def newDirectionIfEndOfRoute(position: TrainPosition, route: Route): (Boolean, Int) =
+    position match
+      case AtStation(s) =>
+        if route.isEndOrRoute(s) then (!forward, nextIndex(route.railsCount)) else (forward, currentRouteIndex)
+      case _ => throw IllegalStateException()
 
   /** Updates progress and enter station if it's reached its travel time */
   private def move(train: Train): (TrainState, TrainPosition) =
     val newProgress = progress + 1
     if progress >= travelTime then
       val nextPosition = AtStation(train.route.getEndStationAt(currentRouteIndex, forward))
-      (copy(position = nextPosition), nextPosition)
+      val (direction, index) = newDirectionIfEndOfRoute(nextPosition, train.route)
+      (
+        copy(
+          position = nextPosition,
+          previousPositions = previousPositions :+ position,
+          forward = direction,
+          currentRouteIndex = index
+        ),
+        nextPosition
+      )
     else
-      (copy(progress = newProgress), position)
+      (copy(progress = newProgress, previousPositions = previousPositions :+ position), position)
 
 object TrainState:
   val InitialRouteIndex = -1
   def apply(
       trainCode: TrainCode,
       position: TrainPosition
-  ): TrainState = TrainStateImpl(trainCode, position, 0, 0)
+  ): TrainState = TrainStateImpl(trainCode, position, 0, 0, List.empty)
 
 enum TrainPosition:
   case OnRail(rail: RailCode)
