@@ -9,7 +9,7 @@ import model.util.SimulationLog.StepExecuted
 case class Simulation(duration: Int, railway: Railway, state: SimulationState, passengerGenerator: PassengerGenerator):
 
   private val INITIAL_PASSENGER_NUMBER = 5
-  private val NEW_STEP_PASSENGER_NUMBER = 1
+  private val NEW_STEP_PASSENGER_NUMBER = 0
 
   def start(): (Simulation, List[Log]) =
     val (newState, newGenerator, newPassengersLogs) =
@@ -58,7 +58,10 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState, p
     */
   def addTrains(trains: List[Train]): Simulation =
     trains.foreach(t => validateTrain(t))
-    copy(state = state.withTrains(state.trains ++ trains))
+    copy(
+      state = state.withTrains(state.trains ++ trains),
+      passengerGenerator = PassengerGenerator(railway, state.trains ++ trains)
+    )
 
   private def validateTrain(train: Train): Unit =
     require(!train.code.isEmpty)

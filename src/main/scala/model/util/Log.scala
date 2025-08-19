@@ -34,18 +34,18 @@ enum TrainLog extends Log:
 enum PassengerLog extends Log:
   case StartTrip(passenger: Passenger)
   case GetOnTrain(passenger: PassengerCode, trainCode: TrainCode)
-  case GetOffTrain(passenger: PassengerCode, previousLeg: ItineraryLeg, nextLeg: ItineraryLeg)
+  case GetOffTrain(passenger: PassengerCode, stationCode: StationCode)
   case EndTrip(passenger: Passenger)
 
   override def toString: String = this match
     case StartTrip(passenger) =>
       if passenger.itinerary.isDefined then
-        s"Passenger ${passenger.code} started trip: ${passenger.itinerary}"
+        s"Passenger ${passenger.code} started trip: ${passenger.itinerary.get}"
       else
-        s"Passenger ${passenger.code} started trip from ${passenger.departure} to ${passenger.destination} but no itinerary is possible."
+        s"Passenger ${passenger.code} started trip from ${passenger.departure} to ${passenger.destination} but no itinerary is possible"
     case GetOnTrain(passenger, trainCode) =>
       s"Passenger $passenger got on train $trainCode"
-    case GetOffTrain(passenger, previousLeg, nextLeg) =>
-      s"Passenger $passenger got off train ${previousLeg.train.code} at station ${previousLeg.to} and will wait for train ${nextLeg.train.code}"
+    case GetOffTrain(passenger, stationCode) =>
+      s"Passenger $passenger got off train at station $stationCode"
     case EndTrip(passenger) =>
       s"Passenger $passenger ended trip: ${passenger.itinerary.get}"
