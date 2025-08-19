@@ -35,9 +35,7 @@ case class SimulationState(
     *   the updated simulation state
     */
   def withTrains(newTrains: List[Train]): SimulationState =
-    val newTrainStates = newTrains.map { t =>
-      t.code -> TrainState(t.code)
-    }.toMap
+    val newTrainStates = newTrains.map(_.code -> TrainState()).toMap
     copy(trains = newTrains, trainStates = newTrainStates)
 
   /** Updates simulation state moving trains of a step and managing rails occupancies
@@ -87,7 +85,6 @@ object SimulationState:
   def empty: SimulationState = SimulationState(List.empty)
 
 trait TrainState:
-  def trainCode: TrainCode
   def position: Option[TrainPosition]
   def progress: Int
   def travelTime: Int
@@ -96,7 +93,6 @@ trait TrainState:
   def update(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition)
 
 case class TrainStateImpl(
-    trainCode: TrainCode,
     position: Option[TrainPosition],
     progress: Int,
     travelTime: Int,
@@ -177,11 +173,10 @@ case class TrainStateImpl(
 
 object TrainState:
   val InitialRouteIndex = -1
-  def apply(trainCode: TrainCode): TrainState = TrainStateImpl(trainCode, None, 0, 0, List.empty)
+  def apply(): TrainState = TrainStateImpl(None, 0, 0, List.empty)
   def apply(
-      trainCode: TrainCode,
       position: TrainPosition
-  ): TrainState = TrainStateImpl(trainCode, Some(position), 0, 0, List.empty)
+  ): TrainState = TrainStateImpl(Some(position), 0, 0, List.empty)
 
 enum TrainPosition:
   case OnRail(rail: RailCode)
