@@ -152,8 +152,7 @@ case class SimulationState(
         it <- p.itinerary
         leg <- it.legs.find(_.train.code == t)
         if trainsAtStations.get(leg.train.code).contains(leg.to) &&
-          trainStates.contains(leg.train.code) &&
-          trainStates(leg.train.code).forward == leg.isForwardRoute
+          trainStates.contains(leg.train.code)
       yield p.code -> leg.to
     }
 
