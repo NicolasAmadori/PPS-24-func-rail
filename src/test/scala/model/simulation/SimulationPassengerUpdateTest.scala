@@ -89,18 +89,18 @@ class SimulationPassengerUpdateTest extends AnyFlatSpec:
 
     var sim = result.toOption.get
 
-    var selectedPlayer1: Option[Passenger] = None
-    var selectedPlayer2: Option[Passenger] = None
+    var selectedPassenger1: Option[Passenger] = None
+    var selectedPassenger2: Option[Passenger] = None
 
-    while selectedPlayer1.isEmpty || selectedPlayer2.isEmpty do
+    while selectedPassenger1.isEmpty || selectedPassenger2.isEmpty do
       val (s1, l) = sim.start()
       sim = s1
-      selectedPlayer1 = sim.state.passengers.find(p =>
+      selectedPassenger1 = sim.state.passengers.find(p =>
         p.itinerary.isDefined
           && p.itinerary.get.start == StationCode(stationCode2)
           && p.itinerary.get.end == StationCode(stationCode1)
       )
-      selectedPlayer2 = sim.state.passengers.find(p =>
+      selectedPassenger2 = sim.state.passengers.find(p =>
         p.itinerary.isDefined
           && p.itinerary.get.start == StationCode(stationCode2)
           && p.itinerary.get.end == StationCode(stationCode3)
@@ -115,12 +115,16 @@ class SimulationPassengerUpdateTest extends AnyFlatSpec:
       sim = s
     )
 
-    // Assert that every passenger arrived at their destination
-    sim.state.passengerStates.foreach((pCode, pState) =>
-      val p = sim.state.passengers.find(p => p.code == pCode)
-      if p.isDefined && p.get.itinerary.isDefined then
-        pState.currentPosition shouldBe PassengerPosition.AtStation(p.get.itinerary.get.end)
-    )
+    // Assert that the selected passenger arrived at its destination
+    sim.state.passengerStates
+      .find((pCode, _) =>
+        selectedPassenger1.get.code == pCode
+      ).get._2.currentPosition shouldBe PassengerPosition.AtStation(selectedPassenger1.get.itinerary.get.end)
+
+    sim.state.passengerStates
+      .find((pCode, _) =>
+        selectedPassenger2.get.code == pCode
+      ).get._2.currentPosition shouldBe PassengerPosition.AtStation(selectedPassenger2.get.itinerary.get.end)
   }
 
   "Passengers" should "change train if needed" in {
@@ -132,19 +136,19 @@ class SimulationPassengerUpdateTest extends AnyFlatSpec:
 
     var sim = result.toOption.get
 
-    var selectedPlayer: Option[Passenger] = None
+    var selectedPassenger: Option[Passenger] = None
 
-    while selectedPlayer.isEmpty do
+    while selectedPassenger.isEmpty do
       val (s1, l) = sim.start()
-      selectedPlayer = s1.state.passengers.find(p =>
+      selectedPassenger = s1.state.passengers.find(p =>
         p.itinerary.isDefined
           && p.itinerary.get.start == StationCode(stationCode1)
           && p.itinerary.get.end == StationCode(stationCode3)
       )
-      if selectedPlayer.isDefined then
+      if selectedPassenger.isDefined then
         sim = s1
 
-    val N_STEPS = 200
+    val N_STEPS = 20
 
     (1 to N_STEPS + 1).foreach(n =>
       val res = sim.doStep()
@@ -153,10 +157,9 @@ class SimulationPassengerUpdateTest extends AnyFlatSpec:
       sim = s
     )
 
-    // Assert that every passenger arrived at their destination
-    sim.state.passengerStates.foreach((pCode, pState) =>
-      val p = sim.state.passengers.find(p => p.code == pCode)
-      if p.isDefined && p.get.itinerary.isDefined then
-        pState.currentPosition shouldBe PassengerPosition.AtStation(p.get.itinerary.get.end)
-    )
+    // Assert that the selected passenger arrived at its destination
+    sim.state.passengerStates
+      .find((pCode, _) =>
+        selectedPassenger.get.code == pCode
+      ).get._2.currentPosition shouldBe PassengerPosition.AtStation(selectedPassenger.get.itinerary.get.end)
   }

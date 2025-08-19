@@ -6,14 +6,16 @@ import model.railway.Railway
 import model.util.{Log, PassengerGenerator, SimulationLog}
 import model.util.SimulationLog.StepExecuted
 
+import scala.util.Random
+
 case class Simulation(duration: Int, railway: Railway, state: SimulationState, passengerGenerator: PassengerGenerator):
 
-  private val INITIAL_PASSENGER_NUMBER = 5
-  private val NEW_STEP_PASSENGER_NUMBER = 0
+  private val MAX_PASSENGER_NUMBER = 10
+  private val MAX_NEW_STEP_PASSENGER_NUMBER = 3
 
   def start(): (Simulation, List[Log]) =
     val (newState, newGenerator, newPassengersLogs) =
-      state.generatePassengers(passengerGenerator)(INITIAL_PASSENGER_NUMBER)
+      state.generatePassengers(passengerGenerator)(Random.nextInt(MAX_PASSENGER_NUMBER + 1))
     (
       copy(
         state = newState.copy(simulationStep = 0),
@@ -35,7 +37,7 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState, p
         newState1.updatePassengers()
       // Generate new passengers
       val (newState3, newGenerator, newPassengersLogs) =
-        newState2.generatePassengers(passengerGenerator)(NEW_STEP_PASSENGER_NUMBER)
+        newState2.generatePassengers(passengerGenerator)(Random.nextInt(MAX_NEW_STEP_PASSENGER_NUMBER + 1))
 
       val logs = StepExecuted(nextStep) +: (trainsLogs ++ passengersLogs ++ newPassengersLogs)
       Right(
