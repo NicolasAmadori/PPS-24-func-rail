@@ -25,6 +25,9 @@ case class Route(rails: List[Rail]):
   /** Returns the station where the route ends. */
   def endStation: Option[StationCode] = rails.lastOption.map(_.stationB)
 
+  def isEndOrRoute(stationCode: StationCode): Boolean =
+    stationCode == startStation.get || stationCode == endStation.get
+
   def getRailAt(index: Int): Rail = rails(index)
 
   def getEndStationAt(index: Int, forward: Boolean): StationCode =

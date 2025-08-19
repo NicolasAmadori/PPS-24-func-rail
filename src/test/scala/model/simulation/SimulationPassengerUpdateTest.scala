@@ -134,7 +134,6 @@ class SimulationPassengerUpdateTest extends AnyFlatSpec:
 
     val N_STEPS = 20
 
-    println()
     selectedPlayer.get.itinerary.get.legs.foreach(l =>
       println(l)
       println(l.isForwardRoute)
