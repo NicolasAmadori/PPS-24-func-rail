@@ -35,9 +35,7 @@ case class SimulationState(
     *   the updated simulation state
     */
   def withTrains(newTrains: List[Train]): SimulationState =
-    val newTrainStates = newTrains.map { t =>
-      t.code -> TrainState(t.code, AtStation(t.departureStation))
-    }.toMap
+    val newTrainStates = newTrains.map(_.code -> TrainState()).toMap
     copy(trains = newTrains, trainStates = newTrainStates)
 
   /** Updates simulation state moving trains of a step and managing rails occupancies
@@ -249,16 +247,16 @@ case class SimulationState(
   private def updateRailStateOn(
       trainCode: TrainCode,
       states: Map[RailCode, RailState],
-      oldPosition: TrainPosition,
+      oldPosition: Option[TrainPosition],
       newPosition: TrainPosition
   ): (Map[RailCode, RailState], Option[TrainLog]) =
     (oldPosition, newPosition) match
-      case (AtStation(s), OnRail(r)) =>
+      case (Some(AtStation(s)), OnRail(r)) =>
         (states.updated(r, states(r).occupyRail), Some(LeavedStation(trainCode, s, r)))
-      case (OnRail(r), AtStation(s)) =>
+      case (Some(OnRail(r)), AtStation(s)) =>
         (states.updated(r, states(r).freeRail), Some(EnteredStation(trainCode, s)))
-      case (AtStation(s), AtStation(_)) => (states, Some(WaitingAt(trainCode, s)))
-      case (OnRail(_), OnRail(_)) => (states, None)
+      case (Some(AtStation(s)), AtStation(_)) => (states, Some(WaitingAt(trainCode, s)))
+      case _ => (states, None)
 
 object SimulationState:
   /** Creates a simulation state with trains */
@@ -273,8 +271,7 @@ object SimulationState:
   def empty: SimulationState = SimulationState(List.empty)
 
 trait TrainState:
-  def trainCode: TrainCode
-  def position: TrainPosition
+  def position: Option[TrainPosition]
   def progress: Int
   def travelTime: Int
   def forward: Boolean
@@ -282,8 +279,7 @@ trait TrainState:
   def update(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition)
 
 case class TrainStateImpl(
-    trainCode: TrainCode,
-    position: TrainPosition,
+    position: Option[TrainPosition],
     progress: Int,
     travelTime: Int,
     previousPositions: List[TrainPosition],
@@ -301,8 +297,9 @@ case class TrainStateImpl(
     */
   def update(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition) =
     position match
-      case AtStation(s) => tryMoveOnRail(train, occupancies)
-      case OnRail(r) => move(train)
+      case Some(AtStation(s)) => tryMoveOnRail(train, occupancies)
+      case Some(OnRail(r)) => move(train)
+      case None => move(train)
 
   /** Computes new index based on the direction keeping it in route bounds */
   private def nextIndex(routeLength: Int): Int =
@@ -323,46 +320,49 @@ case class TrainStateImpl(
       val nextPosition = OnRail(nextRail.code)
       (
         copy(
-          position = nextPosition,
+          position = Some(nextPosition),
           progress = 1,
           travelTime = nextTravelTime,
-          previousPositions = previousPositions :+ position,
+          previousPositions = previousPositions :+ position.get,
           currentRouteIndex = next
         ),
         nextPosition
       )
-    else (copy(previousPositions = previousPositions :+ position), position)
+    else (copy(previousPositions = previousPositions :+ position.get), position.get)
 
   private def newDirectionIfEndOfRoute(position: TrainPosition, route: Route): (Boolean, Int) =
     position match
       case AtStation(s) =>
-        if route.isEndOrRoute(s) then (!forward, nextIndex(route.railsCount)) else (forward, currentRouteIndex)
+        if route.isEndOfRoute(s) then (!forward, nextIndex(route.railsCount)) else (forward, currentRouteIndex)
       case _ => throw IllegalStateException()
 
   /** Updates progress and enter station if it's reached its travel time */
   private def move(train: Train): (TrainState, TrainPosition) =
     val newProgress = progress + 1
-    if progress >= travelTime then
+    if position.isEmpty then
+      val initialPosition = AtStation(train.route.startStation.get)
+      (copy(position = Some(initialPosition)), initialPosition)
+    else if progress >= travelTime then
       val nextPosition = AtStation(train.route.getEndStationAt(currentRouteIndex, forward))
       val (direction, index) = newDirectionIfEndOfRoute(nextPosition, train.route)
       (
         copy(
-          position = nextPosition,
-          previousPositions = previousPositions :+ position,
+          position = Some(nextPosition),
+          previousPositions = previousPositions :+ position.get,
           forward = direction,
           currentRouteIndex = index
         ),
         nextPosition
       )
     else
-      (copy(progress = newProgress, previousPositions = previousPositions :+ position), position)
+      (copy(progress = newProgress, previousPositions = previousPositions :+ position.get), position.get)
 
 object TrainState:
   val InitialRouteIndex = -1
+  def apply(): TrainState = TrainStateImpl(None, 0, 0, List.empty)
   def apply(
-      trainCode: TrainCode,
       position: TrainPosition
-  ): TrainState = TrainStateImpl(trainCode, position, 0, 0, List.empty)
+  ): TrainState = TrainStateImpl(Some(position), 0, 0, List.empty)
 
 enum TrainPosition:
   case OnRail(rail: RailCode)
