@@ -1,7 +1,7 @@
 package controller.simulation
 
 import controller.BaseController
-
+import controller.simulation.util.CsvWriter
 import model.entities.PassengerPosition
 import model.simulation.{Simulation, SimulationState}
 import model.util.SimulationLog
@@ -9,6 +9,8 @@ import scalafx.application.Platform
 import view.simconfig.{GraphView, RailView, StationView}
 import view.simulation.SimulationView
 
+import java.awt.Desktop
+import java.awt.Desktop.Action
 import java.util.concurrent.{Executors, TimeUnit}
 
 class SimulationController(simulation: Simulation, graphView: GraphView[StationView, RailView])
@@ -48,6 +50,12 @@ class SimulationController(simulation: Simulation, graphView: GraphView[StationV
       Platform.runLater:
         val transition = new StatisticsTransition(graphView)
         transition.transition()
+      val stats = ReportGenerator.createReport(current)
+      val file = CsvWriter.generateCsvFile(stats)
+      if Desktop.isDesktopSupported then
+        val desktop = Desktop.getDesktop
+        if desktop.isSupported(Action.OPEN) then
+          desktop.open(file)
     else
       scheduler.schedule(
         new Runnable:

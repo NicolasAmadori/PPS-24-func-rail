@@ -16,6 +16,7 @@ object EntityCodes:
   object RailCode:
     def apply(code: Int): RailCode = code
     def value(code: RailCode): Int = code
+    def empty: RailCode = -1
 
   extension (code: RailCode)
     def value: Int = code
