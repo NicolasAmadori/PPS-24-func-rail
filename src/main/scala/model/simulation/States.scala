@@ -1,7 +1,7 @@
 package model.simulation
 
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
-import model.entities.{Passenger, PassengerPosition, PassengerState, Rail, Train, Route}
+import model.entities.{Passenger, PassengerPosition, PassengerState, Rail, Route, Train}
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import model.simulation.TrainState.InitialRouteIndex
 import model.util.{PassengerGenerator, PassengerLog, TrainLog}
@@ -210,6 +210,16 @@ case class SimulationState(
   private def waitPassengers(): (SimulationState, List[PassengerLog]) =
     val notMovingPassengers: List[PassengerCode] =
       passengers
+        .filter(p =>
+          // Filter out player arrived at their destination
+          if p.itinerary.isEmpty then
+            true
+          else
+            val pState = passengerStates(p.code)
+            pState.currentPosition match
+              case PassengerPosition.AtStation(station) => station != p.destination
+              case _ => true
+        )
         .map(_.code)
         .filterNot(passengerReadyToGetOnTrain.contains)
         .filterNot(passengerReadyToGetOffTrain.contains)
