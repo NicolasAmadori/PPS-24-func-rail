@@ -25,7 +25,8 @@ class SimulationTest extends AnyFlatSpec:
   private val trainWithRoute2 = train2.withRoute(route)
 
   private def createSimulationWithTrains(trains: List[Train]): Simulation =
-    Simulation.withRailway(1, railway).addTrains(trains).start()
+    val (simulation, logs) = Simulation.withRailway(1, railway).addTrains(trains).start()
+    simulation
 
   "A train state" should "be updated in a simulation step" in {
     val simulation = createSimulationWithTrains(List(trainWithRoute1))

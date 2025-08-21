@@ -3,33 +3,52 @@ package model.simulation
 import model.entities.EntityCodes.TrainCode
 import model.entities.Train
 import model.railway.Railway
-import model.util.{Log, PassengerGenerator}
+import model.util.{Log, PassengerGenerator, SimulationLog}
 import model.util.SimulationLog.StepExecuted
 
-case class Simulation(duration: Int, railway: Railway, state: SimulationState):
+import scala.util.Random
 
-  private val INITIAL_PASSENGER_NUMBER = 100
+case class Simulation(duration: Int, railway: Railway, state: SimulationState, passengerGenerator: PassengerGenerator):
 
-  private val passengerGenerator = PassengerGenerator(railway, state.trains)
+  private val MAX_PASSENGER_NUMBER = 10
+  private val MAX_NEW_STEP_PASSENGER_NUMBER = 3
 
-  def start(): Simulation =
-    val initialPassengers = passengerGenerator.generate(INITIAL_PASSENGER_NUMBER)
-    val newState = state.copy(
-      simulationStep = 0,
-      passengers = initialPassengers.map(t => t._1),
-      passengerStates = initialPassengers.map(t => t._1.id -> t._2).toMap
+  def start(): (Simulation, List[Log]) =
+    val (newState, newGenerator, newPassengersLogs) =
+      state.generatePassengers(passengerGenerator)(Random.nextInt(MAX_PASSENGER_NUMBER + 1))
+    (
+      copy(
+        state = newState.copy(simulationStep = 0),
+        passengerGenerator = newGenerator
+      ),
+      SimulationLog.SimulationStarted() +: newPassengersLogs
     )
-    copy(state = newState)
 
   def doStep(): Either[SimulationError, (Simulation, List[Log])] =
     if state.simulationStep < 0 then
       Left(SimulationError.NotStarted())
     else
-      val (stateWithTrainsAndRailsUpdated, trainsLogs) = state.updateTrains()
       val nextStep = state.simulationStep + 1
-      val logs = StepExecuted(nextStep) +: trainsLogs
-      val newState = stateWithTrainsAndRailsUpdated.copy(simulationStep = nextStep)
-      Right((copy(state = newState), logs))
+
+      // Update trains
+      val (newState1, trainsLogs) = state.updateTrains()
+      // Update passengers states
+      val (newState2, passengersLogs) =
+        newState1.updatePassengers()
+      // Generate new passengers
+      val (newState3, newGenerator, newPassengersLogs) =
+        newState2.generatePassengers(passengerGenerator)(Random.nextInt(MAX_NEW_STEP_PASSENGER_NUMBER + 1))
+
+      val logs = StepExecuted(nextStep) +: (trainsLogs ++ passengersLogs ++ newPassengersLogs)
+      Right(
+        (
+          copy(
+            state = newState3.copy(simulationStep = nextStep),
+            passengerGenerator = newGenerator
+          ),
+          logs
+        )
+      )
 
   def isFinished: Boolean = state.simulationStep == duration * 24
 
@@ -41,7 +60,10 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState):
     */
   def addTrains(trains: List[Train]): Simulation =
     trains.foreach(t => validateTrain(t))
-    copy(state = state.withTrains(state.trains ++ trains))
+    copy(
+      state = state.withTrains(state.trains ++ trains),
+      passengerGenerator = PassengerGenerator(railway, state.trains ++ trains)
+    )
 
   private def validateTrain(train: Train): Unit =
     require(!train.code.isEmpty)
@@ -50,4 +72,5 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState):
 
 object Simulation:
   def withRailway(duration: Int, railway: Railway): Simulation =
-    Simulation(duration, railway, SimulationState.withRails(railway.rails))
+    val state = SimulationState.withRails(railway.rails)
+    Simulation(duration, railway, state, PassengerGenerator(railway, state.trains))

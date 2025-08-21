@@ -41,8 +41,11 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
     val generator1 = new PassengerGenerator(railwayWithNoStations, List.empty)
     val generator2 = new PassengerGenerator(railwayWithOneStation, List.empty)
 
-    generator1.generate() should be(empty)
-    generator2.generate() should be(empty)
+    val (_, passengers1, _) = generator1.generate()
+    val (_, passengers2, _) = generator2.generate()
+
+    passengers1 should be(empty)
+    passengers2 should be(empty)
   }
 
   it should "generate a single passenger with correct properties on a simple railway" in {
@@ -50,12 +53,12 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
     val t1_copy = t1.withRoute(RouteHelper.getRouteForTrain(t1, simpleRailway).get)
     val generator = new PassengerGenerator(simpleRailway, List(t1_copy))
 
-    val result = generator.generate(1)
+    val (_, result, _) = generator.generate(1)
     result should have size 1
 
     val (passenger, state) = result.head
 
-    passenger.id.toString should be("P1")
+    passenger.code.toString should be("P1")
 
     // Departure and destination should be the two stations in the railway
     Set(passenger.departure, passenger.destination) should be(Set(st1.code, st2.code))
@@ -74,10 +77,10 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
     val simpleRailway = Railway.withStations(List(st1, st2)).withRails(List(rail1_2, rail2_1))
     val generator = new PassengerGenerator(simpleRailway, List.empty)
 
-    val results = generator.generate(3)
+    val (_, results, _) = generator.generate(3)
     results should have size 3
 
-    val passengerIds = results.map(_._1.id.toString).sorted
+    val passengerIds = results.map(_._1.code.toString).sorted
     passengerIds should be(List("P1", "P2", "P3"))
   }
 
@@ -86,7 +89,7 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
     val disconnectedRailway = Railway.withStations(List(st1, st2))
     val generator = new PassengerGenerator(disconnectedRailway, List.empty)
 
-    val result = generator.generate(1)
+    val (_, result, _) = generator.generate(1)
     result should have size 1
 
     val (passenger, _) = result.head
@@ -98,7 +101,7 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
     val t2_copy = t2.withRoute(RouteHelper.getRouteForTrain(t2, lineRailway).get)
     val generator = new PassengerGenerator(lineRailway, List(t2_copy))
 
-    val passengers = generator.generate(5000).map(_._1)
+    val passengers = generator.generate(5000)._2.map(_._1)
 
     // Find a passenger with the specific route ST1 -> ST3
     val passenger_st1_st3 = passengers.find(p => p.departure == st1.code && p.destination == st3.code)
@@ -117,7 +120,7 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
     val generator = new PassengerGenerator(mixedRailway, List.empty)
     val totalPassengers = 500
 
-    val passengers = generator.generate(totalPassengers).map(_._1)
+    val passengers = generator.generate(totalPassengers)._2.map(_._1)
 
     // Count departures from each station type
     val departureCounts = passengers.groupMapReduce(_.departure)(_ => 1)(_ + _)
@@ -140,7 +143,7 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
     val generator = new PassengerGenerator(loopRailway, List(t2_copy))
 
     // All generated routes should be simple paths (no repeated nodes)
-    val passengers = generator.generate(50).map(_._1)
+    val passengers = generator.generate(50)._2.map(_._1)
     passengers.foreach { p =>
       p.itinerary should be(defined)
       val itineraryStations = p.itinerary.get.stations

@@ -1,10 +1,10 @@
 package model.simulation
 
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
-import model.entities.{Passenger, PassengerState, Rail, Route, Train}
+import model.entities.{Passenger, PassengerPosition, PassengerState, Rail, Train, Route}
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import model.simulation.TrainState.InitialRouteIndex
-import model.util.TrainLog
+import model.util.{PassengerGenerator, PassengerLog, TrainLog}
 import model.util.TrainLog.{EnteredStation, LeavedStation, WaitingAt}
 
 /** Represent the mutable state of the simulation.
@@ -52,6 +52,192 @@ case class SimulationState(
       val (updatedRailStates, log) = updateRailStateOn(ts._1, state.railStates, trainState.position, newPosition)
       (state.copy(trainStates = updatedTrainStates, railStates = updatedRailStates), appendLog(logs, log))
     }
+
+  /** Updates the passengers' state in the simulation.
+    *
+    * @return
+    *   a tuple containing:
+    *   - the updated [[SimulationState]]
+    *   - the list of [[model.util.PassengerLog]] entries produced during the update
+    */
+  def updatePassengers(): (SimulationState, List[PassengerLog]) =
+    val (newState1, boardingLogs) = boardPassengers()
+    val (newState2, deboardingLogs) = newState1.deboardPassengers()
+    val (newState3, waitingLogs) = newState2.waitPassengers()
+    (newState3, boardingLogs ++ deboardingLogs ++ waitingLogs)
+
+  /** Collects all passengers currently waiting at a station.
+    *
+    * @return
+    *   a map associating each [[model.entities.Passenger]] to the [[model.entities.EntityCodes.StationCode]] of the
+    *   station where they are currently located
+    */
+  private def passengersWaitingAtStations: Map[Passenger, StationCode] =
+    (for
+      p <- passengers
+      if p.itinerary.isDefined
+      state <- passengerStates.get(p.code)
+      station <- state.currentPosition match
+        case PassengerPosition.AtStation(s) => Some(s)
+        case _ => None
+    yield p -> station).toMap
+
+  /** Collects all passengers currently on board a train.
+    *
+    * @return
+    *   a map associating each [[model.entities.Passenger]] to the [[model.entities.EntityCodes.TrainCode]] of the train
+    *   where they are currently located
+    */
+  private def passengersOnTrains: Map[Passenger, TrainCode] =
+    (for
+      p <- passengers
+      if p.itinerary.isDefined
+      state <- passengerStates.get(p.code)
+      train <- state.currentPosition match
+        case PassengerPosition.OnTrain(t) => Some(t)
+        case _ => None
+    yield p -> train).toMap
+
+  /** Collects all trains that are currently located at a station.
+    *
+    * @return
+    *   a map associating each [[model.entities.EntityCodes.TrainCode]] to the
+    *   [[model.entities.EntityCodes.StationCode]] of the station where it is currently located
+    */
+  private def trainsAtStations: Map[TrainCode, StationCode] =
+    trainStates.collect { case (code, TrainStateImpl(Some(AtStation(s)), _, _, _, _, _)) => code -> s }
+
+  /** Determines which passengers are ready to board a train.
+    *
+    * A passenger is considered "ready to board" if:
+    *   - they are currently waiting at a station
+    *   - their itinerary defines a leg starting from that station
+    *   - the corresponding train is currently at that station
+    *   - the train exists in [[trainStates]]
+    *   - the train’s current travel direction matches the itinerary leg’s expected direction
+    *
+    * @return
+    *   a map associating each [[model.entities.EntityCodes.PassengerCode]] to the
+    *   [[model.entities.EntityCodes.TrainCode]] of the train they are ready to board
+    */
+  private def passengerReadyToGetOnTrain: Map[PassengerCode, TrainCode] =
+    passengersWaitingAtStations.flatMap { (p, s) =>
+      for
+        it <- p.itinerary
+        leg <- it.legs.find(_.from == s)
+        if trainsAtStations.get(leg.train.code).contains(s) &&
+          trainStates.contains(leg.train.code) &&
+          trainStates(leg.train.code).forward == leg.isForwardRoute
+      yield p.code -> leg.train.code
+    }
+
+  /** Determines which passengers are ready to leave a train.
+    *
+    * A passenger is considered "ready to deboard" if:
+    *   - they are currently on a train
+    *   - their itinerary defines a leg involving the current train
+    *   - the train is currently located at the passenger’s destination station for that leg
+    *   - the train exists in [[trainStates]]
+    *   - the train’s current travel direction matches the itinerary leg’s expected direction
+    *
+    * @return
+    *   a map associating each [[model.entities.EntityCodes.PassengerCode]] to the
+    *   [[model.entities.EntityCodes.StationCode]] of the station where they should get off
+    */
+  private def passengerReadyToGetOffTrain: Map[PassengerCode, StationCode] =
+    passengersOnTrains.flatMap { (p, t) =>
+      for
+        it <- p.itinerary
+        leg <- it.legs.find(_.train.code == t)
+        if trainsAtStations.get(leg.train.code).contains(leg.to) &&
+          trainStates.contains(leg.train.code)
+      yield p.code -> leg.to
+    }
+
+  /** Moves passengers from stations onto trains when a matching train is available at the station.
+    *
+    * @return
+    *   a tuple containing:
+    *   - the updated [[SimulationState]] with passengers moved onto trains
+    *   - the list of logs generated
+    */
+  private def boardPassengers(): (SimulationState, List[PassengerLog]) =
+    val newPassengerStates: Map[PassengerCode, PassengerState] =
+      passengerStates.map { (pCode, oldState) =>
+        passengerReadyToGetOnTrain.get(pCode) match
+          case Some(tCode) => pCode -> oldState.changePosition(PassengerPosition.OnTrain(tCode))
+          case None => pCode -> oldState
+      }
+
+    val newPassengerLogs: List[PassengerLog] = passengerReadyToGetOnTrain.map((pCode, tCode) =>
+      PassengerLog.GetOnTrain(pCode, tCode)
+    ).toList
+
+    (copy(passengerStates = newPassengerStates), newPassengerLogs)
+
+  /** Moves passengers from trains to stations when they have reached their destination stop.
+    *
+    * @return
+    *   a tuple containing:
+    *   - the updated [[SimulationState]] with passengers moved to stations
+    *   - the list of logs generated
+    */
+  private def deboardPassengers(): (SimulationState, List[PassengerLog]) =
+
+    val newPassengerStates: Map[PassengerCode, PassengerState] =
+      passengerStates.map { (pCode, oldState) =>
+        passengerReadyToGetOffTrain.get(pCode) match
+          case Some(sCode) => pCode -> oldState.changePosition(PassengerPosition.AtStation(sCode))
+          case None => pCode -> oldState
+      }
+
+    val newPassengerLogs: List[PassengerLog] = passengerReadyToGetOffTrain.map((pCode, sCode) =>
+      PassengerLog.GetOffTrain(pCode, sCode)
+    ).toList
+
+    (copy(passengerStates = newPassengerStates), newPassengerLogs)
+
+  /** Keeps non-moving passengers in their current state.
+    *
+    * are kept in their current position. Their state is refreshed to maintain a step-by-step history of positions, even
+    * if they did not change their position.
+    *
+    * @return
+    *   a tuple containing:
+    *   - the updated [[SimulationState]] with "waiting" passengers' states refreshed
+    *   - the list of logs generated
+    */
+  private def waitPassengers(): (SimulationState, List[PassengerLog]) =
+    val notMovingPassengers: List[PassengerCode] =
+      passengers
+        .map(_.code)
+        .filterNot(passengerReadyToGetOnTrain.contains)
+        .filterNot(passengerReadyToGetOffTrain.contains)
+
+    val newPassengerStates: Map[PassengerCode, PassengerState] =
+      passengerStates
+        .map { (pCode, oldState) =>
+          if notMovingPassengers.contains(pCode) then
+            // Reset position to maintain an history step by step of the position
+            pCode -> oldState.changePosition(oldState.currentPosition)
+          else
+            pCode -> oldState
+        }
+
+    (copy(passengerStates = newPassengerStates), List.empty)
+
+  def generatePassengers(passengerGenerator: PassengerGenerator)(n: Int)
+      : (SimulationState, PassengerGenerator, List[PassengerLog]) =
+    val (newGenerator, newPassengers, newPassengersLogs) =
+      passengerGenerator.generate(n)
+    (
+      copy(
+        passengers = passengers ++ newPassengers.map(p => p._1),
+        passengerStates = passengerStates ++ newPassengers.map(pS => pS._1.code -> pS._2).toMap
+      ),
+      newGenerator,
+      newPassengersLogs
+    )
 
   private def appendLog(logs: List[TrainLog], log: Option[TrainLog]): List[TrainLog] =
     log match

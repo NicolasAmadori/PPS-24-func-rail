@@ -40,7 +40,7 @@ case class Route(rails: List[Rail]):
       "Empty Route"
     else
       val start = s"${rails.head.stationA}"
-      val path = rails.map(rail => s" --(${rail.length})--> ${rail.stationB}").mkString("")
+      val path = rails.map(rail => s" <--(${rail.length})--> ${rail.stationB}").mkString("")
       s"Route: $start$path"
 
 object Route:
