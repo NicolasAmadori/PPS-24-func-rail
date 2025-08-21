@@ -4,7 +4,7 @@ import controller.BaseController
 import model.entities.PassengerPosition
 import model.simulation.{Simulation, SimulationState}
 import model.util.SimulationLog
-import scalafx.application.Platform
+
 import view.simulation.SimulationView
 
 import java.util.concurrent.{Executors, TimeUnit}

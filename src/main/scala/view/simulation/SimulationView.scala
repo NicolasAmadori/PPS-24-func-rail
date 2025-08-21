@@ -88,13 +88,12 @@ class SimulationView(graphView: GraphView[StationView, RailView]) extends View:
       progressBar.progress = Math.min(1.0, Math.max(0.0, value))
 
   def showError(title: String = "", error: String): Unit =
-      Platform.runLater:
-        alert.contentText = error.toString
-        alert.headerText = title
-        alert.showAndWait()
-        Platform.exit()
-        System.exit(0)
-
+    Platform.runLater:
+      alert.contentText = error.toString
+      alert.headerText = title
+      alert.showAndWait()
+      Platform.exit()
+      System.exit(0)
 
   private val root = new BorderPane:
     center = hBox
