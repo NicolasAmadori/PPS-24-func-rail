@@ -1,54 +1,60 @@
 package view.report
 
 import scalafx.application.Platform
-import scalafx.geometry.Insets
-import scalafx.scene.layout.{BorderPane, HBox, Pane}
-import scalafx.scene.control.{Alert, ListView}
 import scalafx.collections.ObservableBuffer
-import scalafx.scene.control.Alert.AlertType
+import scalafx.geometry.Insets
+import scalafx.scene.control.{TableColumn, TableView}
+import scalafx.scene.layout.{BorderPane, HBox, Pane}
+import scalafx.beans.property.StringProperty
 import view.View
 import view.simconfig.{GraphView, RailView, StationView}
-import view.simulation.SimulationViewConstants.{DefaultWindowMinWidth, ElementHeight}
+import view.simulation.SimulationViewConstants.{DefaultWindowMinWidth, ElementHeight, DefaultPadding}
 
 object SimulationViewConstants:
   val DefaultWindowMinWidth = 1300
   val DefaultWindowMinHeight = 800
-  val OneThirdMinWidth: Int = DefaultWindowMinWidth / 3
   val DefaultPadding: Insets = Insets(10)
   val ElementHeight: Int = 760
 
-class ReportView(graphView: GraphView[StationView, RailView]) extends View:
-  private val logs = ObservableBuffer[String]()
-  private val passengers = ObservableBuffer[String]()
-  private val trains = ObservableBuffer[String]()
+case class Stat(metric: String, value: String, unit: String):
+  val metricProperty: StringProperty = StringProperty(metric)
+  val valueProperty: StringProperty = StringProperty(value)
+  val unitProperty: StringProperty = StringProperty(unit)
 
-  private val logsListView = new ListView[String](logs):
-    prefWidth = DefaultWindowMinWidth / 2
+class ReportView(graphView: GraphView[StationView, RailView]) extends View:
+  private val stats = ObservableBuffer[Stat]()
+
+  private val statsTable = new TableView[Stat](stats):
+    columns ++= List(
+      new TableColumn[Stat, String]("Metric"):
+        cellValueFactory = _.value.metricProperty
+        prefWidth = DefaultWindowMinWidth / 2 / 2
+      ,
+      new TableColumn[Stat, String]("Value"):
+        cellValueFactory = _.value.valueProperty
+        prefWidth = DefaultWindowMinWidth / 2 / 4
+      ,
+      new TableColumn[Stat, String]("Unit"):
+        cellValueFactory = _.value.unitProperty
+        prefWidth = DefaultWindowMinWidth / 2 / 4
+    )
     prefHeight = ElementHeight
 
-  private val hBox = new HBox(logsListView, graphView.getView(DefaultWindowMinWidth / 2)):
+  private val hBox = new HBox(
+    statsTable,
+    graphView.getView(DefaultWindowMinWidth / 2)
+  ):
     prefWidth = DefaultWindowMinWidth
     prefHeight = ElementHeight
+    spacing = 5
 
-  private val alert = new Alert(AlertType.Error):
-    title = "Error"
-
-  def addLog(message: String): Unit =
+  def addStats(data: Seq[(String, String, String)]): Unit =
     Platform.runLater:
-      logs += message
-      if !logsListView.focused.value then
-        logsListView.scrollTo(logs.size - 1) // autoscroll
-
-  def showError(title: String = "", error: String): Unit =
-    Platform.runLater:
-      alert.contentText = error.toString
-      alert.headerText = title
-      alert.showAndWait()
-      Platform.exit()
-      System.exit(0)
+      stats.clear()
+      stats ++= data.map { case (m, v, u) => Stat(m, v, u) }
 
   private val root = new BorderPane:
     center = hBox
-    padding = SimulationViewConstants.DefaultPadding
+    padding = DefaultPadding
 
   def getRoot: Pane = root

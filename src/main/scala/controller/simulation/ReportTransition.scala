@@ -16,3 +16,4 @@ class ReportTransition(graphView: GraphView[StationView, RailView])
 
   override def afterAttach(controller: ReportController, view: ReportView): Unit =
     StageManager.getStage.title = "Simulation Report"
+    controller.showStats()
