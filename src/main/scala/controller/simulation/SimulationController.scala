@@ -1,7 +1,7 @@
 package controller.simulation
 
 import controller.BaseController
-import controller.simconfig.SimulationTransition
+
 import model.entities.PassengerPosition
 import model.simulation.{Simulation, SimulationState}
 import model.util.SimulationLog
@@ -11,7 +11,8 @@ import view.simulation.SimulationView
 
 import java.util.concurrent.{Executors, TimeUnit}
 
-class SimulationController(simulation: Simulation, graphView: GraphView[StationView, RailView]) extends BaseController[SimulationView]:
+class SimulationController(simulation: Simulation, graphView: GraphView[StationView, RailView])
+    extends BaseController[SimulationView]:
 
   private var sim = simulation
   private val scheduler = Executors.newSingleThreadScheduledExecutor()
