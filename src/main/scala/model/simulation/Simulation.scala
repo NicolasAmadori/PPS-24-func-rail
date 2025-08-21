@@ -27,6 +27,8 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState, p
   def doStep(): Either[SimulationError, (Simulation, List[Log])] =
     if state.simulationStep < 0 then
       Left(SimulationError.NotStarted())
+    else if isFinished then
+      Left(SimulationError.Finished())
     else
       val nextStep = state.simulationStep + 1
 
