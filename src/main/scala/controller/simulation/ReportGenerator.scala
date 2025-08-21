@@ -11,7 +11,10 @@ object ReportGenerator:
     MostUsedTrainsProvider,
     IncompleteTripsProvider,
     CompletedTripsProvider,
-    StationsWithMostWaitingProvider
+    StationsWithMostWaitingProvider,
+    AverageTripDurationProvider,
+    AveragePassengerWaitingProvider,
+    AveragePassengerTravelTimeProvider
   )
 
   /** Creates a report of a simulation instance returning the list of statistics.

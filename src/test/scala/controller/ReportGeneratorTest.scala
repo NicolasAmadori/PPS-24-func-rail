@@ -114,7 +114,7 @@ class ReportGeneratorTest extends AnyFlatSpec:
     completedTrips.count should be(2)
   }
 
-  it should "retrieve correct stations with most waiting" in {
+  private def buildContextWithPassengersPositions: SimulationContext =
     import model.entities.PassengerPosition.*
     val positions1 = List(
       AtStation(stationA),
@@ -135,8 +135,32 @@ class ReportGeneratorTest extends AnyFlatSpec:
     )
     val state1 = PassengerState(positions1.head, positions1)
     val state2 = PassengerState(positions1.head, positions2)
-    val ctx = SimulationContext(passengerStates = List(state1, state2))
+    SimulationContext(passengerStates = List(state1, state2))
 
+  it should "retrieve correct stations with most waiting" in {
+    val ctx = buildContextWithPassengersPositions
     val stationsWithMostWaiting = StationsWithMostWaitingProvider.compute(ctx)
     stationsWithMostWaiting.stations should contain(stationA)
   }
+
+  it should "retrieve correct average trip duration" in {
+    val ctx = buildContextWithPassengersPositions
+
+    val averageTripDuration = AverageTripDurationProvider.compute(ctx)
+    averageTripDuration.hours should be(6.5)
+  }
+
+  it should "retrieve correct average passenger waiting" in {
+    val ctx = buildContextWithPassengersPositions
+
+    val averagePassengerWaiting = AveragePassengerWaitingProvider.compute(ctx)
+    averagePassengerWaiting.hours should be (1.5)
+  }
+
+  it should "retrieve correct average passenger travel time" in {
+    val ctx = buildContextWithPassengersPositions
+
+    val averageTravelTime = AveragePassengerTravelTimeProvider.compute(ctx)
+    averageTravelTime.hours should be(3)
+  }
+
