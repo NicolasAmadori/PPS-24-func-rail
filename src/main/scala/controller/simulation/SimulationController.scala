@@ -1,15 +1,17 @@
 package controller.simulation
 
 import controller.BaseController
+import controller.simconfig.SimulationTransition
 import model.entities.PassengerPosition
 import model.simulation.{Simulation, SimulationState}
 import model.util.SimulationLog
-
+import scalafx.application.Platform
+import view.simconfig.{GraphView, RailView, StationView}
 import view.simulation.SimulationView
 
 import java.util.concurrent.{Executors, TimeUnit}
 
-class SimulationController(simulation: Simulation) extends BaseController[SimulationView]:
+class SimulationController(simulation: Simulation, graphView: GraphView[StationView, RailView]) extends BaseController[SimulationView]:
 
   private var sim = simulation
   private val scheduler = Executors.newSingleThreadScheduledExecutor()
@@ -42,6 +44,9 @@ class SimulationController(simulation: Simulation) extends BaseController[Simula
   private def loopAsync(current: Simulation, delayMs: Long): Unit =
     if current.isFinished then
       getView.addLog(SimulationLog.SimulationFinished().toString)
+      Platform.runLater:
+        val transition = new ReportTransition(graphView)
+        transition.transition()
     else
       scheduler.schedule(
         new Runnable:

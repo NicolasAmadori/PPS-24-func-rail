@@ -11,7 +11,7 @@ class SimulationTransition(simulation: Simulation, graphView: GraphView[StationV
     extends ScreenTransition[SimulationController, SimulationView]:
 
   def build(): (SimulationController, SimulationView) =
-    val controller = SimulationController(simulation)
+    val controller = SimulationController(simulation, graphView)
     val view = SimulationView(graphView)
     (controller, view)
 
