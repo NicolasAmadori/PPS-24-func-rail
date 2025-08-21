@@ -12,8 +12,9 @@ class SimulationTransition(simulation: Simulation, graphView: GraphView[StationV
 
   def build(): (SimulationController, SimulationView) =
     val controller = SimulationController(simulation)
-    val view = SimulationView(controller, graphView)
+    val view = SimulationView(graphView)
     (controller, view)
 
   override def afterAttach(controller: SimulationController, view: SimulationView): Unit =
     StageManager.getStage.title = "Simulation"
+    controller.startSimulation()

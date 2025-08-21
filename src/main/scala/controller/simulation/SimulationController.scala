@@ -14,21 +14,7 @@ class SimulationController(simulation: Simulation) extends BaseController[Simula
   private var sim = simulation
   private val scheduler = Executors.newSingleThreadScheduledExecutor()
 
-  private var stateUpdaterRaw: (List[String], List[String]) => Unit = (_, _) => ()
-  private var eventListenerRaw: String => Unit = _ => ()
-  private var progressIndicatorRaw: Double => Unit = _ => ()
-
-  def attachStateUpdater(updater: (List[String], List[String]) => Unit): Unit =
-    stateUpdaterRaw = updater
-
-  def attachEventListener(listener: String => Unit): Unit =
-    eventListenerRaw = listener
-
-  def attachProgressIndicator(progressIndicator: Double => Unit): Unit =
-    progressIndicatorRaw = progressIndicator
-
   private def updateState(state: SimulationState): Unit =
-
     val passengers: List[String] = state.passengerStates
       .filterNot((pCode, pState) =>
         pState.currentPosition match
@@ -44,35 +30,35 @@ class SimulationController(simulation: Simulation) extends BaseController[Simula
       .map((tCode, tState) => "" + tCode + ": " + tState.position.get)
       .toList
 
-    Platform.runLater(() => stateUpdaterRaw(passengers, trains))
-
-  private def emitEvent(message: String): Unit =
-    Platform.runLater(() => eventListenerRaw(message))
-
-  private def updateProgress(value: Double): Unit =
-    Platform.runLater(() => progressIndicatorRaw(value))
+    getView.updateState(passengers, trains)
 
   def startSimulation(): Unit =
     val (newSim, logs) = sim.start()
     sim = newSim
-    logs.map(_.toString).foreach(emitEvent)
+    logs.map(_.toString).foreach(getView.addLog)
     updateState(sim.state)
     loopAsync(sim, 1000)
 
   private def loopAsync(current: Simulation, delayMs: Long): Unit =
     if current.isFinished then
-      emitEvent(SimulationLog.SimulationFinished().toString)
+      getView.addLog(SimulationLog.SimulationFinished().toString)
     else
       scheduler.schedule(
         new Runnable:
           override def run(): Unit =
-            current.doStep() match
-              case Left(simError) => emitEvent(simError.toString)
-              case Right((next, logs)) =>
-                logs.map(_.toString).foreach(emitEvent)
-                updateProgress(next.state.simulationStep.toDouble / (next.duration.toDouble * 24))
-                updateState(next.state)
-                loopAsync(next, delayMs)
+            try
+              current.doStep() match
+                case Left(simError) =>
+                  getView.showError("Simulation Error", simError.toString)
+
+                case Right((next, logs)) =>
+                  logs.map(_.toString).foreach(getView.addLog)
+                  getView.setProgress(next.state.simulationStep.toDouble / (next.duration.toDouble * 24))
+                  updateState(next.state)
+                  loopAsync(next, delayMs)
+            catch
+              case ex: Throwable =>
+                getView.showError("Simulation Error", ex.getMessage)
         ,
         delayMs,
         TimeUnit.MILLISECONDS
