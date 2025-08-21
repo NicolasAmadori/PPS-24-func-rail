@@ -154,7 +154,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = buildContextWithPassengersPositions
 
     val averagePassengerWaiting = AveragePassengerWaitingProvider.compute(ctx)
-    averagePassengerWaiting.hours should be (1.5)
+    averagePassengerWaiting.hours should be(1.5)
   }
 
   it should "retrieve correct average passenger travel time" in {
@@ -163,4 +163,3 @@ class StatisticProviderTest extends AnyFlatSpec:
     val averageTravelTime = AveragePassengerTravelTimeProvider.compute(ctx)
     averageTravelTime.hours should be(3)
   }
-

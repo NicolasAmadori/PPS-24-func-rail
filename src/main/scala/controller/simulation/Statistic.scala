@@ -48,7 +48,7 @@ object Statistic:
     val name = "Average passenger waiting"
     def valueAsString: String = f"$hours%.2f"
     override def unit: String = "hours"
-    
+
   case class AveragePassengerTravelTime(hours: Double) extends Statistic:
     val name = "Average passenger travel time"
     def valueAsString: String = f"$hours%.2f"
@@ -66,6 +66,6 @@ object Statistic:
       case List(p1, p2) =>
         (key(p1), key(p2)) match
           case (Some(k1), Some(k2)) if k1 == k2 => true
-          case _                                => false
+          case _ => false
       case _ => false
     }.toDouble

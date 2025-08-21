@@ -77,5 +77,5 @@ object AveragePassengerWaitingProvider extends StatisticProvider:
 object AveragePassengerTravelTimeProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): AveragePassengerTravelTime =
     val passengerPosition = ctx.passengerStates.map(_.previousPositions)
-    val travelTime = passengerPosition.flatten.collect { case OnTrain(t) => t}.size
+    val travelTime = passengerPosition.flatten.collect { case OnTrain(t) => t }.size
     AveragePassengerTravelTime(travelTime / passengerPosition.size.toDouble)
