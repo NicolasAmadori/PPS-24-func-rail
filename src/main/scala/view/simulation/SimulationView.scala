@@ -1,13 +1,14 @@
 package view.simulation
 
-import controller.simulation.SimulationController
+import scalafx.application.Platform
 import scalafx.geometry.Insets
 import scalafx.scene.layout.{BorderPane, HBox, Pane, VBox}
-import scalafx.scene.control.{ListView, ProgressBar}
+import scalafx.scene.control.{Alert, ListView, ProgressBar}
 import scalafx.collections.ObservableBuffer
+import scalafx.scene.control.Alert.AlertType
 import view.View
 import view.simconfig.{GraphView, RailView, StationView}
-import view.simulation.SimulationViewConstants.{DefaultWindowMinWidth, OneThirdMinWidth, ElementHeight, HalfElementHeight}
+import view.simulation.SimulationViewConstants.{DefaultWindowMinWidth, ElementHeight, HalfElementHeight, OneThirdMinWidth}
 
 object SimulationViewConstants:
   val DefaultWindowMinWidth = 1300
@@ -17,7 +18,7 @@ object SimulationViewConstants:
   val ElementHeight: Int = 760
   val HalfElementHeight: Int = ElementHeight / 2
 
-class SimulationView(controller: SimulationController, graphView: GraphView[StationView, RailView]) extends View:
+class SimulationView(graphView: GraphView[StationView, RailView]) extends View:
   private val logs = ObservableBuffer[String]()
   private val passengers = ObservableBuffer[String]()
   private val trains = ObservableBuffer[String]()
@@ -46,10 +47,13 @@ class SimulationView(controller: SimulationController, graphView: GraphView[Stat
     prefWidth = DefaultWindowMinWidth
     progress = 0.0
 
-  def codeOf(item: String): String =
+  private val alert = new Alert(AlertType.Error):
+    title = "Error"
+
+  private def codeOf(item: String): String =
     item.takeWhile(_ != ':')
 
-  def updateBuffer(buffer: ObservableBuffer[String], newItems: List[String]): Unit =
+  private def updateBuffer(buffer: ObservableBuffer[String], newItems: List[String]): Unit =
     val newCodes = newItems.map(codeOf).toSet
     buffer.filterInPlace(item => newCodes.contains(codeOf(item)))
 
@@ -63,22 +67,33 @@ class SimulationView(controller: SimulationController, graphView: GraphView[Stat
     }
 
   def updateState(p: List[String], t: List[String]): Unit =
-    updateBuffer(passengers, p)
-    updateBuffer(trains, t)
+    Platform.runLater:
+      updateBuffer(passengers, p)
+      updateBuffer(trains, t)
 
-    if !passengersListView.focused.value then
-      passengersListView.scrollTo(passengers.size - 1)
+      if !passengersListView.focused.value then
+        passengersListView.scrollTo(passengers.size - 1)
 
-    if !trainsListView.focused.value then
-      trainsListView.scrollTo(trains.size - 1)
+      if !trainsListView.focused.value then
+        trainsListView.scrollTo(trains.size - 1)
 
   def addLog(message: String): Unit =
-    logs += message
-    if !logsListView.focused.value then
-      logsListView.scrollTo(logs.size - 1) // autoscroll
+    Platform.runLater:
+      logs += message
+      if !logsListView.focused.value then
+        logsListView.scrollTo(logs.size - 1) // autoscroll
 
   def setProgress(value: Double): Unit =
-    progressBar.progress = Math.min(1.0, Math.max(0.0, value))
+    Platform.runLater:
+      progressBar.progress = Math.min(1.0, Math.max(0.0, value))
+
+  def showError(title: String = "", error: String): Unit =
+    Platform.runLater:
+      alert.contentText = error.toString
+      alert.headerText = title
+      alert.showAndWait()
+      Platform.exit()
+      System.exit(0)
 
   private val root = new BorderPane:
     center = hBox
@@ -86,8 +101,3 @@ class SimulationView(controller: SimulationController, graphView: GraphView[Stat
     padding = SimulationViewConstants.DefaultPadding
 
   def getRoot: Pane = root
-
-  controller.attachStateUpdater(updateState)
-  controller.attachEventListener(addLog)
-  controller.attachProgressIndicator(setProgress)
-  controller.startSimulation()
