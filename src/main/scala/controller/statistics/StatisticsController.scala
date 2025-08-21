@@ -1,9 +1,9 @@
-package controller.report
+package controller.statistics
 
 import controller.BaseController
-import view.report.ReportView
+import view.statistics.StatisticsView
 
-class ReportController extends BaseController[ReportView]:
+class StatisticsController extends BaseController[StatisticsView]:
 
   def showStats(): Unit =
     val exampleStats = List(

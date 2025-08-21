@@ -1,4 +1,4 @@
-package view.report
+package view.statistics
 
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
@@ -21,7 +21,7 @@ case class Stat(metric: String, value: String, unit: String):
   val valueProperty: StringProperty = StringProperty(value)
   val unitProperty: StringProperty = StringProperty(unit)
 
-class ReportView(graphView: GraphView[StationView, RailView]) extends View:
+class StatisticsView(graphView: GraphView[StationView, RailView]) extends View:
   private val stats = ObservableBuffer[Stat]()
 
   private val statsTable = new TableView[Stat](stats):
