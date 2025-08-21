@@ -10,7 +10,7 @@ import org.scalatest.matchers.should.Matchers.*
 import util.SampleRailway
 import util.SampleRailway.SampleStation.*
 
-class ReportGeneratorTest extends AnyFlatSpec:
+class StatisticProviderTest extends AnyFlatSpec:
 
   private val (stationA, stationB, stationC) = (StationCode(StationA), StationCode(StationB), StationCode(StationC))
   private val train1 = normalTrain("T1", List(stationA, stationB))
@@ -23,7 +23,7 @@ class ReportGeneratorTest extends AnyFlatSpec:
     ItineraryLeg(train1, stationA, stationB)
   ))
 
-  "Report generator" should "retrieve most used rail" in {
+  "Statistic provider" should "retrieve most used rail" in {
     val rail1 = metalRail(1, 100, StationA, StationB)
     val rail2 = metalRail(2, 200, StationB, StationC)
     val rail3 = metalRail(3, 300, StationC, StationD)
