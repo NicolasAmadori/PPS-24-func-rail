@@ -1,10 +1,10 @@
 package controller
 
-import controller.simulation.ReportGenerator
+import controller.simulation.util.*
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
-import model.entities.{Itinerary, ItineraryLeg, PassengerImpl, PassengerState, Route}
 import model.entities.Rail.metalRail
 import model.entities.Train.normalTrain
+import model.entities.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 import util.SampleRailway
@@ -30,9 +30,11 @@ class ReportGeneratorTest extends AnyFlatSpec:
     val rail4 = metalRail(4, 400, StationD, StationA)
     val route1 = Route(List(rail1, rail2, rail3, rail4, rail1))
     val route2 = Route(List(rail4, rail3, rail2, rail1))
-    val mostUsedRails = ReportGenerator.mostUsedRails(List(route1, route2))
+    val ctx = SimulationContext(routes = List(route1, route2))
+
+    val mostUsedRails = MostUsedRailsProvider.compute(ctx)
     mostUsedRails.rails.map(_.code) should contain(RailCode(1))
-    mostUsedRails.getMeasurementUnit should be("")
+    mostUsedRails.unit should be("")
     mostUsedRails.toString should be("Most used rails")
   }
 
@@ -43,9 +45,11 @@ class ReportGeneratorTest extends AnyFlatSpec:
     val rail4 = metalRail(4, 400, StationD, StationA)
     val route1 = Route(List(rail1, rail2, rail3))
     val route2 = Route(List(rail4, rail3, rail2, rail1))
-    val mostUsedRails = ReportGenerator.mostUsedRails(List(route1, route2))
+    val ctx = SimulationContext(routes = List(route1, route2))
+
+    val mostUsedRails = MostUsedRailsProvider.compute(ctx)
     mostUsedRails.rails.map(_.code) should contain allOf (RailCode(1), RailCode(2), RailCode(3))
-    mostUsedRails.getMeasurementUnit should be("")
+    mostUsedRails.unit should be("")
     mostUsedRails.toString should be("Most used rails")
   }
 
@@ -68,21 +72,25 @@ class ReportGeneratorTest extends AnyFlatSpec:
       OnRail(RailCode(1)),
       AtStation(StationCode(StationB))
     )
-    val averageWaiting = ReportGenerator.averageTrainWaiting(List(positions1, positions2))
+    val ctx = SimulationContext(trainHistories = List(positions1, positions2))
+
+    val averageWaiting = AverageTrainWaitingProvider.compute(ctx)
     averageWaiting.hours should be(1.5)
-    averageWaiting.getMeasurementUnit should be("hours")
+    averageWaiting.unit should be("hours")
     averageWaiting.toString should be("Average train waiting")
   }
 
   it should "retrieve the most used train" in {
-    val itineraries = List(itinerary1, itinerary2)
+    val ctx = SimulationContext(itineraries = List(itinerary1, itinerary2))
 
-    val mostUsedTrains = ReportGenerator.mostUsedTrain(itineraries)
+    val mostUsedTrains = MostUsedTrainsProvider.compute(ctx)
     mostUsedTrains.trains should be(List(TrainCode("T1")))
   }
 
   it should "retrieve all the most used train if there's a tie" in {
-    val mostUsedTrains = ReportGenerator.mostUsedTrain(List(itinerary1, itinerary1))
+    val ctx = SimulationContext(itineraries = List(itinerary1, itinerary1))
+
+    val mostUsedTrains = MostUsedTrainsProvider.compute(ctx)
     mostUsedTrains.trains should contain allOf (TrainCode("T1"), TrainCode("T2"))
   }
 
@@ -90,8 +98,9 @@ class ReportGeneratorTest extends AnyFlatSpec:
     val passenger1 = PassengerImpl(PassengerCode("P1"), stationA, stationC, None)
     val passenger2 = PassengerImpl(PassengerCode("P1"), stationA, stationC, Some(itinerary1))
     val passenger3 = PassengerImpl(PassengerCode("P1"), stationA, stationC, None)
+    val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
-    val incompleteTrips = ReportGenerator.incompleteTrips(List(passenger1, passenger2, passenger3))
+    val incompleteTrips = IncompleteTripsProvider.compute(ctx)
     incompleteTrips.count should be(2)
   }
 
@@ -99,8 +108,9 @@ class ReportGeneratorTest extends AnyFlatSpec:
     val passenger1 = PassengerImpl(PassengerCode("P1"), stationA, stationC, Some(itinerary1))
     val passenger2 = PassengerImpl(PassengerCode("P1"), stationA, stationC, Some(itinerary1))
     val passenger3 = PassengerImpl(PassengerCode("P1"), stationA, stationC, None)
+    val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
-    val completedTrips = ReportGenerator.completedTrips(List(passenger1, passenger2, passenger3))
+    val completedTrips = CompletedTripsProvider.compute(ctx)
     completedTrips.count should be(2)
   }
 
@@ -125,7 +135,8 @@ class ReportGeneratorTest extends AnyFlatSpec:
     )
     val state1 = PassengerState(positions1.head, positions1)
     val state2 = PassengerState(positions1.head, positions2)
+    val ctx = SimulationContext(passengerStates = List(state1, state2))
 
-    val stationsWithMostWaiting = ReportGenerator.stationsWithMostWaiting(List(state1, state2))
+    val stationsWithMostWaiting = StationsWithMostWaitingProvider.compute(ctx)
     stationsWithMostWaiting.stations should contain(stationA)
   }
