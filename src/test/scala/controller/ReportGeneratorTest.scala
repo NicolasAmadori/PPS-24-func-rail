@@ -2,9 +2,8 @@ package controller
 
 import controller.simulation.ReportGenerator
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
-import model.entities.{Itinerary, ItineraryLeg, PassengerImpl, Route}
+import model.entities.{Itinerary, ItineraryLeg, PassengerImpl, PassengerState, Route}
 import model.entities.Rail.metalRail
-
 import model.entities.Train.normalTrain
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
@@ -103,4 +102,30 @@ class ReportGeneratorTest extends AnyFlatSpec:
 
     val completedTrips = ReportGenerator.completedTrips(List(passenger1, passenger2, passenger3))
     completedTrips.count should be(2)
+  }
+
+  it should "retrieve correct stations with most waiting" in {
+    import model.entities.PassengerPosition.*
+    val positions1 = List(
+      AtStation(stationA),
+      OnTrain(TrainCode("T1")),
+      OnTrain(TrainCode("T1")),
+      OnTrain(TrainCode("T1")),
+      AtStation(stationB),
+      AtStation(stationB)
+    )
+    val positions2 = List(
+      AtStation(stationA),
+      AtStation(stationA),
+      AtStation(stationA),
+      OnTrain(TrainCode("T1")),
+      OnTrain(TrainCode("T1")),
+      OnTrain(TrainCode("T1")),
+      AtStation(stationB)
+    )
+    val state1 = PassengerState(positions1.head, positions1)
+    val state2 = PassengerState(positions1.head, positions2)
+
+    val stationsWithMostWaiting = ReportGenerator.stationsWithMostWaiting(List(state1, state2))
+    stationsWithMostWaiting.stations should contain(stationA)
   }

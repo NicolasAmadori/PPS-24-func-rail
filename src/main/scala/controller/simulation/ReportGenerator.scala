@@ -1,38 +1,9 @@
 package controller.simulation
 
-import model.entities.EntityCodes.{RailCode, StationCode, TrainCode}
-
-import model.entities.{Itinerary, Passenger, Rail, Route}
-import model.simulation.TrainPosition.{AtStation, OnRail}
+import model.entities.EntityCodes.StationCode
+import model.entities.*
+import model.simulation.TrainPosition.AtStation
 import model.simulation.{Simulation, TrainPosition}
-
-trait Statistic:
-  def getStringStat: String
-  def getMeasurementUnit: String = ""
-
-object Statistic:
-  case class MostUsedRails(rails: List[Rail]) extends Statistic:
-    override def toString: String = "Most used rails"
-    def getStringStat: String = rails.mkString(" - ")
-  case class AverageTrainWaiting(hours: Double) extends Statistic:
-    override def toString: String = "Average train waiting"
-    private def asDays: Double = hours / 24
-    def getStringStat: String =
-      if hours < 24 then f"$hours%.2f" else f"$asDays%.2f"
-    override def getMeasurementUnit: String =
-      if hours < 24 then "hours" else "days"
-  case class MostUsedTrains(trains: List[TrainCode]) extends Statistic:
-    override def toString: String = "Most used train"
-    def getStringStat: String = trains.mkString(" - ")
-  case class IncompleteTrips(count: Int) extends Statistic:
-    override def toString: String = "Passengers who can't complete the trip"
-    def getStringStat: String = count.toString
-  case class CompletedTrips(count: Int) extends Statistic:
-    override def toString: String = "Passengers who can arrive at destination"
-    def getStringStat: String = count.toString
-  case class StationsWithMostWaiting(stations: List[StationCode]) extends Statistic:
-    override def toString: String = "Stations with most waiting"
-    def getStringStat: String = stations.mkString(" - ")
 
 object ReportGenerator:
   import Statistic.*
@@ -50,7 +21,8 @@ object ReportGenerator:
     val mostUsedTrains = mostUsedTrain(simulation.state.passengers.map(_.itinerary).collect { case Some(i) => i })
     val tripsCompleted = completedTrips(simulation.state.passengers)
     val impossibleTrips = incompleteTrips(simulation.state.passengers)
-    List(railsStat, averageTrainWaitingStat, mostUsedTrains, tripsCompleted, impossibleTrips)
+    val maxWaitingStations = stationsWithMostWaiting(simulation.state.passengerStates.values.toList)
+    List(railsStat, averageTrainWaitingStat, mostUsedTrains, tripsCompleted, impossibleTrips, maxWaitingStations)
 
   /** Returns the list of the rails that appear the most in train routes */
   def mostUsedRails(routes: List[Route], n: Int = 3): MostUsedRails =
@@ -62,26 +34,50 @@ object ReportGenerator:
     val waiting = trains.map(waitingTime).sum
     AverageTrainWaiting(waiting / trains.size.toDouble)
 
-  /** Computes the total waiting time of a train */
-  private def waitingTime(positions: List[TrainPosition]): Double =
-    positions.foldLeft((OnRail(RailCode.empty), 0)) {
-      case ((prevPos, wait), pos) =>
-        pos match
-          case AtStation(_) if pos == prevPos => (pos, wait + 1)
-          case _ => (pos, wait)
-    }._2.toDouble
-
   def mostUsedTrain(itineraries: List[Itinerary]): MostUsedTrains =
     val trains = itineraries.flatMap(_.legs).map(_.train)
     MostUsedTrains(mostUsedBy(trains, _.code).map(_.code))
 
   private def mostUsedBy[A, K](items: List[A], key: A => K): List[A] =
-    val usage = items.groupBy(key).map { case (_, group) => (group.head, group.size) }
-    val maxUsage = usage.values.max
-    usage.collect { case (elem, count) if count == maxUsage => elem }.toList
+    if items.isEmpty then Nil
+    else
+      val usage = items.groupBy(key).map { case (_, group) => (group.head, group.size) }
+      val maxUsage = usage.values.max
+      usage.collect { case (elem, count) if count == maxUsage => elem }.toList
 
+  /** @return the number of passengers that cannot complete their trip */
   def incompleteTrips(passengers: List[Passenger]): IncompleteTrips =
     IncompleteTrips(passengers.count(_.itinerary.isEmpty))
 
+  /** @return the number of passengers that completed the trip */
   def completedTrips(passengers: List[Passenger]): CompletedTrips =
     CompletedTrips(passengers.count(_.itinerary.nonEmpty))
+
+  /** @return the stations in which the passengers have to wait the most */
+  def stationsWithMostWaiting(passengersState: List[PassengerState]): StationsWithMostWaiting =
+    val positions = passengersState.map(_.previousPositions).filter(_.nonEmpty)
+    val waitingTimes = aggregateStationWaiting(positions)
+    val maxWaiting = if waitingTimes.nonEmpty then waitingTimes.values.max else 0
+    val stationsWithMaxWaiting = waitingTimes.collect { case (st, t) if t == maxWaiting => st }.toList
+    StationsWithMostWaiting(stationsWithMaxWaiting)
+
+  /** Computes the total waiting time of a train */
+  private def waitingTime(positions: List[TrainPosition]): Double =
+    positions.sliding(2).count {
+      case List(AtStation(st1), AtStation(st2)) if st1 == st2 => true
+      case _ => false
+    }.toDouble
+
+  private def aggregateStationWaiting(histories: List[List[PassengerPosition]]): Map[StationCode, Int] =
+    val perPassenger = histories.map { history =>
+      history.collect { case PassengerPosition.AtStation(st) => st }
+    }.map(waitingInItinerary)
+    println(perPassenger)
+    perPassenger.flatten
+      .groupBy(_._1)
+      .map { case (station, waits) => station -> (waits.map(_._2).sum / waits.size) }
+
+  private def waitingInItinerary(stations: List[StationCode]): Map[StationCode, Int] =
+    stations.sliding(2).collect {
+      case List(st1, st2) if st1 == st2 => st1 -> 1
+    }.toList.groupMapReduce(_._1)(_._2)(_ + _)
