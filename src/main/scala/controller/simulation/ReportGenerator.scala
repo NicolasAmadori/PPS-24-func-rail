@@ -1,6 +1,7 @@
 package controller.simulation
 
-import model.entities.EntityCodes.{RailCode, TrainCode}
+import model.entities.EntityCodes.{RailCode, StationCode, TrainCode}
+
 import model.entities.{Itinerary, Passenger, Rail, Route}
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import model.simulation.{Simulation, TrainPosition}
@@ -29,6 +30,9 @@ object Statistic:
   case class CompletedTrips(count: Int) extends Statistic:
     override def toString: String = "Passengers who can arrive at destination"
     def getStringStat: String = count.toString
+  case class StationsWithMostWaiting(stations: List[StationCode]) extends Statistic:
+    override def toString: String = "Stations with most waiting"
+    def getStringStat: String = stations.mkString(" - ")
 
 object ReportGenerator:
   import Statistic.*
@@ -43,7 +47,7 @@ object ReportGenerator:
     val railsStat = mostUsedRails(simulation.state.trains.map(_.route))
     val averageTrainWaitingStat =
       averageTrainWaiting(simulation.state.trainStates.values.map(_.previousPositions).toList)
-    val mostUsedTrains = mostUsedTrain(simulation.state.passengers.map(_.itinerary.get))
+    val mostUsedTrains = mostUsedTrain(simulation.state.passengers.map(_.itinerary).collect { case Some(i) => i })
     val tripsCompleted = completedTrips(simulation.state.passengers)
     val impossibleTrips = incompleteTrips(simulation.state.passengers)
     List(railsStat, averageTrainWaitingStat, mostUsedTrains, tripsCompleted, impossibleTrips)

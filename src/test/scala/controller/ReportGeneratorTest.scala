@@ -4,9 +4,8 @@ import controller.simulation.ReportGenerator
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
 import model.entities.{Itinerary, ItineraryLeg, PassengerImpl, Route}
 import model.entities.Rail.metalRail
-import model.entities.Station.smallStation
+
 import model.entities.Train.normalTrain
-import model.simulation.TrainPosition.{AtStation, OnRail}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 import util.SampleRailway
@@ -52,6 +51,7 @@ class ReportGeneratorTest extends AnyFlatSpec:
   }
 
   it should "retrieve average waiting time" in {
+    import model.simulation.TrainPosition.*
     val positions1 = List(
       AtStation(StationCode(StationA)),
       OnRail(RailCode(1)),
