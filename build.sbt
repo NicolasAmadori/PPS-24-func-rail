@@ -28,6 +28,7 @@ lazy val root = (project in file("."))
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",
     libraryDependencies += "org.scalafx" %% "scalafx" % "20.0.0-R31",
     libraryDependencies += "com.brunomnsilva" % "smartgraph" % "2.3.0",
+    libraryDependencies += "it.unibo.alice.tuprolog" % "tuprolog" % "3.3.0",
     libraryDependencies ++= {
       Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
         .map(m => "org.openjfx" % s"javafx-$m" % "19" classifier osName)
