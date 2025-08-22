@@ -135,7 +135,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     )
     val state1 = PassengerState(positions1.head, positions1)
     val state2 = PassengerState(positions1.head, positions2)
-    SimulationContext(passengerStates = List(state1, state2))
+    SimulationContext(passengerStates = List(state1, state2), passengersWithCompletedTrip = List(state1, state2))
 
   it should "retrieve correct stations with most waiting" in {
     val ctx = buildContextWithPassengersPositions
