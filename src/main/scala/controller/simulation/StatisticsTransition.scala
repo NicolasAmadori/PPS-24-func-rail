@@ -7,12 +7,12 @@ import utils.StageManager
 import view.statistics.StatisticsView
 import view.simconfig.{GraphView, RailView, StationView}
 
-class StatisticsTransition(statistics: Seq[Statistic], graphView: GraphView[StationView, RailView])
+class StatisticsTransition(logs: List[String], statistics: Seq[Statistic], graphView: GraphView[StationView, RailView])
     extends ScreenTransition[StatisticsController, StatisticsView]:
 
   def build(): (StatisticsController, StatisticsView) =
     val controller = StatisticsController(statistics)
-    val view = StatisticsView(graphView)
+    val view = StatisticsView(logs, graphView)
     (controller, view)
 
   override def afterAttach(controller: StatisticsController, view: StatisticsView): Unit =

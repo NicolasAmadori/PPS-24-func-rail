@@ -47,7 +47,7 @@ class SimulationController(simulation: Simulation, graphView: GraphView[StationV
       getView.addLog(SimulationLog.SimulationFinished().toString)
       val statistics = ReportGenerator.createReport(current)
       Platform.runLater:
-        val transition = new StatisticsTransition(statistics, graphView)
+        val transition = new StatisticsTransition(getView.getLogs, statistics, graphView)
         transition.transition()
     else
       scheduler.schedule(
