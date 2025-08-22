@@ -36,5 +36,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
-          files: target/scala-*/func-rail.jar
+          files: target/scala-*/func-rail*.jar
           generate_release_notes: true
