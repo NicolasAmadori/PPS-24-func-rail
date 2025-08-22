@@ -3,7 +3,7 @@ package controller.simulation.util
 import Statistic.*
 import model.entities.EntityCodes.StationCode
 import model.entities.PassengerPosition
-import model.entities.PassengerPosition.OnTrain
+import model.entities.PassengerPosition.{AtStation, OnTrain}
 import model.simulation.TrainPosition
 
 /** Trait to define a provider of statistic */
@@ -61,12 +61,12 @@ object StationsWithMostWaitingProvider extends StatisticProvider:
 object AverageTripDurationProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): AverageTripDuration =
     val averageDuration =
-      ctx.passengerStates.map(_.previousPositions.size).sum.toDouble / ctx.passengerStates.size.toDouble
+      ctx.passengersWithCompletedTrip.map(_.previousPositions.size).sum.toDouble / ctx.passengerStates.size.toDouble
     AverageTripDuration(averageDuration)
 
 object AveragePassengerWaitingProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): AveragePassengerWaiting =
-    val passengersPositions = ctx.passengerStates.map(_.previousPositions)
+    val passengersPositions = ctx.passengersWithCompletedTrip.map(_.previousPositions)
     val waiting = passengersPositions.map(Statistic.consecutiveSameBy(_) {
       case PassengerPosition.AtStation(st) => Some(st)
       case _ => None
@@ -75,6 +75,6 @@ object AveragePassengerWaitingProvider extends StatisticProvider:
 
 object AveragePassengerTravelTimeProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): AveragePassengerTravelTime =
-    val passengerPosition = ctx.passengerStates.map(_.previousPositions)
+    val passengerPosition = ctx.passengersWithCompletedTrip.map(_.previousPositions)
     val travelTime = passengerPosition.flatten.collect { case OnTrain(t) => t }.size
     AveragePassengerTravelTime(travelTime / passengerPosition.size.toDouble)
