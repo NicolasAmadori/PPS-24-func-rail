@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <profile name="sbt 1" modules="pps-24-func-rail_8586" />
+    <profile name="sbt 2" modules="func-rail">
+      <parameters>
+        <parameter value="-Wunused:all" />
+        <parameter value="-Wunused:imports" />
+        <parameter value="-Xsemanticdb" />
+        <parameter value="-semanticdb-target" />
+        <parameter value="C:\Users\Nicolas\Downloads\PPS-24-func-rail\target\scala-3.6.4\meta" />
+      </parameters>
+    </profile>
+  </component>
+</project>
