@@ -87,6 +87,8 @@ class SimulationView(graphView: GraphView[StationView, RailView]) extends View:
     Platform.runLater:
       progressBar.progress = Math.min(1.0, Math.max(0.0, value))
 
+  def getLogs: List[String] = logs.toList
+
   def showError(title: String = "", error: String): Unit =
     Platform.runLater:
       alert.contentText = error.toString

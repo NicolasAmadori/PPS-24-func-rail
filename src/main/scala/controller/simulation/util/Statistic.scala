@@ -1,4 +1,4 @@
-package controller.simulation
+package controller.simulation.util
 
 import model.entities.EntityCodes.{StationCode, TrainCode}
 import model.entities.Rail
