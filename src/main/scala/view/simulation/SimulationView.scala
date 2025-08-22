@@ -93,7 +93,6 @@ class SimulationView(graphView: GraphView[StationView, RailView]) extends View:
       alert.headerText = title
       alert.showAndWait()
       Platform.exit()
-      System.exit(0)
 
   private val root = new BorderPane:
     center = hBox
