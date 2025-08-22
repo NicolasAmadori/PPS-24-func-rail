@@ -1,5 +1,6 @@
 package view.statistics
 
+import controller.simulation.util.Statistic
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
@@ -8,7 +9,7 @@ import scalafx.scene.layout.{BorderPane, HBox, Pane}
 import scalafx.beans.property.StringProperty
 import view.View
 import view.simconfig.{GraphView, RailView, StationView}
-import view.simulation.SimulationViewConstants.{DefaultWindowMinWidth, ElementHeight, DefaultPadding}
+import view.simulation.SimulationViewConstants.{DefaultPadding, DefaultWindowMinWidth, ElementHeight}
 
 object SimulationViewConstants:
   val DefaultWindowMinWidth = 1300
@@ -48,10 +49,10 @@ class StatisticsView(graphView: GraphView[StationView, RailView]) extends View:
     prefHeight = ElementHeight
     spacing = 5
 
-  def addStats(data: Seq[(String, String, String)]): Unit =
+  def addStats(data: Seq[Statistic]): Unit =
     Platform.runLater:
       stats.clear()
-      stats ++= data.map { case (m, v, u) => Stat(m, v, u) }
+      stats ++= data.map(d => Stat(d.name, d.valueAsString, d.unit))
 
   private val root = new BorderPane:
     center = hBox

@@ -1,7 +1,6 @@
 package controller.simulation.util
 
-import controller.simulation.Statistic
-import controller.simulation.Statistic.*
+import Statistic.*
 import model.entities.EntityCodes.StationCode
 import model.entities.PassengerPosition
 import model.entities.PassengerPosition.OnTrain

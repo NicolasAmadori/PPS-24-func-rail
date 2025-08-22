@@ -1,7 +1,7 @@
 package controller.simulation
 
 import controller.BaseController
-import controller.simulation.util.CsvWriter
+
 import model.entities.PassengerPosition
 import model.simulation.{Simulation, SimulationState}
 import model.util.SimulationLog
@@ -9,8 +9,6 @@ import scalafx.application.Platform
 import view.simconfig.{GraphView, RailView, StationView}
 import view.simulation.SimulationView
 
-import java.awt.Desktop
-import java.awt.Desktop.Action
 import java.util.concurrent.{Executors, TimeUnit}
 
 class SimulationController(simulation: Simulation, graphView: GraphView[StationView, RailView])
@@ -47,15 +45,10 @@ class SimulationController(simulation: Simulation, graphView: GraphView[StationV
   private def loopAsync(current: Simulation, delayMs: Long): Unit =
     if current.isFinished then
       getView.addLog(SimulationLog.SimulationFinished().toString)
+      val statistics = ReportGenerator.createReport(current)
       Platform.runLater:
-        val transition = new StatisticsTransition(graphView)
+        val transition = new StatisticsTransition(statistics, graphView)
         transition.transition()
-      val stats = ReportGenerator.createReport(current)
-      val file = CsvWriter.generateCsvFile(stats)
-      if Desktop.isDesktopSupported then
-        val desktop = Desktop.getDesktop
-        if desktop.isSupported(Action.OPEN) then
-          desktop.open(file)
     else
       scheduler.schedule(
         new Runnable:
@@ -64,7 +57,6 @@ class SimulationController(simulation: Simulation, graphView: GraphView[StationV
               current.doStep() match
                 case Left(simError) =>
                   getView.showError("Simulation Error", simError.toString)
-
                 case Right((next, logs)) =>
                   logs.map(_.toString).foreach(getView.addLog)
                   getView.setProgress(next.state.simulationStep.toDouble / (next.duration.toDouble * 24))

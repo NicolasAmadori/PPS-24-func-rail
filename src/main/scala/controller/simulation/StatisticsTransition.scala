@@ -1,16 +1,17 @@
 package controller.simulation
 
 import controller.ScreenTransition
+import controller.simulation.util.Statistic
 import controller.statistics.StatisticsController
 import utils.StageManager
 import view.statistics.StatisticsView
 import view.simconfig.{GraphView, RailView, StationView}
 
-class StatisticsTransition(graphView: GraphView[StationView, RailView])
+class StatisticsTransition(statistics: Seq[Statistic], graphView: GraphView[StationView, RailView])
     extends ScreenTransition[StatisticsController, StatisticsView]:
 
   def build(): (StatisticsController, StatisticsView) =
-    val controller = StatisticsController()
+    val controller = StatisticsController(statistics)
     val view = StatisticsView(graphView)
     (controller, view)
 

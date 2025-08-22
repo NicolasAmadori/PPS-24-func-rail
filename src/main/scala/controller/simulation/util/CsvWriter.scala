@@ -1,7 +1,5 @@
 package controller.simulation.util
 
-import controller.simulation.Statistic
-
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}

@@ -1,15 +1,10 @@
 package controller.statistics
 
 import controller.BaseController
+import controller.simulation.util.Statistic
 import view.statistics.StatisticsView
 
-class StatisticsController extends BaseController[StatisticsView]:
+class StatisticsController(statistics: Seq[Statistic]) extends BaseController[StatisticsView]:
 
   def showStats(): Unit =
-    val exampleStats = List(
-      ("Passeggeri totali", "1245", "persone"),
-      ("Treni in servizio", "8", "unità"),
-      ("Media velocità", "45.3", "km/h")
-    )
-
-    getView.addStats(exampleStats)
+    getView.addStats(statistics)
