@@ -18,14 +18,13 @@ object SimulationViewConstants:
   val DefaultPadding: Insets = Insets(10)
   val ElementHeight: Int = 760
 
-case class Stat(metric: String, value: String, unit: String):
-  val metricProperty: StringProperty = StringProperty(metric)
-  val valueProperty: StringProperty = StringProperty(value)
-  val unitProperty: StringProperty = StringProperty(unit)
+case class Stat(statistic: Statistic):
+  val metricProperty: StringProperty = StringProperty(statistic.name)
+  val valueProperty: StringProperty = StringProperty(statistic.valueAsString)
+  val unitProperty: StringProperty = StringProperty(statistic.unit)
 
 class StatisticsView(graphView: GraphView[StationView, RailView]) extends View:
   private val stats = ObservableBuffer[Stat]()
-  private var statistics: List[Statistic] = List()
 
   private val statsTable = new TableView[Stat](stats):
     columns ++= List(
@@ -54,14 +53,13 @@ class StatisticsView(graphView: GraphView[StationView, RailView]) extends View:
   def addStats(data: Seq[Statistic]): Unit =
     Platform.runLater:
       stats.clear()
-      stats ++= data.map(d => Stat(d.name, d.valueAsString, d.unit))
-      statistics = statistics ++ data
+      stats ++= data.map(Stat(_))
 
   private val root = new BorderPane:
     center = hBox
     bottom = new Button("Download and open CSV"):
       onAction = _ =>
-        val file = CsvWriter.generateCsvFile(statistics)
+        val file = CsvWriter.generateCsvFile(stats.toList.map(_.statistic))
         FileOpener.openFile(file)
     padding = DefaultPadding
 
