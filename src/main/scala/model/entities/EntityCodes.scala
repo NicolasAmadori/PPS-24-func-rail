@@ -1,25 +1,25 @@
 package model.entities
 
+import model.entities.EntityCodes.RailCode
+
 object EntityCodes:
   opaque type StationCode = String
   object StationCode:
     def apply(code: String): StationCode = code
-    def value(code: StationCode): String = code
     def listOf(code1: String, codes: String*): List[StationCode] =
       (code1 :: codes.toList).map(StationCode(_))
     def empty: StationCode = StationCode("")
 
-  extension (code: StationCode)
-    def value: String = code
+    extension (code: StationCode)
+      def value: String = code
 
-  opaque type RailCode = Int
+  opaque type RailCode = String
   object RailCode:
-    def apply(code: Int): RailCode = code
-    def value(code: RailCode): Int = code
-    def empty: RailCode = -1
+    def apply(code: String): RailCode = code
+    def empty: RailCode = RailCode("")
 
-  extension (code: RailCode)
-    def value: Int = code
+    extension (code: RailCode)
+      def value: String = code
 
   opaque type TrainCode = String
   object TrainCode:

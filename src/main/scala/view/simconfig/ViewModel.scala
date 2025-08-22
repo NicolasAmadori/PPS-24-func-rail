@@ -2,7 +2,7 @@ package view.simconfig
 
 import com.brunomnsilva.smartgraph.graphview.SmartRadiusSource
 import model.entities.EntityCodes.{RailCode, StationCode}
-import model.entities.{BigStation, Rail, Station}
+import model.entities.{BigStation, Rail, Station, MetalRail, TitaniumRail}
 
 class StationView(station: Station):
 
@@ -21,4 +21,7 @@ class RailView(rail: Rail):
   def railCode: RailCode = rail.code
   def railObject: Rail = rail
 
-  override def toString: String = rail.length.toString
+  override def toString: String =
+    rail. match
+      case MetalRail(_, _, _, _) => "" + rail.code + " (" + rail.length.toString + ")"
+      case TitaniumRail(_, _, _, _) => "" + rail.code + " (" + rail.length.toString + ")"

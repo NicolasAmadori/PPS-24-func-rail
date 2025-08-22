@@ -26,11 +26,11 @@ object SampleRailway:
       bigStation(StationE)
     )
     val rails = List(
-      metalRail(1, 100, StationA, StationB),
-      metalRail(2, 150, StationB, StationC),
-      metalRail(3, 500, StationC, StationD),
-      metalRail(4, 120, StationD, StationA),
-      metalRail(5, 120, StationD, StationE)
+      metalRail("MR1", 100, StationA, StationB),
+      metalRail("MR2", 150, StationB, StationC),
+      metalRail("MR3", 500, StationC, StationD),
+      metalRail("MR4", 120, StationD, StationA),
+      metalRail("MR5", 120, StationD, StationE)
     )
     RailwayImpl(stations, rails)
 
@@ -45,11 +45,11 @@ object SampleRailway:
       bigStation(StationE)
     )
     val rails = List(
-      metalRail(1, 100, StationA, StationB),
-      titaniumRail(2, 150, StationB, StationC),
-      metalRail(3, 200, StationC, StationD),
-      titaniumRail(4, 120, StationD, StationA),
-      metalRail(5, 120, StationD, StationE)
+      metalRail("MR1", 100, StationA, StationB),
+      titaniumRail("TR2", 150, StationB, StationC),
+      metalRail("MR3", 200, StationC, StationD),
+      titaniumRail("TR4", 120, StationD, StationA),
+      metalRail("MR5", 120, StationD, StationE)
     )
     RailwayImpl(stations, rails)
 
@@ -60,7 +60,7 @@ object SampleRailway:
       bigStation(StationB)
     )
     val rails = List(
-      metalRail(1, 1000, StationA, StationB)
+      metalRail("MR1", 1000, StationA, StationB)
     )
     RailwayImpl(stations, rails)
 
@@ -71,7 +71,7 @@ object SampleRailway:
       bigStation(StationB)
     )
     val rails = List(
-      titaniumRail(1, 1000, StationA, StationB)
+      titaniumRail("TR1", 1000, StationA, StationB)
     )
     RailwayImpl(stations, rails)
 
@@ -83,7 +83,7 @@ object SampleRailway:
       smallStation(StationC)
     )
     val rails = List(
-      metalRail(1, 300, StationA, StationB),
-      metalRail(2, 200, StationB, StationC)
+      metalRail("MR1", 300, StationA, StationB),
+      metalRail("MR2", 200, StationB, StationC)
     )
     RailwayImpl(stations, rails)

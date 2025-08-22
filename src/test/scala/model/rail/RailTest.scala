@@ -11,7 +11,7 @@ import org.scalatest.matchers.should.Matchers.*
 class RailTest extends AnyFlatSpec:
 
   val trainCode: String = "1"
-  val railCode: Int = 1
+  val railCode: String = "MR1"
   val railLength: Int = 10
 
   val stationA = "ST001"

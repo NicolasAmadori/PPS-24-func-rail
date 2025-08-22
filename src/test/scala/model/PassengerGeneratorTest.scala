@@ -23,12 +23,12 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
   private val bst1: Station = bigStation("BST1")
 
   // Rails for tests (bidirectional)
-  private val rail1_2 = metalRail(1, 10, StationCode.value(st1.code), StationCode.value(st2.code))
-  private val rail2_1 = metalRail(2, 10, StationCode.value(st2.code), StationCode.value(st1.code))
-  private val rail2_3 = metalRail(3, 5, StationCode.value(st2.code), StationCode.value(st3.code))
-  private val rail3_2 = metalRail(4, 5, StationCode.value(st3.code), StationCode.value(st2.code))
-  private val rail_bst1_st1 = metalRail(5, 20, StationCode.value(bst1.code), StationCode.value(st1.code))
-  private val rail_st1_bst1 = metalRail(6, 20, StationCode.value(st1.code), StationCode.value(bst1.code))
+  private val rail1_2 = metalRail("MR1", 10, StationCode.value(st1.code), StationCode.value(st2.code))
+  private val rail2_1 = metalRail("MR2", 10, StationCode.value(st2.code), StationCode.value(st1.code))
+  private val rail2_3 = metalRail("MR3", 5, StationCode.value(st2.code), StationCode.value(st3.code))
+  private val rail3_2 = metalRail("MR4", 5, StationCode.value(st3.code), StationCode.value(st2.code))
+  private val rail_bst1_st1 = metalRail("MR5", 20, StationCode.value(bst1.code), StationCode.value(st1.code))
+  private val rail_st1_bst1 = metalRail("MR6", 20, StationCode.value(st1.code), StationCode.value(bst1.code))
 
   // Train for tests
   private val t1 = normalTrain("T1", List(st1.code, st2.code))
@@ -135,8 +135,8 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
 
   it should "not create a route that visits the same station twice" in {
     // Railway with a loop: ST1 -> ST2 -> ST3 -> ST1
-    val st1_st3 = metalRail(7, 8, StationCode.value(st1.code), StationCode.value(st3.code))
-    val st3_st1 = metalRail(8, 8, StationCode.value(st3.code), StationCode.value(st1.code))
+    val st1_st3 = metalRail("MR7", 8, StationCode.value(st1.code), StationCode.value(st3.code))
+    val st3_st1 = metalRail("MR8", 8, StationCode.value(st3.code), StationCode.value(st1.code))
     val loopRailway =
       Railway.withStations(List(st1, st2, st3)).withRails(List(rail1_2, rail2_1, rail2_3, rail3_2, st1_st3, st3_st1))
     val t2_copy = t2.withRoute(RouteHelper.getRouteForTrain(t2, loopRailway).get)

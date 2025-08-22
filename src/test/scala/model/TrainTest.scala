@@ -48,8 +48,8 @@ class TrainTest extends AnyFlatSpec:
     val railLength = 10
     val train = normalTrain(trainCode1, stops)
     val trainWithRoute = train.withRoute(Route(List(
-      metalRail(1, railLength, stationCode1, stationCode2),
-      metalRail(2, railLength, stationCode2, stationCode3)
+      metalRail("MR1", railLength, stationCode1, stationCode2),
+      metalRail("MR2", railLength, stationCode2, stationCode3)
     )))
 
     trainWithRoute.route.railsCount should be(2)
@@ -58,7 +58,7 @@ class TrainTest extends AnyFlatSpec:
   }
 
   "Train's travel time on a rail" should "be computed based on its speed" in {
-    val metal = metalRail(1, 1000, stationCode1, stationCode2)
+    val metal = metalRail("MR1", 1000, stationCode1, stationCode2)
     val train = normalTrain(trainCode1, stops)
     val fastTrain = highSpeedTrain(trainCode2, stops)
     val trainTime = train.getTravelTime(metal)
@@ -71,8 +71,8 @@ class TrainTest extends AnyFlatSpec:
 
   "Fast train's travel time" should "be greater on metal rails when of the same length of a titanium" in {
     val fastTrain = highSpeedTrain(trainCode2, stops)
-    val metal = metalRail(1, 1000, stationCode1, stationCode2)
-    val titanium = titaniumRail(2, 1000, stationCode1, stationCode2)
+    val metal = metalRail("MR1", 1000, stationCode1, stationCode2)
+    val titanium = titaniumRail("TR2", 1000, stationCode1, stationCode2)
 
     fastTrain.getTravelTime(titanium) should be < (fastTrain.getTravelTime(metal))
   }
