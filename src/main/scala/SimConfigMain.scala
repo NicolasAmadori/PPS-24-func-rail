@@ -21,7 +21,7 @@ object SimConfigMain extends JFXApp3:
     controller.attachView(view)
 
     val stageInstance = new JFXApp3.PrimaryStage:
-      title = "func-rail map builder"
+      title = "Simulation Configurator"
       minWidth = 1000
       minHeight = 800
       scene = new Scene(view.getRoot)
