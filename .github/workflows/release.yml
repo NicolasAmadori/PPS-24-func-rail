@@ -6,6 +6,7 @@ on:
       - main
     tags:
       - 'v*.*'  # Match semantic version tags like v1.2
+  workflow_dispatch:
 
 jobs:
   test:
