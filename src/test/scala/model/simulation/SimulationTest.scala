@@ -5,6 +5,7 @@ import model.entities.{Rail, Station, Train}
 import model.entities.Rail.metalRail
 import model.railway.Railway
 import model.entities.Train.{highSpeedTrain, normalTrain}
+import model.util.PassengerGenerator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -56,13 +57,18 @@ class SimulationTest extends AnyFlatSpec:
 
   "A Simulation" should "be created with a Railway and a SimulationState with trains" in {
     val state = SimulationState(List(train1, train2))
-    val simulation = Simulation(simulationDuration, railway, state)
+    val simulation = Simulation(simulationDuration, railway, state, PassengerGenerator(railway, state.trains))
 
     simulation.railway should be(railway)
   }
 
   it should "not allow adding a train with an invalid route" in {
     val invalidTrain = normalTrain(trainCode1, StationCode.listOf(stationCode1, "INVALID_STATION"))
-    val simulation = Simulation(simulationDuration, railway, SimulationState.empty)
+    val simulation = Simulation(
+      simulationDuration,
+      railway,
+      SimulationState.empty,
+      PassengerGenerator(railway, SimulationState.empty.trains)
+    )
     assertThrows[IllegalArgumentException](simulation.addTrains(List(invalidTrain)))
   }

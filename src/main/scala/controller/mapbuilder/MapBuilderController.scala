@@ -2,6 +2,7 @@ package controller.mapbuilder
 
 import controller.BaseController
 import model.mapgrid.{CellType, MapGrid}
+import model.railway.RailwayPrologChecker
 import model.util.RailwayMapper
 import utils.ErrorMessage
 import view.mapbuilder.{MapBuilderView, MapBuilderViewError}
@@ -44,5 +45,12 @@ class MapBuilderController(model: MapGrid) extends BaseController[MapBuilderView
 
   def onNext(): Unit =
     val parsedRailway = RailwayMapper.convert(currentModel)
-    val transition = new SimulationConfigTransition(currentModel, parsedRailway)
-    transition.transition()
+    val isRailwayConnected = RailwayPrologChecker.isRailwayConnected(parsedRailway)
+    if isRailwayConnected then
+      val transition = new SimulationConfigTransition(currentModel, parsedRailway)
+      transition.transition()
+    else
+      showError(
+        MapBuilderViewError.RailwayNotConnected(),
+        s"Invalid railway"
+      ) // "The railway is invalid beacuse it is not connected."

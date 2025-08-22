@@ -5,7 +5,7 @@ import model.mapgrid.MapGrid
 import model.entities.EntityCodes.StationCode
 import model.railway.Railway
 import model.simulation.Simulation
-import view.simconfig.SimulationConfigView
+import view.simconfig.{GraphView, RailView, SimulationConfigView, StationView}
 
 /** Controller for managing the simulation configuration view.
   * @param model
@@ -96,12 +96,12 @@ class SimulationConfigController(mapGrid: MapGrid, model: Railway)
     localState = localState.removeStop(id, station)
 
   /** Start the simulation by building the Simulation object and transitioning to the simulation view */
-  def startSimulation(duration: Int): Unit =
+  def startSimulation(duration: Int, graphView: GraphView[StationView, RailView]): Unit =
     val simulation = SimulationBuilder.build(duration, model, localState.trains)
     simulation match
       case Left(error) => getView.showErrors(error)
       case Right(sim) =>
-        val transition = new SimulationTransition(sim)
+        val transition = new SimulationTransition(sim, graphView)
         transition.transition()
 
   def onBack(): Unit =

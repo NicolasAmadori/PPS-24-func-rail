@@ -133,7 +133,7 @@ class SimulationConfigView(
 
   private def startSimulationButton: Button = new Button("Start simulation"):
     maxWidth = Double.MaxValue
-    onAction = _ => controller.startSimulation(simulationDuration)
+    onAction = _ => controller.startSimulation(simulationDuration, graphView)
 
   private def backButton: Button = new Button("Back"):
     maxWidth = Double.MaxValue
@@ -159,7 +159,12 @@ class SimulationConfigView(
   def showErrors(errors: List[ErrorMessage], title: String = ""): Unit =
     val error = errors.mkString("\n")
     sidebarContainer.children = List(
-      ErrorBox(error, title)
+      ErrorBox(
+        error,
+        title,
+        () =>
+          sidebarContainer.children.remove(0) // = sidebarContainer.children.filterNot(_ == errorBox).toList
+      )
     ) ++ sidebarGroups
 
 class TrainConfigGroup(
@@ -231,10 +236,10 @@ class TrainConfigGroup(
     deleteButton
   )
 
-class ErrorBox(message: String, title: String = "") extends HBox:
+class ErrorBox(message: String, title: String = "", deletionCallable: () => Unit) extends HBox:
   import SimulationConfigViewConstants.*
 
-  style = "-fx-border-color: red; -fx-padding: 10; -fx-background-color: #ff0017;"
+  style = "-fx-border-color: red; -fx-padding: 10; "
   padding = DefaultPadding
   spacing = SmallSpacing
   alignment = Center
@@ -242,11 +247,10 @@ class ErrorBox(message: String, title: String = "") extends HBox:
   private val text = if title.isEmpty then message else s"$title: $message"
 
   private val errorLabel = new Label(text):
-    style = "-fx-text-fill: white;"
+    style = "-fx-text-fill: red;"
 
-  private val closeButton = new Button("X"):
-    prefWidth = 30
-    prefHeight = 30
-    style = "-fx-background-color: transparent; -fx-text-fill: white;"
+  private val closeButton = new Button("Close"):
+    style = "-fx-text-fill: black;"
+    onAction = _ => deletionCallable()
 
   children = Seq(errorLabel, closeButton)

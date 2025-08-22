@@ -12,15 +12,15 @@ class RailwayTest extends AnyFlatSpec:
   private val station2 = "ST002"
   private val station3 = "ST003"
 
-  "A Railway" should "be created empty" in {
+  "A Railway" can "be created empty" in {
     val emptyRailway = Railway.empty
     emptyRailway.stations should be(empty)
     emptyRailway.rails should be(empty)
   }
 
-  it should "be created with stations, and rails" in {
+  it can "be created with stations and rails" in {
     val railway =
-      Railway.empty.withStations(List(smallStation(station1), bigStation(station2), smallStation(station3)))
+      Railway.withStations(List(smallStation(station1), bigStation(station2), smallStation(station3)))
         .withRails(List(
           metalRail(1, 200, station1, station2),
           metalRail(2, 500, station2, station3),
@@ -30,15 +30,15 @@ class RailwayTest extends AnyFlatSpec:
     railway.rails should not be empty
   }
 
-  it should "be created with stations" in {
-    val railway = Railway.empty.withStations(List(smallStation(station1), bigStation(station2), smallStation(station3)))
+  it can "be created with stations" in {
+    val railway = Railway.withStations(List(smallStation(station1), bigStation(station2), smallStation(station3)))
     railway.stations should not be empty
     railway.rails should be(empty)
   }
 
-  it should "be created with rails" in {
+  it can "be created with rails" in {
     val railway =
-      Railway.empty.withRails(List(
+      Railway.withRails(List(
         metalRail(1, 200, station1, station2),
         metalRail(2, 500, station2, station3),
         titaniumRail(3, 300, station1, station3)
