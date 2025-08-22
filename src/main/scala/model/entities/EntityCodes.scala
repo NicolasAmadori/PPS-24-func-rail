@@ -1,7 +1,5 @@
 package model.entities
 
-import model.entities.EntityCodes.RailCode
-
 object EntityCodes:
   opaque type StationCode = String
   object StationCode:

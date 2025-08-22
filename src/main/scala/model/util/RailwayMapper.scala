@@ -191,9 +191,7 @@ object RailwayMapper:
         case Some((cell: TitaniumRailPiece, nx, ny)) =>
           (nx, ny, TitaniumRailType, titaniumRail, TITANIUM_RAIL_PREFIX)
       }.flatMap { (nx, ny, railType, createRailFn, prefix) =>
-        val railId =
-          railCounter += 1
-          railCounter
+        railCounter += 1
         followRails(mapGrid)(
           nx,
           ny,

@@ -22,6 +22,6 @@ class RailView(rail: Rail):
   def railObject: Rail = rail
 
   override def toString: String =
-    rail. match
+    rail.match
       case MetalRail(_, _, _, _) => "" + rail.code + " (" + rail.length.toString + ")"
       case TitaniumRail(_, _, _, _) => "" + rail.code + " (" + rail.length.toString + ")"
