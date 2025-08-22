@@ -15,7 +15,11 @@ import java.util.concurrent.{Executors, TimeUnit}
 class SimulationController(simulation: Simulation) extends BaseController[SimulationView]:
 
   private var sim = simulation
-  private val scheduler = Executors.newSingleThreadScheduledExecutor()
+  private val scheduler = Executors.newSingleThreadScheduledExecutor(r =>
+    val t = new Thread(r)
+    t.setDaemon(true)
+    t
+  )
 
   private def updateState(state: SimulationState): Unit =
     val passengers: List[String] = state.passengerStates
