@@ -24,31 +24,31 @@ class StatisticProviderTest extends AnyFlatSpec:
   ))
 
   "Statistic provider" should "retrieve most used rail" in {
-    val rail1 = metalRail(1, 100, StationA, StationB)
-    val rail2 = metalRail(2, 200, StationB, StationC)
-    val rail3 = metalRail(3, 300, StationC, StationD)
-    val rail4 = metalRail(4, 400, StationD, StationA)
+    val rail1 = metalRail("MR1", 100, StationA, StationB)
+    val rail2 = metalRail("MR2", 200, StationB, StationC)
+    val rail3 = metalRail("MR3", 300, StationC, StationD)
+    val rail4 = metalRail("MR4", 400, StationD, StationA)
     val route1 = Route(List(rail1, rail2, rail3, rail4, rail1))
     val route2 = Route(List(rail4, rail3, rail2, rail1))
     val ctx = SimulationContext(routes = List(route1, route2))
 
     val mostUsedRails = MostUsedRailsProvider.compute(ctx)
-    mostUsedRails.rails.map(_.code) should contain(RailCode(1))
+    mostUsedRails.rails.map(_.code) should contain(RailCode("MR1"))
     mostUsedRails.unit should be("")
     mostUsedRails.toString should be("Most used rails")
   }
 
   it should "retrieve all most used rails if there's a tie" in {
-    val rail1 = metalRail(1, 100, StationA, StationB)
-    val rail2 = metalRail(2, 200, StationB, StationC)
-    val rail3 = metalRail(3, 300, StationC, StationD)
-    val rail4 = metalRail(4, 400, StationD, StationA)
+    val rail1 = metalRail("MR1", 100, StationA, StationB)
+    val rail2 = metalRail("MR2", 200, StationB, StationC)
+    val rail3 = metalRail("MR3", 300, StationC, StationD)
+    val rail4 = metalRail("MR4", 400, StationD, StationA)
     val route1 = Route(List(rail1, rail2, rail3))
     val route2 = Route(List(rail4, rail3, rail2, rail1))
     val ctx = SimulationContext(routes = List(route1, route2))
 
     val mostUsedRails = MostUsedRailsProvider.compute(ctx)
-    mostUsedRails.rails.map(_.code) should contain allOf (RailCode(1), RailCode(2), RailCode(3))
+    mostUsedRails.rails.map(_.code) should contain allOf (RailCode("MR1"), RailCode("MR2"), RailCode("MR3"))
     mostUsedRails.unit should be("")
     mostUsedRails.toString should be("Most used rails")
   }
@@ -57,9 +57,9 @@ class StatisticProviderTest extends AnyFlatSpec:
     import model.simulation.TrainPosition.*
     val positions1 = List(
       AtStation(StationCode(StationA)),
-      OnRail(RailCode(1)),
-      OnRail(RailCode(1)),
-      OnRail(RailCode(1)),
+      OnRail(RailCode("MR1")),
+      OnRail(RailCode("MR1")),
+      OnRail(RailCode("MR1")),
       AtStation(StationCode(StationB)),
       AtStation(StationCode(StationB))
     )
@@ -67,9 +67,9 @@ class StatisticProviderTest extends AnyFlatSpec:
       AtStation(StationCode(StationA)),
       AtStation(StationCode(StationA)),
       AtStation(StationCode(StationA)),
-      OnRail(RailCode(1)),
-      OnRail(RailCode(1)),
-      OnRail(RailCode(1)),
+      OnRail(RailCode("MR1")),
+      OnRail(RailCode("MR1")),
+      OnRail(RailCode("MR1")),
       AtStation(StationCode(StationB))
     )
     val ctx = SimulationContext(trainHistories = List(positions1, positions2))

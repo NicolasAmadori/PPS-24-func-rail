@@ -19,6 +19,9 @@ object RailwayMapper:
   private val SMALL_STATION_PREFIX: String = "ST"
   private val BIG_STATION_PREFIX: String = "BST"
 
+  private val METAL_RAIL_PREFIX: String = "MR"
+  private val TITANIUM_RAIL_PREFIX: String = "TR"
+
   val BLOCK_TO_KM_MULTIPLIER: Int = 50
 
   /** A set of coordinates for cells that have already been visited during rail mapping. This prevents infinite loops
@@ -184,19 +187,17 @@ object RailwayMapper:
     stations.flatMap { (station, stationX, stationY) =>
       getCardinalCells(mapGrid)(stationX, stationY).collect {
         case Some((cell: MetalRailPiece, nx, ny)) =>
-          (nx, ny, MetalRailType, metalRail)
+          (nx, ny, MetalRailType, metalRail, METAL_RAIL_PREFIX)
         case Some((cell: TitaniumRailPiece, nx, ny)) =>
-          (nx, ny, TitaniumRailType, titaniumRail)
-      }.flatMap { (nx, ny, railType, createRailFn) =>
-        val railId =
-          railCounter += 1
-          railCounter
+          (nx, ny, TitaniumRailType, titaniumRail, TITANIUM_RAIL_PREFIX)
+      }.flatMap { (nx, ny, railType, createRailFn, prefix) =>
+        railCounter += 1
         followRails(mapGrid)(
           nx,
           ny,
           stationX,
           stationY,
-          createRailFn(railId, 0, StationCode.value(station.code), ""),
+          createRailFn(s"$prefix$railCounter", 0, StationCode.value(station.code), ""),
           railType,
           createRailFn,
           alreadyCheckedCells
@@ -245,7 +246,7 @@ object RailwayMapper:
       previousY: Int,
       rail: Rail,
       railType: CellType,
-      createRailFunction: (Int, Int, String, String) => Rail,
+      createRailFunction: (String, Int, String, String) => Rail,
       alreadyChecked: Set[(Int, Int)]
   ): Option[(Set[(Int, Int)], Rail)] =
     if alreadyChecked.contains((x, y)) then

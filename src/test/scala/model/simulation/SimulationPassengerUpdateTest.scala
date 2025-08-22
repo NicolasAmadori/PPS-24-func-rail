@@ -12,12 +12,12 @@ import org.scalatest.matchers.should.Matchers.*
 
 class SimulationPassengerUpdateTest extends AnyFlatSpec:
 
-  val stationCode1 = "ST001"
-  val stationCode2 = "ST002"
-  val stationCode3 = "ST003"
-  val rail1 = 1
-  val rail2 = 2
-  val stationCodes = List(stationCode1, stationCode2, stationCode3)
+  val stationCode1: String = "ST001"
+  val stationCode2: String = "ST002"
+  val stationCode3: String = "ST003"
+  val rail1: String = "MR1"
+  val rail2: String = "MR2"
+  val stationCodes: List[String] = List(stationCode1, stationCode2, stationCode3)
 
   val simulationDuration = 100
 
