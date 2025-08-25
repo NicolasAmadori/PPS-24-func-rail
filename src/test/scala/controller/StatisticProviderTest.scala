@@ -1,7 +1,7 @@
 package controller
 
 import controller.simulation.util.*
-import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
+import model.entities.EntityCodes.{RailCode, StationCode, TrainCode}
 import model.entities.Rail.metalRail
 import model.entities.Train.normalTrain
 import model.entities.*
@@ -95,9 +95,9 @@ class StatisticProviderTest extends AnyFlatSpec:
   }
 
   it should "retrieve incomplete trips count" in {
-    val passenger1 = PassengerImpl(PassengerCode("P1"), stationA, stationC, None)
-    val passenger2 = PassengerImpl(PassengerCode("P1"), stationA, stationC, Some(itinerary1))
-    val passenger3 = PassengerImpl(PassengerCode("P1"), stationA, stationC, None)
+    val passenger1 = Passenger("P1").from(stationA).to(stationC).withNoItinerary
+    val passenger2 = Passenger("P2").from(stationA).to(stationC).withItinerary(itinerary1)
+    val passenger3 = Passenger("P3").from(stationA).to(stationC).withNoItinerary
     val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
     val incompleteTrips = IncompleteTripsProvider.compute(ctx)
@@ -105,9 +105,9 @@ class StatisticProviderTest extends AnyFlatSpec:
   }
 
   it should "retrieve completed trips count" in {
-    val passenger1 = PassengerImpl(PassengerCode("P1"), stationA, stationC, Some(itinerary1))
-    val passenger2 = PassengerImpl(PassengerCode("P1"), stationA, stationC, Some(itinerary1))
-    val passenger3 = PassengerImpl(PassengerCode("P1"), stationA, stationC, None)
+    val passenger1 = Passenger("P1").from(stationA).to(stationC).withItinerary(itinerary1)
+    val passenger2 = Passenger("P2").from(stationA).to(stationC).withItinerary(itinerary1)
+    val passenger3 = Passenger("P3").from(stationA).to(stationC).withNoItinerary
     val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
     val completedTrips = CompletedTripsProvider.compute(ctx)
