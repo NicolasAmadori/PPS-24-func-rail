@@ -1,6 +1,6 @@
 package model.util
 
-import model.entities.EntityCodes.{StationCode, PassengerCode}
+import model.entities.EntityCodes.StationCode
 import model.entities.PassengerPosition.AtStation
 import model.entities.*
 import model.railway.Railway
@@ -39,14 +39,20 @@ class PassengerGenerator(railway: Railway, trains: List[Train], passengerIdCount
       val passengers = (1 to n).map { _ =>
         val departureStation = Random.shuffle(randomizedStations).head
         val arrivalStation = Random.shuffle(randomizedStations.filter(_ != departureStation)).head
+        val itinerary = getRandomItinerary(departureStation, arrivalStation)
         counter += 1
         (
-          PassengerImpl(
-            PassengerCode(s"P$counter"),
-            departureStation.code,
-            arrivalStation.code,
-            getRandomItinerary(departureStation, arrivalStation)
-          ),
+          if itinerary.isDefined then
+            Passenger(s"P$counter")
+              .from(departureStation.code)
+              .to(arrivalStation.code)
+              .withItinerary(itinerary.get)
+          else
+            Passenger(s"P$counter")
+              .from(departureStation.code)
+              .to(arrivalStation.code)
+              .withNoItinerary
+          ,
           PassengerState(AtStation(departureStation.code))
         )
       }.toList
