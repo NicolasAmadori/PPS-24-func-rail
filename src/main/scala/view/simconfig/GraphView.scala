@@ -1,11 +1,14 @@
 package view.simconfig
 
 import com.brunomnsilva.smartgraph.graph.{Edge, Graph, Vertex}
-import com.brunomnsilva.smartgraph.graphview.{SmartCircularSortedPlacementStrategy, SmartGraphPanel, SmartStylableNode}
+import com.brunomnsilva.smartgraph.graphview.{SmartCircularSortedPlacementStrategy, SmartGraphPanel, SmartGraphProperties, SmartStylableNode}
 import javafx.beans.property.BooleanProperty
 import scalafx.scene.Parent
 import scalafx.scene.layout.StackPane
 import view.util.Converters
+
+import java.io.InputStream
+import java.net.URI
 
 /** GraphView is a wrapper around SmartGraphPanel to provide a view for a graph.
   *
@@ -17,7 +20,15 @@ import view.util.Converters
   */
 class GraphView[V, E](graph: Graph[V, E]):
 
-  val graphView: SmartGraphPanel[V, E] = new SmartGraphPanel[V, E](graph, new SmartCircularSortedPlacementStrategy())
+  private val DEFAULT_STYLE_FILE = "/smartgraph.css"
+  private val DEFAULT_PROPERTIES_FILE = "/smartgraph.properties"
+
+  val graphView: SmartGraphPanel[V, E] = new SmartGraphPanel[V, E](
+    graph,
+    SmartGraphProperties(loadPropertiesFile),
+    new SmartCircularSortedPlacementStrategy(),
+    getStylesheetUri
+  )
 
   val automaticLayoutProperty: BooleanProperty = graphView.automaticLayoutProperty()
   val edges: List[Edge[E, V]] = Converters.toImmutableList(graphView.getModel.edges().stream().toList)
@@ -47,3 +58,7 @@ class GraphView[V, E](graph: Graph[V, E]):
   def getView(screenWidth: Int): Parent = new StackPane:
     prefWidth = screenWidth
     children.add(graphView)
+
+  private def getStylesheetUri: URI = getClass.getResource(DEFAULT_STYLE_FILE).toURI
+
+  private def loadPropertiesFile: InputStream = getClass.getResourceAsStream(DEFAULT_PROPERTIES_FILE)
