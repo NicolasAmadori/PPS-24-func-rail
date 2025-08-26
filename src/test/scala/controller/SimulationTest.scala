@@ -35,7 +35,7 @@ class SimulationTest extends AnyFlatSpec:
     val state = updatedSim.state
     state.simulationStep should be(setupLoop + 1)
     val rail = route.getRailAt(0)
-    state.railStates(rail.code).free should be(false)
+    state.railStates(rail.code).isFree should be(false)
     val trainState = state.trainStates(TrainCode(trainCode1))
     trainState.position.get should be(OnRail(rail.code))
     trainState.travelTime should be(train1.getTravelTime(rail))
@@ -50,7 +50,7 @@ class SimulationTest extends AnyFlatSpec:
     val trainState = state.trainStates(TrainCode(trainCode1))
     val rail = route.getRailAt(0)
     state.simulationStep should be(travelTime + setupLoop)
-    state.railStates(rail.code).free should be(false)
+    state.railStates(rail.code).isFree should be(false)
     trainState.position.get should be(OnRail(rail.code))
   }
 
@@ -63,7 +63,7 @@ class SimulationTest extends AnyFlatSpec:
     val trainState = state.trainStates(TrainCode(trainCode1))
     val rail = route.getRailAt(0)
     state.simulationStep should be(setupLoop + travelTime + enterStationLoop)
-    state.railStates(rail.code).free should be(true)
+    state.railStates(rail.code).isFree should be(true)
     trainState.position.get should be(AtStation(rail.stationB))
   }
 
@@ -77,7 +77,7 @@ class SimulationTest extends AnyFlatSpec:
     val rail = route.getRailAt(0)
     trainState1.position.get should be(OnRail(rail.code))
     trainState2.position.get should be(AtStation(rail.stationA))
-    state.railStates(rail.code).free should be(false)
+    state.railStates(rail.code).isFree should be(false)
     trainState1.position.get should not equal (trainState2.position)
   }
 
@@ -90,6 +90,6 @@ class SimulationTest extends AnyFlatSpec:
     val trainState = state.trainStates(TrainCode(trainCode1))
     val rail = route.getRailAt(0)
     trainState.position.get should be(OnRail(rail.code))
-    state.railStates(rail.code).free should be(false)
+    state.railStates(rail.code).isFree should be(false)
     trainState.forward should be(false)
   }

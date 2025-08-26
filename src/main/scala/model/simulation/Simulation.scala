@@ -10,8 +10,8 @@ import scala.util.Random
 
 case class Simulation(duration: Int, railway: Railway, state: SimulationState, passengerGenerator: PassengerGenerator):
 
-  private val MAX_PASSENGER_NUMBER = 10
-  private val MAX_NEW_STEP_PASSENGER_NUMBER = 3
+  private val MAX_PASSENGER_NUMBER: Int = 10
+  private val MAX_NEW_STEP_PASSENGER_NUMBER: Int = 3
 
   def start(): (Simulation, List[Log]) =
     val (newState, newGenerator, newPassengersLogs) =
