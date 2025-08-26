@@ -6,6 +6,7 @@ import model.entities.Rail.metalRail
 import model.entities.Train.normalTrain
 import model.entities.*
 import model.entities.dsl.ItineraryDSL.leg
+import model.entities.dsl.PassengerDSL.passenger
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 import util.SampleRailway
@@ -96,9 +97,9 @@ class StatisticProviderTest extends AnyFlatSpec:
   }
 
   it should "retrieve incomplete trips count" in {
-    val passenger1 = Passenger("P1").from(stationA).to(stationC).withNoItinerary
-    val passenger2 = Passenger("P2").from(stationA).to(stationC).withItinerary(itinerary1)
-    val passenger3 = Passenger("P3").from(stationA).to(stationC).withNoItinerary
+    val passenger1 = passenger("P1").from(stationA).to(stationC).withNoItinerary
+    val passenger2 = passenger("P2").from(stationA).to(stationC).withItinerary(itinerary1)
+    val passenger3 = passenger("P3").from(stationA).to(stationC).withNoItinerary
     val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
     val incompleteTrips = IncompleteTripsProvider.compute(ctx)
@@ -106,9 +107,9 @@ class StatisticProviderTest extends AnyFlatSpec:
   }
 
   it should "retrieve completed trips count" in {
-    val passenger1 = Passenger("P1").from(stationA).to(stationC).withItinerary(itinerary1)
-    val passenger2 = Passenger("P2").from(stationA).to(stationC).withItinerary(itinerary1)
-    val passenger3 = Passenger("P3").from(stationA).to(stationC).withNoItinerary
+    val passenger1 = passenger("P1").from(stationA).to(stationC).withItinerary(itinerary1)
+    val passenger2 = passenger("P2").from(stationA).to(stationC).withItinerary(itinerary1)
+    val passenger3 = passenger("P3").from(stationA).to(stationC).withNoItinerary
     val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
     val completedTrips = CompletedTripsProvider.compute(ctx)
