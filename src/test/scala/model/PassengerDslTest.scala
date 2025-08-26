@@ -2,8 +2,9 @@ package model
 
 import model.entities.EntityCodes.{PassengerCode, StationCode}
 import model.entities.dsl.ItineraryDSL.leg
+import model.entities.dsl.PassengerDSL.passenger
 import model.entities.Train.normalTrain
-import model.entities.{Itinerary, NormalTrain, Passenger}
+import model.entities.{Itinerary, NormalTrain}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -21,42 +22,42 @@ class PassengerDslTest extends AnyFlatSpec:
   private val itinerary = Itinerary(List(itineraryLeg))
 
   "Passenger DSL" should "create a passenger with departure, arrival and itinerary" in {
-    val passenger = Passenger("P1")
+    val p = passenger("P1")
       .from(stationA)
       .to(stationB)
       .withItinerary(itinerary)
 
-    passenger.code shouldBe PassengerCode("P1")
-    passenger.departure shouldBe stationA
-    passenger.destination shouldBe stationB
-    passenger.itinerary shouldBe Some(itinerary)
+    p.code shouldBe PassengerCode("P1")
+    p.departure shouldBe stationA
+    p.destination shouldBe stationB
+    p.itinerary shouldBe Some(itinerary)
   }
 
   it should "create a passenger with no itinerary" in {
-    val passenger = Passenger("P2")
+    val p = passenger("P2")
       .from(stationA)
       .to(stationB)
       .withNoItinerary
 
-    passenger.code shouldBe PassengerCode("P2")
-    passenger.departure shouldBe stationA
-    passenger.destination shouldBe stationB
-    passenger.itinerary shouldBe None
+    p.code shouldBe PassengerCode("P2")
+    p.departure shouldBe stationA
+    p.destination shouldBe stationB
+    p.itinerary shouldBe None
   }
 
   it should "allow chaining in different order (from -> to -> withNoItinerary)" in {
-    val passenger = Passenger("P3")
+    val p = passenger("P3")
       .from(stationA)
       .to(stationB)
       .withNoItinerary
 
-    passenger.departure shouldBe stationA
-    passenger.destination shouldBe stationB
-    passenger.itinerary shouldBe None
+    p.departure shouldBe stationA
+    p.destination shouldBe stationB
+    p.itinerary shouldBe None
   }
 
   it should "not mutate previous passengers when chaining" in {
-    val base = Passenger("P4")
+    val base = passenger("P4")
     val p1 = base.from(stationA).to(stationB).withNoItinerary
     val p2 = base.from(stationB).to(stationA).withItinerary(itinerary)
 

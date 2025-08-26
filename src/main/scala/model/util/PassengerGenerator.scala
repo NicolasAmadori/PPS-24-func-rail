@@ -4,6 +4,8 @@ import model.entities.EntityCodes.StationCode
 import model.entities.PassengerPosition.AtStation
 import model.entities.*
 import model.entities.dsl.ItineraryDSL.leg
+import model.entities.dsl.PassengerDSL
+import model.entities.dsl.PassengerDSL.passenger
 import model.railway.Railway
 
 import scala.util.Random
@@ -24,7 +26,7 @@ class PassengerGenerator(railway: Railway, trains: List[Train], passengerIdCount
     * @param n
     *   The number of passengers to generate (defaults to 1).
     * @return
-    *   A list of tuples, where each tuple contains a [[Passenger]] and its initial [[PassengerState]].
+    *   A list of tuples, where each tuple contains a [[PassengerDSL]] and its initial [[PassengerState]].
     */
   def generate(n: Int = 1): (PassengerGenerator, List[(Passenger, PassengerState)], List[PassengerLog]) =
     if railway.stations.size < 2 then
@@ -44,12 +46,12 @@ class PassengerGenerator(railway: Railway, trains: List[Train], passengerIdCount
         counter += 1
         (
           if itinerary.isDefined then
-            Passenger(s"P$counter")
+            passenger(s"P$counter")
               .from(departureStation.code)
               .to(arrivalStation.code)
               .withItinerary(itinerary.get)
           else
-            Passenger(s"P$counter")
+            passenger(s"P$counter")
               .from(departureStation.code)
               .to(arrivalStation.code)
               .withNoItinerary
