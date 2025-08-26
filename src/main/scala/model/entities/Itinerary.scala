@@ -58,7 +58,3 @@ case class Itinerary(legs: List[ItineraryLeg]):
       s"${leg.train.code.value}:${leg.from}→${leg.to}"
     }.mkString(", ")
     f"$start→$end | $legsStr | ${totalLength}%.1f km"
-
-object Itinerary:
-  def apply(firstLeg: ItineraryLeg, otherLegs: ItineraryLeg*): Itinerary =
-    Itinerary(firstLeg +: otherLegs.toList)

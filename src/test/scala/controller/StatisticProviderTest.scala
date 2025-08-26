@@ -5,6 +5,7 @@ import model.entities.EntityCodes.{RailCode, StationCode, TrainCode}
 import model.entities.Rail.metalRail
 import model.entities.Train.normalTrain
 import model.entities.*
+import model.entities.dsl.ItineraryDSL.leg
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 import util.SampleRailway
@@ -16,11 +17,11 @@ class StatisticProviderTest extends AnyFlatSpec:
   private val train1 = normalTrain("T1", List(stationA, stationB))
   private val train2 = normalTrain("T2", List(stationB, stationC))
   private val itinerary1 = Itinerary(List(
-    ItineraryLeg(train1, stationA, stationB),
-    ItineraryLeg(train2, stationB, stationC)
+    leg(train1) from stationA to stationB,
+    leg(train2) from stationB to stationC
   ))
   private val itinerary2 = Itinerary(List(
-    ItineraryLeg(train1, stationA, stationB)
+    leg(train1) from stationA to stationB
   ))
 
   "Statistic provider" should "retrieve most used rail" in {

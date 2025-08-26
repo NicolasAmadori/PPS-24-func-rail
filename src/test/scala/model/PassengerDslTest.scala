@@ -1,8 +1,9 @@
 package model
 
 import model.entities.EntityCodes.{PassengerCode, StationCode}
+import model.entities.dsl.ItineraryDSL.leg
 import model.entities.Train.normalTrain
-import model.entities.{Itinerary, ItineraryLeg, NormalTrain, Passenger}
+import model.entities.{Itinerary, NormalTrain, Passenger}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -16,7 +17,7 @@ class PassengerDslTest extends AnyFlatSpec:
   val trainCode1 = "101"
 
   private val train: NormalTrain = normalTrain(trainCode1, StationCode.listOf(stationCode1, stationCode2))
-  private val itineraryLeg = ItineraryLeg(train, StationCode(stationCode1), StationCode(stationCode2))
+  private val itineraryLeg = leg(train) from StationCode(stationCode1) to StationCode(stationCode2)
   private val itinerary = Itinerary(List(itineraryLeg))
 
   "Passenger DSL" should "create a passenger with departure, arrival and itinerary" in {
