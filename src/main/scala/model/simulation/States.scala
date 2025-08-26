@@ -63,7 +63,7 @@ case class SimulationState(
     var logs: List[RailLog] = List.empty
     val newRailsStates: Map[RailCode, RailState] = railStates.map((rCode, rState) =>
       if rState.isFaulty then
-        val newState = rState.tickDay
+        val newState = rState.decrementCountdown
         if !newState.isFaulty then
           logs = logs :+ BecomeRepaired(rCode)
         rCode -> newState
@@ -75,8 +75,18 @@ case class SimulationState(
       logs
     )
 
-  def generateRailFaults(faultProbability: Double): (SimulationState, List[RailLog]) =
-    val notFaultyRailsStates = railStates.filterNot((_, rState) => rState.isFaulty)
+  private def generateFaultDuration(maxDuration: Int): Int =
+    val numbers = 1 to maxDuration
+
+    val weights = numbers.map(n => 1.0 / n)
+    val totalWeight = weights.sum
+    val cumulative = weights.scanLeft(0.0)(_ + _).tail
+  
+    val r = Random.nextDouble() * totalWeight
+    numbers(cumulative.indexWhere(r <= _))
+
+  def generateRailFaults(faultProbability: Double, maxFaultDuration: Int): (SimulationState, List[RailLog]) =
+    val notFaultyRailsStates = railStates.filter((_, rState) => !rState.isFaulty && rState.isFree)
     if Random.nextDouble() > faultProbability || notFaultyRailsStates.isEmpty then
       (copy(), List.empty)
     else
@@ -85,9 +95,7 @@ case class SimulationState(
         if rCode != newFaultyRail._1 then
           rCode -> rState
         else
-          rCode -> rState.setFaulty(100)
-          // 1
-          // 100
+          rCode -> rState.setFaulty(generateFaultDuration(maxFaultDuration))
       )
       (
         copy(railStates = newRailStates),
