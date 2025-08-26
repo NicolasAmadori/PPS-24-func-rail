@@ -1,7 +1,7 @@
 package model.simulation
 
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
-import model.entities.{Passenger, PassengerPosition, PassengerState, Rail, Route, Train}
+import model.entities.{Passenger, PassengerPosition, Rail, Route, Train}
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import model.simulation.TrainState.InitialRouteIndex
 import model.util.RailLog.{BecomeFaulty, BecomeRepaired}
