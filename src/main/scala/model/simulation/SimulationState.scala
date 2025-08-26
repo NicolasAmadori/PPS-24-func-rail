@@ -4,8 +4,12 @@ import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCo
 import model.entities.{Passenger, PassengerPosition, PassengerState, Rail, Route, Train}
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import model.simulation.TrainState.InitialRouteIndex
-import model.util.{PassengerGenerator, PassengerLog, TrainLog}
+import model.util.RailLog.{BecomeFaulty, BecomeRepaired}
+
+import model.util.{PassengerGenerator, PassengerLog, RailLog, TrainLog}
 import model.util.TrainLog.{EnteredStation, LeavedStation, WaitingAt}
+
+import scala.util.Random
 
 /** Represent the mutable state of the simulation.
   * @param trains
@@ -17,6 +21,8 @@ import model.util.TrainLog.{EnteredStation, LeavedStation, WaitingAt}
   *   The list of passenger present in the simulation
   * @param passengerStates
   *   map of [[model.entities.EntityCodes.PassengerCode]] and corresponding state
+  * @param faultyRails
+  *   map of currently faulty rails with their repair countdown
   * @param simulationStep
   *   counter for simulation progression
   */
@@ -52,6 +58,41 @@ case class SimulationState(
       val (updatedRailStates, log) = updateRailStateOn(ts._1, state.railStates, trainState.position, newPosition)
       (state.copy(trainStates = updatedTrainStates, railStates = updatedRailStates), appendLog(logs, log))
     }
+
+  def updateRails(): (SimulationState, List[RailLog]) =
+    var logs: List[RailLog] = List.empty
+    val newRailsStates: Map[RailCode, RailState] = railStates.map((rCode, rState) =>
+      if rState.isFaulty then
+        val newState = rState.tickDay
+        if !newState.isFaulty then
+          logs = logs :+ BecomeRepaired(rCode)
+        rCode -> newState
+      else
+        rCode -> rState
+    )
+    (
+      copy(railStates = newRailsStates),
+      logs
+    )
+
+  def generateRailFaults(faultProbability: Double): (SimulationState, List[RailLog]) =
+    val notFaultyRailsStates = railStates.filterNot((_, rState) => rState.isFaulty)
+    if Random.nextDouble() > faultProbability || notFaultyRailsStates.isEmpty then
+      (copy(), List.empty)
+    else
+      val newFaultyRail = Random.shuffle(notFaultyRailsStates).head
+      val newRailStates = railStates.map((rCode, rState) =>
+        if rCode != newFaultyRail._1 then
+          rCode -> rState
+        else
+          rCode -> rState.setFaulty(100)
+          // 1
+          // 100
+      )
+      (
+        copy(railStates = newRailStates),
+        List(BecomeFaulty(newFaultyRail._1))
+      )
 
   /** Updates the passengers' state in the simulation.
     *
@@ -262,9 +303,9 @@ case class SimulationState(
   ): (Map[RailCode, RailState], Option[TrainLog]) =
     (oldPosition, newPosition) match
       case (Some(AtStation(s)), OnRail(r)) =>
-        (states.updated(r, states(r).occupyRail), Some(LeavedStation(trainCode, s, r)))
+        (states.updated(r, states(r).setOccupied), Some(LeavedStation(trainCode, s, r)))
       case (Some(OnRail(r)), AtStation(s)) =>
-        (states.updated(r, states(r).freeRail), Some(EnteredStation(trainCode, s)))
+        (states.updated(r, states(r).setFree), Some(EnteredStation(trainCode, s)))
       case (Some(AtStation(s)), AtStation(_)) => (states, Some(WaitingAt(trainCode, s)))
       case _ => (states, None)
 
@@ -279,16 +320,3 @@ object SimulationState:
 
   /** Defines an empty simulation with empty train list */
   def empty: SimulationState = SimulationState(List.empty)
-
-trait RailState:
-  def railCode: RailCode
-  def free: Boolean
-  def freeRail: RailState
-  def occupyRail: RailState
-
-case class RailStateImpl(railCode: RailCode, free: Boolean) extends RailState:
-  override def freeRail: RailState = copy(free = true)
-  override def occupyRail: RailState = copy(free = false)
-
-object RailState:
-  def apply(railCode: RailCode): RailState = RailStateImpl(railCode, true)
