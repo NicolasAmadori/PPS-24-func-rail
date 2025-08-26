@@ -1,17 +1,16 @@
-package controller
+package model.simulation
 
 import model.entities.EntityCodes.{StationCode, TrainCode}
 import model.entities.Train
-import model.simulation.{RouteHelper, Simulation}
-import org.scalatest.flatspec.AnyFlatSpec
-import util.SampleRailway
-
 import model.entities.dsl.buildNormalTrain
 import model.simulation.TrainPosition.{AtStation, OnRail}
+import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
+import util.SampleRailway
 import util.SampleRailway.SampleStation.{StationA, StationB}
+import util.loopFor
 
-class SimulationTest extends AnyFlatSpec:
+class TrainStateProgressTest extends AnyFlatSpec:
 
   private val setupLoop = 1
   private val enterStationLoop = 1
@@ -31,7 +30,7 @@ class SimulationTest extends AnyFlatSpec:
     val (simulation, logs) = Simulation.withRailway(1, railway).addTrains(trains).start()
     simulation
 
-  "A train state" should "be updated in a simulation step" in {
+  "Train state" should "be updated in a simulation step" in {
     val simulation = createSimulationWithTrains(List(trainWithRoute1))
     val updatedSim = simulation.loopFor(setupLoop + 1)
 

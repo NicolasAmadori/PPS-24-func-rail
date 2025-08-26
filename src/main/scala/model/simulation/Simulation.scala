@@ -33,7 +33,7 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState, p
       val nextStep = state.simulationStep + 1
 
       // Update trains
-      val (newState1, trainsLogs) = state.updateTrains()
+      val (newState1, trainsLogs) = state.updateTrains(railway.rails)
       // Update passengers states
       val (newState2, passengersLogs) =
         newState1.updatePassengers()
