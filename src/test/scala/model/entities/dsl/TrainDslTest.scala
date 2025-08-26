@@ -18,7 +18,7 @@ class TrainDslTest extends AnyFlatSpec:
 
   "Train builder" should "allow creating a train with name, normal type, departure and stops" in {
     val newTrain = train(trainCode):
-      _ ofType Normal departsFrom stationCodeA stopsAt (stationCodeB, stationCodeC)
+      _ ofType Normal departsFrom stationCodeA stopsAt List(stationCodeB, stationCodeC)
 
     newTrain.departureStation should be(stationCodeA)
     newTrain.isInstanceOf[NormalTrain] should be(true)
@@ -27,7 +27,7 @@ class TrainDslTest extends AnyFlatSpec:
 
   it should "allow creating a train with name, high speed type, departure and stops" in {
     val newTrain = train(trainCode):
-      _ ofType HighSpeed departsFrom stationCodeA stopsAt (stationCodeB, stationCodeC)
+      _ ofType HighSpeed departsFrom stationCodeA stopsAt List(stationCodeB, stationCodeC)
 
     newTrain.departureStation should be(stationCodeA)
     newTrain.isInstanceOf[HighSpeedTrain] should be(true)
@@ -36,7 +36,7 @@ class TrainDslTest extends AnyFlatSpec:
 
   it should "allow setting a railway on which compute the route" in {
     val newTrain = train(trainCode):
-      _ ofType Normal in railway departsFrom stationCodeA stopsAt (stationCodeB, stationCodeC)
+      _ ofType Normal in railway departsFrom stationCodeA stopsAt List(stationCodeB, stationCodeC)
 
     newTrain.route should not be (Route.empty)
   }

@@ -29,7 +29,7 @@ class TrainBuilder(private val name: String):
     stops = stops :+ station
     this
 
-  def stopsAt(stations: StationCode*): TrainBuilder =
+  def stopsAt(stations: List[StationCode]): TrainBuilder =
     stops = stops ++ stations
     this
 
