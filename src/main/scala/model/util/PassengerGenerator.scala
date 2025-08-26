@@ -7,6 +7,7 @@ import model.entities.dsl.ItineraryDSL.leg
 import model.entities.dsl.PassengerDSL
 import model.entities.dsl.PassengerDSL.passenger
 import model.railway.Railway
+import model.simulation.PassengerState
 
 import scala.util.Random
 

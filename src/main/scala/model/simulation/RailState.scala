@@ -10,8 +10,8 @@ trait RailState:
 
   def setFree: RailState
   def setOccupied: RailState
-  def setFaulty(daysToRepair: Int): RailState
-  def tickDay: RailState
+  def setFaulty(stepToRepair: Int): RailState
+  def decrementCountdown: RailState
 
 case class RailStateImpl(
     railCode: RailCode,
@@ -23,11 +23,11 @@ case class RailStateImpl(
   override def setFree: RailState = copy(isFree = true)
   override def setOccupied: RailState = copy(isFree = false)
 
-  override def setFaulty(daysToRepair: Int): RailState =
-    copy(isFaulty = true, repairCountdown = Some(daysToRepair))
+  override def setFaulty(stepToRepair: Int): RailState =
+    copy(isFaulty = true, repairCountdown = Some(stepToRepair))
 
-  override def tickDay: RailState = repairCountdown match
-    case Some(days) if days > 1 => copy(repairCountdown = Some(days - 1))
+  override def decrementCountdown: RailState = repairCountdown match
+    case Some(step) if step > 1 => copy(repairCountdown = Some(step - 1))
     case Some(_) => copy(isFaulty = false, repairCountdown = None)
     case None => this
 

@@ -31,13 +31,3 @@ case class PassengerImpl(
 enum PassengerPosition:
   case AtStation(station: StationCode)
   case OnTrain(train: TrainCode)
-
-final case class PassengerState(
-    currentPosition: PassengerPosition,
-    previousPositions: List[PassengerPosition] = Nil
-):
-  def changePosition(newPosition: PassengerPosition): PassengerState =
-    copy(
-      currentPosition = newPosition,
-      previousPositions = previousPositions :+ currentPosition
-    )
