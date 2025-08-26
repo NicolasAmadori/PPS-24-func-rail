@@ -1,11 +1,12 @@
 package controller.simconfig
 
 import model.entities.EntityCodes.StationCode
-import model.entities.{HighSpeedTrain, NormalTrain, Route, Train}
+import model.entities.Train
 import model.railway.Railway
-import model.simulation.SimulationError.{CannotComputeRoute, EmptyTrainName, InvalidDeparture, InvalidRoute}
-import model.entities.Train.{highSpeedTrain, normalTrain}
-import model.simulation.{RouteHelper, Simulation, SimulationError}
+import model.simulation.SimulationError.{CannotBuildTrain, CannotComputeRoute, EmptyTrainName, InvalidDeparture, InvalidRoute}
+
+import model.entities.dsl.train
+import model.simulation.{Simulation, SimulationError}
 
 /** Builder for creating a Simulation instance based on a Railway and a list of TrainConfig.
   */
@@ -27,14 +28,15 @@ object SimulationBuilder:
     if configurationErrors.nonEmpty then
       Left(configurationErrors)
     else
-      val trains = getTrainsFromConfig(configs)
-      val trainsWithRoute = assignRoutes(trains, railway)
-
-      val routeErrors = validateRoutes(trainsWithRoute)
-      if routeErrors.nonEmpty then
-        Left(routeErrors)
-      else
-        Right(Simulation.withRailway(duration, railway).addTrains(trainsWithRoute))
+      try
+        val trains = getTrainsFromConfig(configs, railway)
+        val routeErrors = validateRoutes(trains)
+        if routeErrors.nonEmpty then
+          Left(routeErrors)
+        else
+          Right(Simulation.withRailway(duration, railway).addTrains(trains))
+      catch
+        case e: IllegalStateException => Left(List(CannotBuildTrain(e.getMessage)))
 
   private def validateRoutes(trains: List[Train]): List[SimulationError] =
     trains.foldLeft(List.empty)((a, t) => if t.route.isEmpty then a :+ CannotComputeRoute(t.code) else a)
@@ -54,22 +56,14 @@ object SimulationBuilder:
       ).flatten
     )
 
-  private def getTrainsFromConfig(configs: List[TrainConfig]): List[Train] =
+  private def getTrainsFromConfig(configs: List[TrainConfig], railway: Railway): List[Train] =
     configs.map { c =>
-      val stops = List(c.departureStation) ++ c.stops.filterNot(s => s == c.departureStation)
-      c.trainType match
-        case HighSpeed =>
-          highSpeedTrain(c.name, stops)
-        case NormalSpeed =>
-          normalTrain(c.name, stops)
+      train(c.name):
+        _ ofType c.trainType.toDslTrainType in railway departsFrom c.departureStation stopsAt c.stops
     }
 
-  private def assignRoutes(trains: List[Train], railway: Railway): List[Train] =
-    trains.map(t =>
-      t.withRoute(
-        (t match
-          case n: NormalTrain => RouteHelper.getRouteForTrain(n, railway)
-          case hs: HighSpeedTrain => RouteHelper.getRouteForTrain(hs, railway)
-        ).getOrElse(Route.empty)
-      )
-    )
+  extension (tt: TrainType)
+    private def toDslTrainType: model.entities.dsl.TrainType =
+      tt match
+        case HighSpeed => model.entities.dsl.TrainType.HighSpeed
+        case NormalSpeed => model.entities.dsl.TrainType.Normal
