@@ -1,8 +1,7 @@
-package model
+package model.entities
 
 import model.entities.Rail.{metalRail, titaniumRail}
 import model.entities.Station.{bigStation, smallStation}
-
 import model.railway.Railway
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
