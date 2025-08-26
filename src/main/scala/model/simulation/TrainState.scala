@@ -50,7 +50,7 @@ case class TrainStateImpl(
   private def tryMoveOnRail(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition) =
     val next = nextIndex(train.route.railsCount)
     val nextRail = train.route.getRailAt(next)
-    if occupancies(nextRail.code).free then
+    if occupancies(nextRail.code).isFree then
       val nextTravelTime = train.getTravelTime(nextRail)
       val nextPosition = OnRail(nextRail.code)
       (
