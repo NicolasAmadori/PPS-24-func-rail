@@ -3,8 +3,8 @@ package controller
 import controller.simulation.util.*
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
 import model.entities.Rail.metalRail
-import model.entities.Train.normalTrain
 import model.entities.*
+import model.entities.dsl.buildNormalTrain
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 import util.SampleRailway
@@ -13,8 +13,10 @@ import util.SampleRailway.SampleStation.*
 class StatisticProviderTest extends AnyFlatSpec:
 
   private val (stationA, stationB, stationC) = (StationCode(StationA), StationCode(StationB), StationCode(StationC))
-  private val train1 = normalTrain("T1", List(stationA, stationB))
-  private val train2 = normalTrain("T2", List(stationB, stationC))
+  private val train1 = buildNormalTrain("T1"):
+    _ departsFrom stationA stopsAt stationB
+  private val train2 = buildNormalTrain("T2"):
+    _ departsFrom stationB stopsAt stationC
   private val itinerary1 = Itinerary(List(
     ItineraryLeg(train1, stationA, stationB),
     ItineraryLeg(train2, stationB, stationC)

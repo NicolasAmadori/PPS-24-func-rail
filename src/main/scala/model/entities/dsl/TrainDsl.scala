@@ -3,7 +3,7 @@ package model.entities.dsl
 import model.entities.EntityCodes.StationCode
 import model.entities.Train.{highSpeedTrain, normalTrain}
 import TrainType.{HighSpeed, Normal}
-import model.entities.Train
+import model.entities.{HighSpeedTrain, NormalTrain, Train}
 import model.railway.Railway
 import model.simulation.RouteHelper
 
@@ -17,19 +17,19 @@ class TrainBuilder(private val name: String):
   private var stops: List[StationCode] = List.empty
   private var railway: Option[Railway] = None
 
-  def ofType(tt: TrainType): TrainBuilder =
+  infix def ofType(tt: TrainType): TrainBuilder =
     kind = Some(tt)
     this
 
-  def departsFrom(station: StationCode): TrainBuilder =
+  infix def departsFrom(station: StationCode): TrainBuilder =
     departure = Some(station)
     this
 
-  def stopsAt(station: StationCode): TrainBuilder =
+  infix def stopsAt(station: StationCode): TrainBuilder =
     stops = stops :+ station
     this
 
-  def stopsAt(stations: List[StationCode]): TrainBuilder =
+  infix def stopsAt(stations: List[StationCode]): TrainBuilder =
     stops = stops ++ stations
     this
 
@@ -57,3 +57,12 @@ class TrainBuilder(private val name: String):
 
 def train(name: String)(build: TrainBuilder => TrainBuilder): Train =
   build(TrainBuilder(name)).build
+
+def buildNormalTrain(name: String)(build: TrainBuilder => TrainBuilder): NormalTrain =
+  (build(TrainBuilder(name)) ofType Normal).build
+    .asInstanceOf[NormalTrain]
+  
+def buildHighSpeedTrain(name: String)(build: TrainBuilder => TrainBuilder): HighSpeedTrain =
+  (build(TrainBuilder(name)) ofType HighSpeed).build
+    .asInstanceOf[HighSpeedTrain]
+  

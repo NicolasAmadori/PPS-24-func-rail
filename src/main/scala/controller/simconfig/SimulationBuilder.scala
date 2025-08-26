@@ -58,12 +58,6 @@ object SimulationBuilder:
 
   private def getTrainsFromConfig(configs: List[TrainConfig], railway: Railway): List[Train] =
     configs.map { c =>
-//      val stops = List(c.departureStation) ++ c.stops.filterNot(s => s == c.departureStation)
-//      c.trainType match
-//        case HighSpeed =>
-//          highSpeedTrain(c.name, stops)
-//        case NormalSpeed =>
-//          normalTrain(c.name, stops)
       train(c.name):
         _ ofType c.trainType.toDslTrainType in railway departsFrom c.departureStation stopsAt c.stops
     }
