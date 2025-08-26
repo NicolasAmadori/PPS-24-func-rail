@@ -3,7 +3,7 @@ package model.util
 import model.entities.EntityCodes.StationCode
 import model.entities.PassengerPosition.AtStation
 import model.entities.*
-import model.entities.ItineraryDSL.leg
+import model.entities.dsl.ItineraryDSL.leg
 import model.railway.Railway
 
 import scala.util.Random

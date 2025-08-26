@@ -5,7 +5,7 @@ import model.entities.EntityCodes.{RailCode, StationCode, TrainCode}
 import model.entities.Rail.metalRail
 import model.entities.Train.normalTrain
 import model.entities.*
-import model.entities.ItineraryDSL.leg
+import model.entities.dsl.ItineraryDSL.leg
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 import util.SampleRailway

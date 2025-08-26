@@ -1,7 +1,7 @@
 package model
 
 import model.entities.EntityCodes.{PassengerCode, StationCode}
-import model.entities.ItineraryDSL.leg
+import model.entities.dsl.ItineraryDSL.leg
 import model.entities.Train.normalTrain
 import model.entities.{Itinerary, NormalTrain, Passenger}
 import org.scalatest.flatspec.AnyFlatSpec
