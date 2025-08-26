@@ -13,12 +13,10 @@ class PassengerDslTest extends AnyFlatSpec:
   private val stationA = StationCode("S1")
   private val stationB = StationCode("S2")
 
-  val stationCode1: String = "ST001"
-  val stationCode2: String = "ST002"
   val trainCode1 = "101"
 
-  private val train: NormalTrain = normalTrain(trainCode1, StationCode.listOf(stationCode1, stationCode2))
-  private val itineraryLeg = leg(train) from StationCode(stationCode1) to StationCode(stationCode2)
+  private val train: NormalTrain = normalTrain(trainCode1, List(stationA, stationB))
+  private val itineraryLeg = leg(train) from stationA to stationB
   private val itinerary = Itinerary(List(itineraryLeg))
 
   "Passenger DSL" should "create a passenger with departure, arrival and itinerary" in {
