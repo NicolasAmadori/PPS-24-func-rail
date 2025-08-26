@@ -1,10 +1,12 @@
 package controller
 
 import controller.simulation.util.*
-import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
+import model.entities.EntityCodes.{RailCode, StationCode, TrainCode}
 import model.entities.Rail.metalRail
 import model.entities.*
 import model.entities.dsl.buildNormalTrain
+import model.entities.dsl.ItineraryDSL.leg
+import model.entities.dsl.PassengerDSL.passenger
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 import util.SampleRailway
@@ -18,11 +20,11 @@ class StatisticProviderTest extends AnyFlatSpec:
   private val train2 = buildNormalTrain("T2"):
     _ departsFrom stationB stopsAt stationC
   private val itinerary1 = Itinerary(List(
-    ItineraryLeg(train1, stationA, stationB),
-    ItineraryLeg(train2, stationB, stationC)
+    leg(train1) from stationA to stationB,
+    leg(train2) from stationB to stationC
   ))
   private val itinerary2 = Itinerary(List(
-    ItineraryLeg(train1, stationA, stationB)
+    leg(train1) from stationA to stationB
   ))
 
   "Statistic provider" should "retrieve most used rail" in {
@@ -97,9 +99,9 @@ class StatisticProviderTest extends AnyFlatSpec:
   }
 
   it should "retrieve incomplete trips count" in {
-    val passenger1 = PassengerImpl(PassengerCode("P1"), stationA, stationC, None)
-    val passenger2 = PassengerImpl(PassengerCode("P1"), stationA, stationC, Some(itinerary1))
-    val passenger3 = PassengerImpl(PassengerCode("P1"), stationA, stationC, None)
+    val passenger1 = passenger("P1").from(stationA).to(stationC).withNoItinerary
+    val passenger2 = passenger("P2").from(stationA).to(stationC).withItinerary(itinerary1)
+    val passenger3 = passenger("P3").from(stationA).to(stationC).withNoItinerary
     val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
     val incompleteTrips = IncompleteTripsProvider.compute(ctx)
@@ -107,9 +109,9 @@ class StatisticProviderTest extends AnyFlatSpec:
   }
 
   it should "retrieve completed trips count" in {
-    val passenger1 = PassengerImpl(PassengerCode("P1"), stationA, stationC, Some(itinerary1))
-    val passenger2 = PassengerImpl(PassengerCode("P1"), stationA, stationC, Some(itinerary1))
-    val passenger3 = PassengerImpl(PassengerCode("P1"), stationA, stationC, None)
+    val passenger1 = passenger("P1").from(stationA).to(stationC).withItinerary(itinerary1)
+    val passenger2 = passenger("P2").from(stationA).to(stationC).withItinerary(itinerary1)
+    val passenger3 = passenger("P3").from(stationA).to(stationC).withNoItinerary
     val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
     val completedTrips = CompletedTripsProvider.compute(ctx)

@@ -1,8 +1,11 @@
 package model.util
 
-import model.entities.EntityCodes.{StationCode, PassengerCode}
+import model.entities.EntityCodes.StationCode
 import model.entities.PassengerPosition.AtStation
 import model.entities.*
+import model.entities.dsl.ItineraryDSL.leg
+import model.entities.dsl.PassengerDSL
+import model.entities.dsl.PassengerDSL.passenger
 import model.railway.Railway
 
 import scala.util.Random
@@ -23,7 +26,7 @@ class PassengerGenerator(railway: Railway, trains: List[Train], passengerIdCount
     * @param n
     *   The number of passengers to generate (defaults to 1).
     * @return
-    *   A list of tuples, where each tuple contains a [[Passenger]] and its initial [[PassengerState]].
+    *   A list of tuples, where each tuple contains a [[PassengerDSL]] and its initial [[PassengerState]].
     */
   def generate(n: Int = 1): (PassengerGenerator, List[(Passenger, PassengerState)], List[PassengerLog]) =
     if railway.stations.size < 2 then
@@ -39,14 +42,20 @@ class PassengerGenerator(railway: Railway, trains: List[Train], passengerIdCount
       val passengers = (1 to n).map { _ =>
         val departureStation = Random.shuffle(randomizedStations).head
         val arrivalStation = Random.shuffle(randomizedStations.filter(_ != departureStation)).head
+        val itinerary = getRandomItinerary(departureStation, arrivalStation)
         counter += 1
         (
-          PassengerImpl(
-            PassengerCode(s"P$counter"),
-            departureStation.code,
-            arrivalStation.code,
-            getRandomItinerary(departureStation, arrivalStation)
-          ),
+          if itinerary.isDefined then
+            passenger(s"P$counter")
+              .from(departureStation.code)
+              .to(arrivalStation.code)
+              .withItinerary(itinerary.get)
+          else
+            passenger(s"P$counter")
+              .from(departureStation.code)
+              .to(arrivalStation.code)
+              .withNoItinerary
+          ,
           PassengerState(AtStation(departureStation.code))
         )
       }.toList
@@ -91,13 +100,13 @@ class PassengerGenerator(railway: Railway, trains: List[Train], passengerIdCount
               val newLegs =
                 currentLegs match
                   case Nil =>
-                    List(ItineraryLeg(train, current, next))
+                    List(leg(train) from current to next)
                   case head :: tail if head.train == train =>
                     // Continue the same ItineraryLeg
-                    List(ItineraryLeg(train, head.from, next)) ::: tail
+                    (List(leg(train) from head.from to next)) ::: tail
                   case _ =>
                     // New ItineraryLeg with a different train
-                    ItineraryLeg(train, current, next) :: currentLegs
+                    (leg(train) from current to next) :: currentLegs
 
               dfs(next, target, visited + next, newLegs)
             }
