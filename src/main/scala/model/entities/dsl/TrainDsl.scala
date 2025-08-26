@@ -33,7 +33,7 @@ class TrainBuilder(private val name: String):
     stops = stops ++ stations
     this
 
-  def in(railway: Railway): TrainBuilder =
+  infix def in(railway: Railway): TrainBuilder =
     this.railway = Some(railway)
     this
 
@@ -61,8 +61,7 @@ def train(name: String)(build: TrainBuilder => TrainBuilder): Train =
 def buildNormalTrain(name: String)(build: TrainBuilder => TrainBuilder): NormalTrain =
   (build(TrainBuilder(name)) ofType Normal).build
     .asInstanceOf[NormalTrain]
-  
+
 def buildHighSpeedTrain(name: String)(build: TrainBuilder => TrainBuilder): HighSpeedTrain =
   (build(TrainBuilder(name)) ofType HighSpeed).build
     .asInstanceOf[HighSpeedTrain]
-  

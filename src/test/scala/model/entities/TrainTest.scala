@@ -3,7 +3,7 @@ package model.entities
 import model.entities.EntityCodes.{StationCode, TrainCode}
 import model.entities.Rail.{metalRail, titaniumRail}
 import model.entities.Train.{defaultSpeed, highSpeed, highSpeedTrain, normalTrain}
-import model.entities.{Route, Train}
+
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 

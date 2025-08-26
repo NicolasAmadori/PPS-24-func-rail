@@ -5,8 +5,8 @@ import model.entities.Train
 import model.simulation.{RouteHelper, Simulation}
 import org.scalatest.flatspec.AnyFlatSpec
 import util.SampleRailway
-import model.entities.Train.normalTrain
-import model.entities.dsl.{buildNormalTrain, train}
+
+import model.entities.dsl.buildNormalTrain
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import org.scalatest.matchers.should.Matchers.*
 import util.SampleRailway.SampleStation.{StationA, StationB}

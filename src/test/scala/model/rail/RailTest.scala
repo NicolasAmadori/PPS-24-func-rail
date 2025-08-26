@@ -3,7 +3,7 @@ package model.rail
 import model.entities.EntityCodes.StationCode
 import model.entities.MetalRail
 import model.entities.Rail.metalRail
-import model.entities.Train.{highSpeedTrain, normalTrain}
+
 import model.entities.dsl.{buildHighSpeedTrain, buildNormalTrain}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
