@@ -1,7 +1,7 @@
 package model.simulation
 
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
-import model.entities.{Passenger, PassengerPosition, PassengerState, Rail, Train}
+import model.entities.{Passenger, PassengerPosition, Rail, Train}
 import model.simulation.TrainPosition.{AtStation, OnRail}
 
 import model.util.RailLog.{BecomeFaulty, BecomeRepaired}
@@ -59,39 +59,50 @@ case class SimulationState(
       (state.copy(trainStates = updatedTrainStates, railStates = updatedRailStates), appendLog(logs, log))
     }
 
-  def updateRails(): (SimulationState, List[RailLog]) =
+  def updateRails(faultProbability: Double, maxFaultDuration: Int): (SimulationState, List[RailLog]) =
     var logs: List[RailLog] = List.empty
     val newRailsStates: Map[RailCode, RailState] = railStates.map((rCode, rState) =>
       if rState.isFaulty then
-        val newState = rState.tickDay
+        val newState = rState.decrementCountdown
         if !newState.isFaulty then
           logs = logs :+ BecomeRepaired(rCode)
         rCode -> newState
       else
         rCode -> rState
     )
+    val (finalRailStates, newFaultLogs) =
+      copy(railStates = newRailsStates).generateRailFaults(faultProbability, maxFaultDuration)
     (
-      copy(railStates = newRailsStates),
-      logs
+      finalRailStates,
+      logs ++ newFaultLogs
     )
 
-  def generateRailFaults(faultProbability: Double): (SimulationState, List[RailLog]) =
-    val notFaultyRailsStates = railStates.filterNot((_, rState) => rState.isFaulty)
+  private def generateFaultDuration(maxDuration: Int): Int =
+    val numbers = 1 to maxDuration
+
+    val weights = numbers.map(n => 1.0 / n)
+    val totalWeight = weights.sum
+    val cumulative = weights.scanLeft(0.0)(_ + _).tail
+
+    val r = Random.nextDouble() * totalWeight
+    numbers(cumulative.indexWhere(r <= _))
+
+  private def generateRailFaults(faultProbability: Double, maxFaultDuration: Int): (SimulationState, List[RailLog]) =
+    val notFaultyRailsStates = railStates.filter((_, rState) => !rState.isFaulty && rState.isFree)
     if Random.nextDouble() > faultProbability || notFaultyRailsStates.isEmpty then
       (copy(), List.empty)
     else
       val newFaultyRail = Random.shuffle(notFaultyRailsStates).head
+      val newFaultDuration = generateFaultDuration(maxFaultDuration)
       val newRailStates = railStates.map((rCode, rState) =>
         if rCode != newFaultyRail._1 then
           rCode -> rState
         else
-          rCode -> rState.setFaulty(100)
-          // 1
-          // 100
+          rCode -> rState.setFaulty(newFaultDuration)
       )
       (
         copy(railStates = newRailStates),
-        List(BecomeFaulty(newFaultyRail._1))
+        List(BecomeFaulty(newFaultyRail._1, newFaultDuration))
       )
 
   /** Updates the passengers' state in the simulation.

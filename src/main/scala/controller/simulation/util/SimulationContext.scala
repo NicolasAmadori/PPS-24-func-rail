@@ -2,8 +2,8 @@ package controller.simulation.util
 
 import model.entities.EntityCodes.PassengerCode
 import model.entities.PassengerPosition.AtStation
-import model.entities.{Itinerary, Passenger, PassengerState, Route}
-import model.simulation.{Simulation, TrainPosition}
+import model.entities.{Itinerary, Passenger, Route}
+import model.simulation.{PassengerState, Simulation, TrainPosition}
 
 case class SimulationContext(
     routes: List[Route] = List.empty,

@@ -7,6 +7,7 @@ import model.entities.*
 import model.entities.dsl.buildNormalTrain
 import model.entities.dsl.ItineraryDSL.leg
 import model.entities.dsl.PassengerDSL.passenger
+import model.simulation.PassengerState
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 import util.SampleRailway

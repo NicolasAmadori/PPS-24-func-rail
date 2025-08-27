@@ -34,12 +34,12 @@ enum TrainLog extends Log:
       s"Train $train is waiting at station $station"
 
 enum RailLog extends Log:
-  case BecomeFaulty(rail: RailCode)
+  case BecomeFaulty(rail: RailCode, duration: Int)
   case BecomeRepaired(rail: RailCode)
 
   override def toString: String = this match
-    case BecomeFaulty(rail) =>
-      s"Rail $rail is now faulty and will be out of service until repaired"
+    case BecomeFaulty(rail, duration) =>
+      s"Rail $rail is now faulty and will be out of service for $duration hours"
     case BecomeRepaired(rail) =>
       s"Rail $rail has now been repaired and can be used by trains"
 
