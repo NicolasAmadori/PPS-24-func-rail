@@ -32,6 +32,7 @@ class SimulationConfigView(
   private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph(controller.getRailway))
   private val stations = controller.getStationCodes
   private var simulationDuration: Int = 100
+  private var faultsEnabled = false
 
   private val alert = new Alert(AlertType.Error):
     title = "Error"
@@ -77,23 +78,32 @@ class SimulationConfigView(
             vgrow = Priority.Always
             children = Seq(trainConfigScrollPane)
         )
+      bottom = bottomConfigContainer
 
-      val startButton = startSimulationButton
-      bottom = new HBox:
-        spacing = DefaultSpacing
-        padding = Insets(10, 0, 0, 0)
-        fillHeight = true
-        alignment = BottomCenter // oppure BottomCenter
-        maxWidth = Double.MaxValue
-        children = Seq(
-          backButton,
-          new HBox:
-            spacing = SmallSpacing
-            alignment = Center
-            children = Seq(simulationDurationBox(startButton), new Label("(Days)"))
-          ,
-          startButton
-        )
+  private def bottomConfigContainer: VBox =
+    val startButton = startSimulationButton
+    new VBox():
+      alignment = BottomCenter
+      children = List(
+        new CheckBox("Enable faults"):
+          onAction = _ => faultsEnabled = this.selected.value
+        ,
+        new HBox:
+          spacing = DefaultSpacing
+          padding = Insets(10, 0, 0, 0)
+          fillHeight = true
+          alignment = BottomCenter // oppure BottomCenter
+          maxWidth = Double.MaxValue
+          children = Seq(
+            backButton,
+            new HBox:
+              spacing = SmallSpacing
+              alignment = Center
+              children = Seq(simulationDurationBox(startButton), new Label("(Days)"))
+            ,
+            startButton
+          )
+      )
 
   private def newTrainButton: Button = new Button("New train"):
     onAction = _ =>
@@ -135,7 +145,7 @@ class SimulationConfigView(
     maxWidth = Double.MaxValue
     onAction = _ =>
       graphView.automaticLayoutProperty.set(true)
-      controller.startSimulation(simulationDuration, graphView)
+      controller.startSimulation(simulationDuration, faultsEnabled, graphView)
 
   private def backButton: Button = new Button("Back"):
     maxWidth = Double.MaxValue
