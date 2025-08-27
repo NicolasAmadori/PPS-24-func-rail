@@ -87,3 +87,16 @@ object SampleRailway:
       metalRail("MR2", 200, StationB, StationC)
     )
     RailwayImpl(stations, rails)
+
+  /** Small railway with multiple rails connecting two stations */
+  def railway6: Railway =
+    val stations = List(
+      smallStation(StationA),
+      smallStation(StationB)
+    )
+    val rails = List(
+      metalRail("MR1", 100, StationA, StationB),
+      metalRail("MR2", 200, StationA, StationB),
+      titaniumRail("TR1", 300, StationA, StationB)
+    )
+    RailwayImpl(stations, rails)

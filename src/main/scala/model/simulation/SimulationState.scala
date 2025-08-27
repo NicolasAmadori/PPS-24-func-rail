@@ -48,12 +48,12 @@ case class SimulationState(
     * @return
     *   the updated simulation state and the list of logs
     */
-  def updateTrains(): (SimulationState, List[TrainLog]) =
+  def updateTrains(rails: List[Rail]): (SimulationState, List[TrainLog]) =
     val currentState = this
     trainStates.foldLeft((currentState, List.empty)) { (acc, ts) =>
       val (state, logs) = acc
       val (code, trainState) = (ts._1, ts._2)
-      val (newTrainState, newPosition) = trainState.update(trains.find(code == _.code).get, state.railStates)
+      val (newTrainState, newPosition) = trainState.update(trains.find(code == _.code).get, rails, state.railStates)
       val updatedTrainStates = state.trainStates.updated(code, newTrainState)
       val (updatedRailStates, log) = updateRailStateOn(ts._1, state.railStates, trainState.position, newPosition)
       (state.copy(trainStates = updatedTrainStates, railStates = updatedRailStates), appendLog(logs, log))

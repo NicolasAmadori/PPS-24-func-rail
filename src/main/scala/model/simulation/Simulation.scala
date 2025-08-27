@@ -8,7 +8,13 @@ import model.util.SimulationLog.StepExecuted
 
 import scala.util.Random
 
-case class Simulation(duration: Int, railway: Railway, state: SimulationState, passengerGenerator: PassengerGenerator):
+case class Simulation(
+    duration: Int,
+    railway: Railway,
+    state: SimulationState,
+    passengerGenerator: PassengerGenerator,
+    faultsEnabled: Boolean = false
+):
 
   private val MAX_PASSENGER_NUMBER: Int = 10
   private val MAX_NEW_STEP_PASSENGER_NUMBER: Int = 3
@@ -38,9 +44,12 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState, p
     val nextStep = state.simulationStep + 1
 
     // Update rails faults and generate new ones
-    val (newState0, railsLogs) = state.updateRails(FAULT_PROBABILITY, MAX_FAULT_DURATION)
+    val (newState0, railsLogs) = if faultsEnabled then
+      state.updateRails(FAULT_PROBABILITY, MAX_FAULT_DURATION)
+    else
+      (state, List.empty)
     // Update trains
-    val (newState1, trainsLogs) = newState0.updateTrains()
+    val (newState1, trainsLogs) = newState0.updateTrains(railway.rails)
     // Update passengers states
     val (newState2, passengersLogs) =
       newState1.updatePassengers()
@@ -78,6 +87,6 @@ case class Simulation(duration: Int, railway: Railway, state: SimulationState, p
     require(train.stations.forall(railway.stationCodes.contains(_)))
 
 object Simulation:
-  def withRailway(duration: Int, railway: Railway): Simulation =
+  def withRailway(duration: Int, railway: Railway, faultsEnabled: Boolean = false): Simulation =
     val state = SimulationState.withRails(railway.rails)
     Simulation(duration, railway, state, PassengerGenerator(railway, state.trains))

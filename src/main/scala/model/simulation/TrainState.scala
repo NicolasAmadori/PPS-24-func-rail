@@ -1,7 +1,7 @@
 package model.simulation
 
 import model.entities.EntityCodes.{RailCode, StationCode}
-import model.entities.{Route, Train}
+import model.entities.{Rail, Route, Train}
 import model.simulation.TrainPosition.{AtStation, OnRail}
 import model.simulation.TrainState.InitialRouteIndex
 
@@ -11,7 +11,7 @@ trait TrainState:
   def travelTime: Int
   def forward: Boolean
   def previousPositions: List[TrainPosition]
-  def update(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition)
+  def update(train: Train, rails: List[Rail], railsStates: Map[RailCode, RailState]): (TrainState, TrainPosition)
 
 case class TrainStateImpl(
     position: Option[TrainPosition],
@@ -25,14 +25,14 @@ case class TrainStateImpl(
     * enter a station if arrived
     * @param train
     *   the train to handle
-    * @param occupancies
-    *   rails occupancies
+    * @param railsStates
+    *   rails railsStates
     * @return
     *   the updated state and the current train position
     */
-  def update(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition) =
+  def update(train: Train, rails: List[Rail], railsStates: Map[RailCode, RailState]): (TrainState, TrainPosition) =
     position match
-      case Some(AtStation(s)) => tryMoveOnRail(train, occupancies)
+      case Some(AtStation(s)) => tryMoveOnRail(train, rails, railsStates)
       case Some(OnRail(r)) => move(train)
       case None => move(train)
 
@@ -47,12 +47,16 @@ case class TrainStateImpl(
       updated
 
   /** Updates train position to rail if it's free, does nothing otherwise */
-  private def tryMoveOnRail(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition) =
+  private def tryMoveOnRail(
+      train: Train,
+      rails: List[Rail],
+      railsStates: Map[RailCode, RailState]
+  ): (TrainState, TrainPosition) =
     val next = nextIndex(train.route.railsCount)
-    val nextRail = train.route.getRailAt(next)
-    if occupancies(nextRail.code).isFree then
-      val nextTravelTime = train.getTravelTime(nextRail)
-      val nextPosition = OnRail(nextRail.code)
+    val nextRail = getNextRail(next, train, rails, railsStates)
+    if nextRail.nonEmpty then
+      val nextTravelTime = train.getTravelTime(nextRail.get)
+      val nextPosition = OnRail(nextRail.get.code)
       (
         copy(
           position = Some(nextPosition),
@@ -64,6 +68,24 @@ case class TrainStateImpl(
         nextPosition
       )
     else (copy(previousPositions = previousPositions :+ position.get), position.get)
+
+  /** Gets the next rail in route or an equivalent rail if the designated is broken */
+  private def getNextRail(
+      next: Int,
+      train: Train,
+      rails: List[Rail],
+      railsState: Map[RailCode, RailState]
+  ): Option[Rail] =
+    val railInRoute = train.route.getRailAt(next)
+    railsState(railInRoute.code) match
+      case v =>
+        if v.isFree && !v.isFaulty then
+          Some(railInRoute)
+        else
+          val target = Set(railInRoute.stationA, railInRoute.stationB)
+          rails.filter(r => Set(r.stationA, r.stationB) == target)
+            .filter(r => railsState(r.code).isFree && !railsState(r.code).isFaulty)
+            .filter(r => r.canAcceptTrain(train)).sortBy(_.length).headOption
 
   private def newDirectionIfEndOfRoute(position: TrainPosition, route: Route): (Boolean, Int) =
     position match
