@@ -116,7 +116,7 @@ class MapGridTest extends AnyFlatSpec:
 
   it should "not allow placing a BigStationPiece if part of it is out of bounds" in {
     val grid = MapGrid.empty(3, 3)
-    val result = grid.place(0, 0, BigStationType) // angolo in alto a sinistra
+    val result = grid.place(0, 0, BigStationType) // upper left corner
     result should matchPattern {
       case Left(PlacementError.InvalidPlacement(_, _, _)) =>
     }
@@ -126,7 +126,7 @@ class MapGridTest extends AnyFlatSpec:
     val grid = MapGrid.empty(10, 10)
       .place(1, 1, SmallStationType).toOption.get
 
-    val result = grid.place(3, 3, BigStationType) // troppo vicino
+    val result = grid.place(3, 3, BigStationType) // too close
     result should matchPattern {
       case Left(PlacementError.InvalidPlacement(_, _, _)) =>
     }
@@ -146,7 +146,7 @@ class MapGridTest extends AnyFlatSpec:
     val grid = MapGrid.empty(10, 10)
       .place(5, 5, BigStationType).toOption.get
 
-    val result = grid.place(7, 5, MetalRailType) // Adiacente al blocco centrale
+    val result = grid.place(7, 5, MetalRailType) // adjiacent to the center piece
     result.isRight should be(true)
   }
 

@@ -16,7 +16,12 @@ import scala.util.Random
   * @param railway
   *   The railway system containing stations and rails.
   */
-class PassengerGenerator(railway: Railway, trains: List[Train], passengerIdCounter: Int = 0):
+class PassengerGenerator(
+    railway: Railway,
+    trains: List[Train],
+    itineraryStrategy: Int = 0,
+    passengerIdCounter: Int = 0
+):
   private val BIG_STATION_MULTIPLIER = 9
 
   /** Generates a specified number of passengers.
@@ -43,7 +48,11 @@ class PassengerGenerator(railway: Railway, trains: List[Train], passengerIdCount
       val passengers = (1 to n).map { _ =>
         val departureStation = Random.shuffle(randomizedStations).head
         val arrivalStation = Random.shuffle(randomizedStations.filter(_ != departureStation)).head
-        val itinerary = getRandomItinerary(departureStation, arrivalStation)
+        val itinerary: Option[Itinerary] = itineraryStrategy match
+          case 1 => getItineraryWithShortestTime(departureStation, arrivalStation)
+          case 2 => getItineraryWithShortestDistance(departureStation, arrivalStation)
+          case _ => getRandomItinerary(departureStation, arrivalStation)
+
         counter += 1
         (
           if itinerary.isDefined then
@@ -62,13 +71,19 @@ class PassengerGenerator(railway: Railway, trains: List[Train], passengerIdCount
       }.toList
 
       (
-        new PassengerGenerator(railway, trains, counter),
+        new PassengerGenerator(railway, trains, itineraryStrategy, counter),
         passengers,
         passengers.map(p => PassengerLog.StartTrip(p._1))
       )
 
   private def getRandomItinerary(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
     Random.shuffle(findAllItineraries(departureStation.code, arrivalStation.code)).headOption
+
+  private def getItineraryWithShortestDistance(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
+    findAllItineraries(departureStation.code, arrivalStation.code).sortBy(i => i.totalLength).headOption
+
+  private def getItineraryWithShortestTime(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
+    findAllItineraries(departureStation.code, arrivalStation.code).sortBy(i => i.totalTime).headOption
 
   /** Return all the possible itineraries between two stations */
   private def findAllItineraries(

@@ -9,7 +9,7 @@ trait Train:
   def stations: List[StationCode]
   def route: Route
   def withRoute(route: Route): Train
-  def getTravelTime(rail: Rail): Int = math.ceil(rail.length / speed).toInt
+  def getTravelTime(rail: Rail): Double = rail.length.toDouble / speed.toDouble
 
 case class NormalTrain(code: TrainCode, speed: Float, stations: List[StationCode], route: Route)
     extends Train:
@@ -18,8 +18,8 @@ case class NormalTrain(code: TrainCode, speed: Float, stations: List[StationCode
 case class HighSpeedTrain(code: TrainCode, speed: Float, stations: List[StationCode], route: Route)
     extends Train:
   def withRoute(route: Route): Train = copy(route = route)
-  override def getTravelTime(rail: Rail): Int = rail match
-    case _: MetalRail => math.ceil(rail.length / Train.defaultSpeed).toInt
+  override def getTravelTime(rail: Rail): Double = rail match
+    case _: MetalRail => rail.length.toDouble / Train.defaultSpeed.toDouble
     case _: TitaniumRail => super.getTravelTime(rail)
 
 object Train:

@@ -2,11 +2,11 @@ package model
 
 import model.entities.EntityCodes.StationCode
 import model.entities.{Rail, Station}
-import model.entities.Rail.metalRail
+import model.entities.Rail.{metalRail, titaniumRail}
 import model.entities.Station.{bigStation, smallStation}
 import model.railway.Railway
 import model.entities.PassengerPosition.AtStation
-import model.entities.Train.normalTrain
+import model.entities.Train.{highSpeedTrain, normalTrain}
 import model.simulation.RouteHelper
 import model.util.PassengerGenerator
 import org.scalatest.flatspec.AnyFlatSpec
@@ -25,14 +25,25 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
   // Rails for tests (bidirectional)
   private val rail1_2 = metalRail("MR1", 10, StationCode.value(st1.code), StationCode.value(st2.code))
   private val rail2_1 = metalRail("MR2", 10, StationCode.value(st2.code), StationCode.value(st1.code))
+
   private val rail2_3 = metalRail("MR3", 5, StationCode.value(st2.code), StationCode.value(st3.code))
   private val rail3_2 = metalRail("MR4", 5, StationCode.value(st3.code), StationCode.value(st2.code))
+
   private val rail_bst1_st1 = metalRail("MR5", 20, StationCode.value(bst1.code), StationCode.value(st1.code))
   private val rail_st1_bst1 = metalRail("MR6", 20, StationCode.value(st1.code), StationCode.value(bst1.code))
+
+  private val rail_bst1_st2 = metalRail("MR7", 100, StationCode.value(bst1.code), StationCode.value(st2.code))
+  private val rail_st2_bst1 = metalRail("MR8", 100, StationCode.value(st2.code), StationCode.value(bst1.code))
+
+  private val rail2_bst1_st2 = titaniumRail("TR9", 200, StationCode.value(bst1.code), StationCode.value(st2.code))
+  private val rail2_st2_bst1 = titaniumRail("TR10", 200, StationCode.value(st2.code), StationCode.value(bst1.code))
 
   // Train for tests
   private val t1 = normalTrain("T1", List(st1.code, st2.code))
   private val t2 = normalTrain("T2", List(st1.code, st2.code, st3.code))
+
+  private val t3 = normalTrain("T3", List(bst1.code, st2.code))
+  private val t4 = highSpeedTrain("T4", List(bst1.code, st2.code))
 
   it should "return an empty list if the railway has fewer than two stations" in {
     val railwayWithNoStations = Railway.empty
@@ -150,4 +161,36 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
       val uniqueItineraryStations = itineraryStations.distinct
       itineraryStations should be(uniqueItineraryStations)
     }
+  }
+
+  it should "generate all passengers with the chosen itinerary which is the shortest in time" in {
+    val P_NUMBER = 1000
+    val railway = Railway
+      .withStations(List(bst1, st2))
+      .withRails(List(rail_bst1_st2, rail_st2_bst1, rail2_bst1_st2, rail2_st2_bst1))
+
+    val t3_copy = t3.withRoute(RouteHelper.getRouteForTrain(t3, railway).get)
+    val t4_copy = t4.withRoute(RouteHelper.getRouteForTrain(t4, railway).get)
+    val generator = new PassengerGenerator(railway, List(t3_copy, t4_copy), 1)
+
+    val (_, passengers, _) = generator.generate(P_NUMBER)
+
+    passengers.size should be(P_NUMBER)
+    passengers.forall(p => p._1.itinerary.get.legs.head.train.code == t4_copy.code) should be(true)
+  }
+
+  it should "generate all passengers with the chosen itinerary which is the shortest in distance" in {
+    val P_NUMBER = 1000
+    val railway = Railway
+      .withStations(List(bst1, st2))
+      .withRails(List(rail_bst1_st2, rail_st2_bst1, rail2_bst1_st2, rail2_st2_bst1))
+
+    val t3_copy = t3.withRoute(RouteHelper.getRouteForTrain(t3, railway).get)
+    val t4_copy = t4.withRoute(RouteHelper.getRouteForTrain(t4, railway).get)
+    val generator = new PassengerGenerator(railway, List(t3_copy, t4_copy), 2)
+
+    val (_, passengers, _) = generator.generate(P_NUMBER)
+
+    passengers.size should be(P_NUMBER)
+    passengers.forall(p => p._1.itinerary.get.legs.head.train.code == t3_copy.code) should be(true)
   }
