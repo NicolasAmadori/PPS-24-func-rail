@@ -37,9 +37,21 @@ case class MapGrid(
 
   def getStationsNumber: Int = stationCounter
 
+  /** Sets the budget to the given value.
+    *
+    * @param value
+    *   the new budget
+    * @return
+    *   the mapgrid with the new budget
+    */
   def setBudget(value: Int): MapGrid =
     copy(budget = Some(value))
 
+  /** Disables budget constraints.
+    *
+    * @return
+    *   the mapgrid with no budget constraints
+    */
   def disableBudget: MapGrid =
     copy(budget = None)
 
