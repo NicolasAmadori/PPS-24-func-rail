@@ -31,8 +31,15 @@ class SimulationConfigView(
 
   private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph(controller.getRailway))
   private val stations = controller.getStationCodes
+
   private var simulationDuration: Int = 100
-  private var faultsEnabled = false
+  private var simulationSpeed: Int = 60
+  private var faultsEnabled: Boolean = false
+  private val STRATEGIES: Map[String, Int] =
+    Map.from(List(("Random", 0), ("Shortest time", 1), ("Shortest distance", 2)))
+  private var itineraryStrategy: Int = STRATEGIES.values.head
+
+  private val startButton = startSimulationButton
 
   private val alert = new Alert(AlertType.Error):
     title = "Error"
@@ -73,6 +80,7 @@ class SimulationConfigView(
       top = new VBox:
         spacing = DefaultSpacing
         children = Seq(
+          new SimulationConfigGroup,
           newTrainButton,
           new VBox:
             vgrow = Priority.Always
@@ -81,31 +89,23 @@ class SimulationConfigView(
       bottom = bottomConfigContainer
 
   private def bottomConfigContainer: VBox =
-    val startButton = startSimulationButton
     new VBox():
       alignment = BottomCenter
       children = List(
-        new CheckBox("Enable faults"):
-          onAction = _ => faultsEnabled = this.selected.value
-        ,
         new HBox:
           spacing = DefaultSpacing
           padding = Insets(10, 0, 0, 0)
           fillHeight = true
-          alignment = BottomCenter // oppure BottomCenter
+          alignment = BottomCenter
           maxWidth = Double.MaxValue
           children = Seq(
             backButton,
-            new HBox:
-              spacing = SmallSpacing
-              alignment = Center
-              children = Seq(simulationDurationBox(startButton), new Label("(Days)"))
-            ,
             startButton
           )
       )
 
   private def newTrainButton: Button = new Button("New train"):
+    prefWidth = SidebarMinWidth
     onAction = _ =>
       val id = controller.addTrain()
       var trainGroup: TrainConfigGroup = null
@@ -128,27 +128,16 @@ class SimulationConfigView(
     fitToWidth = true
     style = "-fx-border-color: transparent; -fx-background-insets: 0;"
     content = sidebarContainer
-    maxHeight = 700
-
-  private def simulationDurationBox(startSimulationButton: Button): TextField =
-    val field = new TextField()
-    field.maxWidth = 70
-    field.promptText = "Simulation duration"
-    field.text = simulationDuration.toString
-    field.onKeyTyped = _ =>
-      simulationDuration = field.text.value.toIntOption.getOrElse(0)
-      startSimulationButton.disable =
-        field.text.value.isEmpty || field.text.value.toIntOption.isEmpty || field.text.value.toInt <= 0
-    field
+    maxHeight = 570
 
   private def startSimulationButton: Button = new Button("Start simulation"):
-    maxWidth = Double.MaxValue
+    prefWidth = SidebarMinWidth - 70
     onAction = _ =>
       graphView.automaticLayoutProperty.set(true)
-      controller.startSimulation(simulationDuration, faultsEnabled, graphView)
+      controller.startSimulation(simulationDuration, simulationSpeed, faultsEnabled, itineraryStrategy, graphView)
 
   private def backButton: Button = new Button("Back"):
-    maxWidth = Double.MaxValue
+    prefWidth = 70
     onAction = _ => controller.onBack()
 
   private def graphPane: Pane =
@@ -175,9 +164,93 @@ class SimulationConfigView(
         error,
         title,
         () =>
-          sidebarContainer.children.remove(0) // = sidebarContainer.children.filterNot(_ == errorBox).toList
+          sidebarContainer.children.remove(0)
       )
     ) ++ sidebarGroups
+
+  class SimulationConfigGroup extends VBox:
+    import SimulationConfigViewConstants.*
+
+    spacing = DefaultSpacing
+    padding = DefaultPadding
+    style = "-fx-stroke-width: 1; -fx-border-color: gray; -fx-padding: 10"
+
+    private val faultsCheckBox =
+      new CheckBox("Enable faults"):
+        onAction = _ => faultsEnabled = this.selected.value
+
+    private val itineraryStrategyComboBox =
+      new VBox:
+        spacing = SmallSpacing
+        alignment = Center
+        children = Seq(
+          new Label("Passenger itinerary strategy"),
+          new ComboBox[String]:
+            promptText = "Select itinerary strategy"
+            items = ObservableBuffer.from(STRATEGIES.keys)
+            value = STRATEGIES.keySet.head
+            onAction = _ =>
+              itineraryStrategy = STRATEGIES(value.value)
+        )
+
+    private val topRow =
+      new HBox:
+        spacing = DefaultSpacing
+        alignment = Center
+        children = Seq(faultsCheckBox, itineraryStrategyComboBox)
+
+    private val durationBox =
+      new VBox:
+        spacing = SmallSpacing
+        alignment = Center
+        children = Seq(
+          new Label("Simulation duration"),
+          new HBox:
+            spacing = SmallSpacing
+            alignment = Center
+            children = Seq(
+              new TextField:
+                maxWidth = 50
+                promptText = "Simulation duration"
+                text = simulationDuration.toString
+                onKeyTyped = _ =>
+                  simulationDuration = text.value.toIntOption.getOrElse(0)
+                  startButton.disable =
+                    text.value.isEmpty || text.value.toIntOption.isEmpty || text.value.toInt <= 0
+              ,
+              new Label("(Days)")
+            )
+        )
+
+    private val simulationSpeedSlider =
+      new Slider(60, 600, simulationSpeed):
+        blockIncrement = 5
+        snapToTicks = false
+        maxWidth = 200
+
+    simulationSpeedSlider.valueProperty.addListener { (_, _, newValue) =>
+      simulationSpeed = newValue.intValue
+    }
+
+    private val simulationSpeedBox =
+      new VBox:
+        spacing = SmallSpacing
+        alignment = Center
+        children = Seq(
+          new Label("Simulation speed"),
+          simulationSpeedSlider
+        )
+
+    private val durationAndSpeedRow =
+      new HBox:
+        spacing = DefaultSpacing
+        alignment = Center
+        children = Seq(durationBox, simulationSpeedBox)
+
+    children = Seq(
+      topRow,
+      durationAndSpeedRow
+    )
 
 class TrainConfigGroup(
     trainId: Int,
@@ -190,9 +263,12 @@ class TrainConfigGroup(
   spacing = SmallSpacing
   style = "-fx-stroke-width: 1; -fx-border-color: gray; -fx-padding: 5"
 
+  controller.updateTrainName(trainId, s"T$trainId")
+
   private val trainNameTextField =
     new TextField:
       promptText = "Train name"
+      text = s"T$trainId"
       onKeyTyped = _ => controller.updateTrainName(trainId, text.value)
 
   private val highSpeedCheckBox =
@@ -225,7 +301,7 @@ class TrainConfigGroup(
 
   private def stopsCheckboxes: ScrollPane =
     new ScrollPane():
-      maxHeight = 300
+      maxHeight = 150
       content = new VBox():
         spacing = SmallSpacing
         padding = Insets(5)

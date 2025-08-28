@@ -11,7 +11,7 @@ import view.simulation.SimulationView
 
 import java.util.concurrent.{Executors, TimeUnit}
 
-class SimulationController(simulation: Simulation, graphView: GraphView[StationView, RailView])
+class SimulationController(simulation: Simulation, speed: Int, graphView: GraphView[StationView, RailView])
     extends BaseController[SimulationView]:
 
   private var sim = simulation
@@ -44,7 +44,8 @@ class SimulationController(simulation: Simulation, graphView: GraphView[StationV
     sim = newSim
     logs.map(_.toString).foreach(getView.addLog)
     updateState(sim.state)
-    loopAsync(sim, 1000)
+    val stepFrequency: Long = (1.0 / (speed.toDouble / 60.0 / 1000.0)).toLong
+    loopAsync(sim, stepFrequency)
 
   private def loopAsync(current: Simulation, delayMs: Long): Unit =
     if current.isFinished then

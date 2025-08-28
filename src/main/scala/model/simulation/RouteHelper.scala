@@ -14,7 +14,7 @@ given EdgeLike[Rail] with
     case r: MetalRail => metalRail(r.code.value, r.length, r.stationB.value, r.stationA.value)
     case r: TitaniumRail => titaniumRail(r.code.value, r.length, r.stationB.value, r.stationA.value)
 
-//** Given instance to provide weight mapping for NormalTrain */
+/** Given instance to provide weight mapping for NormalTrain */
 given WeightCalculator[Rail, NormalTrain] with
   def weight(edge: Rail, train: NormalTrain): Double = edge.length / train.speed
 

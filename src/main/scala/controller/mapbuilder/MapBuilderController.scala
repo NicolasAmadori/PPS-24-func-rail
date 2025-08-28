@@ -53,4 +53,4 @@ class MapBuilderController(model: MapGrid) extends BaseController[MapBuilderView
       showError(
         MapBuilderViewError.RailwayNotConnected(),
         s"Invalid railway"
-      ) // "The railway is invalid beacuse it is not connected."
+      ) // The railway is invalid beacuse it is not connected.
