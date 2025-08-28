@@ -1,6 +1,22 @@
 package model.mapgrid
 
-import model.mapgrid.PlacementError.NonIsolatedStation
+import model.mapgrid
+import model.mapgrid.PieceCost.pieceCost
+import model.mapgrid.PlacementError.{NonIsolatedStation, OutOfBudget}
+
+object PieceCost:
+  private val SmallStationCost = 30
+  private val BigStationCost = 50
+  private val MetalRailCost = 1
+  private val TitaniumRailCost = 3
+
+  val pieceCost: Map[CellType, Int] = Map(
+    SmallStationType -> SmallStationCost,
+    BigStationType -> BigStationCost,
+    MetalRailType -> MetalRailCost,
+    TitaniumRailType -> TitaniumRailCost,
+    EmptyType -> 0
+  )
 
 object MapGrid:
   def empty(width: Int, height: Int): MapGrid =
@@ -8,23 +24,50 @@ object MapGrid:
     val grid = Vector.fill(height)(emptyRow)
     MapGrid(width, height, grid)
 
-case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], stationCounter: Int = 0):
+case class MapGrid(
+    width: Int,
+    height: Int,
+    cells: Vector[Vector[Cell]],
+    stationCounter: Int = 0,
+    budget: Option[Int] = None
+):
 
   private val cardinalOffsets = Seq((0, -1), (-1, 0), (1, 0), (0, 1))
   private val diagonalOffsets = Seq((-1, -1), (1, -1), (-1, 1), (1, 1))
 
   def getStationsNumber: Int = stationCounter
 
+  /** Sets the budget to the given value.
+    *
+    * @param value
+    *   the new budget
+    * @return
+    *   the mapgrid with the new budget
+    */
+  def setBudget(value: Int): MapGrid =
+    copy(budget = Some(value))
+
+  /** Disables budget constraints.
+    *
+    * @return
+    *   the mapgrid with no budget constraints
+    */
+  def disableBudget: MapGrid =
+    copy(budget = None)
+
   def place(x: Int, y: Int, cellType: CellType): Either[PlacementError, MapGrid] =
-    cellType match
-      case rail: RailType =>
-        placeGenericRail(x, y, rail)
-      case BigStationType =>
-        placeBigStation(x, y)
-      case SmallStationType =>
-        placeSmallStation(x, y)
-      case EmptyType =>
-        erasePiece(x, y)
+    if isWithinBudget(cellType) || cellType == EmptyType then
+      cellType match
+        case rail: RailType =>
+          placeGenericRail(x, y, rail)
+        case BigStationType =>
+          placeBigStation(x, y)
+        case SmallStationType =>
+          placeSmallStation(x, y)
+        case EmptyType =>
+          erasePiece(x, y)
+    else
+      Left(OutOfBudget())
 
   /** Check if a coordinate is inside grid bounds
     * @param x
@@ -197,7 +240,7 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
       case t if isRail(x, y) =>
         Right(copy(cells = cells.updated(y, cells(y).updated(x, EmptyCell))))
 
-      case BigStationType =>
+      case t @ BigStationType =>
         val adj = adjacentCells(x, y)
         val allBigStation = adj.forall(_.exists(_.cellType == BigStationType))
         if allBigStation then
@@ -211,13 +254,16 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
             Left(NonIsolatedStation(x, y))
         else Right(this)
 
-      case _ =>
+      case t @ SmallStationType =>
         val adjCoords = selfAndAdjacentCoords(x, y)
         val noRailsAround = !adjCoords.exists { case (ax, ay) => isRail(ax, ay) }
         if noRailsAround then
           Right(copy(cells = cells.updated(y, cells(y).updated(x, EmptyCell))))
         else
           Left(NonIsolatedStation(x, y))
+
+      case _ =>
+        Right(this)
 
   /** Attempts to place a Big Station centered at the specified coordinates.
     *
@@ -371,3 +417,18 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
       Left(PlacementError.InvalidPlacement(x, y, railType)) // Error if a 2x2 square would be formed
     else
       Right(copy(cells = cells.updated(y, cells(y).updated(x, railPiece))))
+
+  def isWithinBudget: Boolean =
+    mapCost <= budget.getOrElse(Int.MaxValue)
+
+  private def isWithinBudget(cellType: CellType): Boolean =
+    mapCost + pieceCost(cellType) <= budget.getOrElse(Int.MaxValue)
+
+  /** Compute the total cost of the pieces placed on the map */
+  private def mapCost: Int =
+    cells.map(l =>
+      l.map {
+        case _: BigStationBorderPiece => 0
+        case c => pieceCost(c.cellType)
+      }.sum
+    ).sum

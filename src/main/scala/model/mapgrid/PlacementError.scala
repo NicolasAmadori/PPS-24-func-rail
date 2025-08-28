@@ -12,3 +12,5 @@ object PlacementError:
     override def toString: String = s"The selected coordinates are invalid for a ${cellType.toString} placement"
   case class NonIsolatedStation(x: Int, y: Int) extends PlacementError:
     override def toString: String = s"The selected station can't be erased since it is connected to at least 1 rail"
+  case class OutOfBudget() extends PlacementError:
+    override def toString: String = "This piece placement cost exceeded the budget"
