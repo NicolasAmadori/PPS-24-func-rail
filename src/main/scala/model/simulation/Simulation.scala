@@ -89,4 +89,4 @@ case class Simulation(
 object Simulation:
   def withRailway(duration: Int, railway: Railway, faultsEnabled: Boolean = false): Simulation =
     val state = SimulationState.withRails(railway.rails)
-    Simulation(duration, railway, state, PassengerGenerator(railway, state.trains))
+    Simulation(duration, railway, state, PassengerGenerator(railway, state.trains), faultsEnabled)

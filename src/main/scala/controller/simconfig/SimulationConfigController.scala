@@ -96,8 +96,8 @@ class SimulationConfigController(mapGrid: MapGrid, model: Railway)
     localState = localState.removeStop(id, station)
 
   /** Start the simulation by building the Simulation object and transitioning to the simulation view */
-  def startSimulation(duration: Int, graphView: GraphView[StationView, RailView]): Unit =
-    val simulation = SimulationBuilder.build(duration, model, localState.trains)
+  def startSimulation(duration: Int, faultsEnabled: Boolean, graphView: GraphView[StationView, RailView]): Unit =
+    val simulation = SimulationBuilder.build(duration, model, localState.trains, faultsEnabled)
     simulation match
       case Left(error) => getView.showErrors(error)
       case Right(sim) =>

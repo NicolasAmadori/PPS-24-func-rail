@@ -23,7 +23,12 @@ object SimulationBuilder:
     * @return
     *   Either a list of SimulationError or a Simulation instance
     */
-  def build(duration: Int, railway: Railway, configs: List[TrainConfig]): Either[List[SimulationError], Simulation] =
+  def build(
+      duration: Int,
+      railway: Railway,
+      configs: List[TrainConfig],
+      faultsEnabled: Boolean = false
+  ): Either[List[SimulationError], Simulation] =
     val configurationErrors = validateConfigurations(railway, configs)
     if configurationErrors.nonEmpty then
       Left(configurationErrors)
@@ -34,7 +39,7 @@ object SimulationBuilder:
         if routeErrors.nonEmpty then
           Left(routeErrors)
         else
-          Right(Simulation.withRailway(duration, railway).addTrains(trains))
+          Right(Simulation.withRailway(duration, railway, faultsEnabled).addTrains(trains))
       catch
         case e: IllegalStateException => Left(List(CannotBuildTrain(e.getMessage)))
 
