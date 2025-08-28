@@ -27,7 +27,7 @@ class TrainStateProgressTest extends AnyFlatSpec:
   private val trainWithRoute2 = train2.withRoute(route)
 
   private def createSimulationWithTrains(trains: List[Train]): Simulation =
-    val (simulation, logs) = Simulation.withRailway(1, railway).addTrains(trains).start()
+    val (simulation, logs) = Simulation.withRailway(1, railway).withTrains(trains).start()
     simulation
 
   "Train state" should "be updated in a simulation step" in {
@@ -44,7 +44,7 @@ class TrainStateProgressTest extends AnyFlatSpec:
   }
 
   it should "stay on the rail until crossed" in {
-    val travelTime = train1.getTravelTime(route.getRailAt(0))
+    val travelTime = train1.getTravelTime(route.getRailAt(0)).ceil.toInt
     val simulation = createSimulationWithTrains(List(trainWithRoute1))
     val loopedSimulation = simulation.loopFor(travelTime + setupLoop)
 
@@ -57,7 +57,7 @@ class TrainStateProgressTest extends AnyFlatSpec:
   }
 
   it should "enter station when rail crossed" in {
-    val travelTime = train1.getTravelTime(route.getRailAt(0))
+    val travelTime = train1.getTravelTime(route.getRailAt(0)).ceil.toInt
     val simulation = createSimulationWithTrains(List(trainWithRoute1))
     val loopedSimulation = simulation.loopFor(setupLoop + travelTime + enterStationLoop)
 
@@ -85,7 +85,7 @@ class TrainStateProgressTest extends AnyFlatSpec:
 
   it should "correctly invert direction of trains when end of line reached" in {
     val simulation = createSimulationWithTrains(List(trainWithRoute1))
-    val travelTime = trainWithRoute1.getTravelTime(route.getRailAt(0))
+    val travelTime = trainWithRoute1.getTravelTime(route.getRailAt(0)).ceil.toInt
     val loopedSimulation = simulation.loopFor(setupLoop + travelTime + enterStationLoop + 1)
 
     val state = loopedSimulation.state

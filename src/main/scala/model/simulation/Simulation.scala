@@ -13,7 +13,8 @@ case class Simulation(
     railway: Railway,
     state: SimulationState,
     passengerGenerator: PassengerGenerator,
-    faultsEnabled: Boolean = false
+    faultsEnabled: Boolean = false,
+    itineraryStrategy: Int = 0
 ):
 
   private val MAX_PASSENGER_NUMBER: Int = 10
@@ -68,13 +69,30 @@ case class Simulation(
 
   def isFinished: Boolean = state.simulationStep == duration * 24
 
+  /** Set the simulation config.
+    *
+    * @param faultsEnabled
+    *   to enable random fault generation during the simulation
+    * @param itineraryStrategy
+    *   to select the strategy passengers uses to choose their itinerary
+    * @return
+    *   either a list of errors if train's data are invalid or if the route cannot be computed, or the updated
+    *   simulation
+    */
+  def withConfig(faultsEnabled: Boolean = false, itineraryStrategy: Int = 0): Simulation =
+    copy(
+      faultsEnabled = faultsEnabled,
+      itineraryStrategy = itineraryStrategy,
+      passengerGenerator = PassengerGenerator(railway, state.trains, itineraryStrategy)
+    )
+
   /** Adds the train list to the state initializing the state for each by computing the route.
     * @param trains
     * @return
     *   either a list of errors if train's data are invalid or if the route cannot be computed, or the updated
     *   simulation
     */
-  def addTrains(trains: List[Train]): Simulation =
+  def withTrains(trains: List[Train]): Simulation =
     trains.foreach(t => validateTrain(t))
     copy(
       state = state.withTrains(state.trains ++ trains),
@@ -87,6 +105,6 @@ case class Simulation(
     require(train.stations.forall(railway.stationCodes.contains(_)))
 
 object Simulation:
-  def withRailway(duration: Int, railway: Railway, faultsEnabled: Boolean = false): Simulation =
+  def withRailway(duration: Int, railway: Railway): Simulation =
     val state = SimulationState.withRails(railway.rails)
-    Simulation(duration, railway, state, PassengerGenerator(railway, state.trains), faultsEnabled)
+    Simulation(duration, railway, state, PassengerGenerator(railway, state.trains))

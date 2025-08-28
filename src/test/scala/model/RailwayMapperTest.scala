@@ -165,7 +165,7 @@ class RailwayMapperTest extends AnyFlatSpec with Matchers:
     val railway = RailwayMapper.convert(grid)
 
     railway.stations should contain theSameElementsAs List(smallStation("ST1"))
-    // The rail is not valid because it doesn't connect to a *different* station
+    // The rail is not valid because it doesn't connect to a different station
     railway.rails should be(empty)
   }
 

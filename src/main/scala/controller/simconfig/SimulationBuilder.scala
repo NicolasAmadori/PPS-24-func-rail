@@ -27,7 +27,8 @@ object SimulationBuilder:
       duration: Int,
       railway: Railway,
       configs: List[TrainConfig],
-      faultsEnabled: Boolean = false
+      faultsEnabled: Boolean = false,
+      itineraryStrategy: Int = 0
   ): Either[List[SimulationError], Simulation] =
     val configurationErrors = validateConfigurations(railway, configs)
     if configurationErrors.nonEmpty then
@@ -39,7 +40,10 @@ object SimulationBuilder:
         if routeErrors.nonEmpty then
           Left(routeErrors)
         else
-          Right(Simulation.withRailway(duration, railway, faultsEnabled).addTrains(trains))
+          Right(Simulation.withRailway(
+            duration,
+            railway
+          ).withTrains(trains).withConfig(faultsEnabled, itineraryStrategy))
       catch
         case e: IllegalStateException => Left(List(CannotBuildTrain(e.getMessage)))
 

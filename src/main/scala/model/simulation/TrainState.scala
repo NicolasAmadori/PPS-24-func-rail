@@ -55,7 +55,7 @@ case class TrainStateImpl(
     val next = nextIndex(train.route.railsCount)
     val nextRail = getNextRail(next, train, rails, railsStates)
     if nextRail.nonEmpty then
-      val nextTravelTime = train.getTravelTime(nextRail.get)
+      val nextTravelTime = train.getTravelTime(nextRail.get).ceil.toInt
       val nextPosition = OnRail(nextRail.get.code)
       (
         copy(

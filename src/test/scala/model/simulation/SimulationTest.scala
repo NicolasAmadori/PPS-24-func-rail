@@ -70,5 +70,5 @@ class SimulationTest extends AnyFlatSpec:
       SimulationState.empty,
       PassengerGenerator(railway, SimulationState.empty.trains)
     )
-    assertThrows[IllegalArgumentException](simulation.addTrains(List(invalidTrain)))
+    assertThrows[IllegalArgumentException](simulation.withTrains(List(invalidTrain)))
   }
