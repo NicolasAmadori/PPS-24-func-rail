@@ -1,6 +1,7 @@
 package model.mapgrid
 
-import model.mapgrid.PieceCost.{BigStationCost, MetalRailCost, SmallStationCost, TitaniumRailCost, pieceCost}
+import model.mapgrid
+import model.mapgrid.PieceCost.pieceCost
 import model.mapgrid.PlacementError.{NonIsolatedStation, OutOfBudget}
 
 object PieceCost:
@@ -13,7 +14,8 @@ object PieceCost:
     SmallStationType -> SmallStationCost,
     BigStationType -> BigStationCost,
     MetalRailType -> MetalRailCost,
-    TitaniumRailType -> TitaniumRailCost
+    TitaniumRailType -> TitaniumRailCost,
+    EmptyType -> 0
   )
 
 object MapGrid:
@@ -42,7 +44,7 @@ case class MapGrid(
     copy(budget = None)
 
   def place(x: Int, y: Int, cellType: CellType): Either[PlacementError, MapGrid] =
-    if mapCost + pieceCost(cellType) <= budget.getOrElse(Int.MaxValue) then
+    if isWithinBudget(cellType) || cellType == EmptyType then
       cellType match
         case rail: RailType =>
           placeGenericRail(x, y, rail)
@@ -404,12 +406,17 @@ case class MapGrid(
     else
       Right(copy(cells = cells.updated(y, cells(y).updated(x, railPiece))))
 
+  def isWithinBudget: Boolean =
+    mapCost <= budget.getOrElse(Int.MaxValue)
+
+  private def isWithinBudget(cellType: CellType): Boolean =
+    mapCost + pieceCost(cellType) <= budget.getOrElse(Int.MaxValue)
+
+  /** Compute the total cost of the pieces placed on the map */
   private def mapCost: Int =
-    cells.foldLeft(0) { (b, l) =>
-      b + l.foldLeft(b) { (a, c) =>
-        a + (c match
-          case _: BigStationBorderPiece => a
-          case _ @EmptyCell => a
-          case _ => pieceCost(c.cellType))
-      }
-    }
+    cells.map(l =>
+      l.map {
+        case _: BigStationBorderPiece => 0
+        case c => pieceCost(c.cellType)
+      }.sum
+    ).sum

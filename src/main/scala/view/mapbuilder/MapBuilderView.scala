@@ -49,7 +49,8 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
   private val toolsGroup = new ToggleGroup
   private val toolButtons = createToolButtons()
   private val buttons = createGrid(DefaultCellSize)
-  private val budgetBox = createBudgetBox()
+  private val budgetLeft = new Label("Budget left: 0"):
+    visible = false
 
   private val alert = new Alert(AlertType.Error):
     title = "Error"
@@ -62,7 +63,7 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
 
       top = new VBox:
         spacing = DefaultSpacing
-        children = budgetBox +: toolButtons
+        children = createBudgetBox() +: toolButtons
 
       bottom = parseMapButton
 
@@ -139,19 +140,26 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
     val textField = new TextField():
       promptText = "Budget"
       disable = true
-      onKeyTyped = _ => text.value.toIntOption.map(controller.setBudget)
-          
-    val checkbox = new CheckBox():
-      onAction = _ => if selected.value then
-        textField.disable = false
-      else {
-        textField.disable = true
-        controller.disableBudget()
-      }
+      onKeyTyped = _ =>
+        println(controller.model.budget.getOrElse(-1))
+        controller.setBudget(text.value.toIntOption.getOrElse(0))
 
-    new HBox(checkbox, textField):
+    val checkbox = new CheckBox():
+      onAction = _ =>
+        if selected.value then
+          textField.disable = false
+          textField.text = ""
+        else
+          textField.disable = true
+          controller.disableBudget()
+
+    val budgetControls = new HBox(checkbox, textField):
       alignment = Center
       spacing = 5
+
+    new VBox(budgetControls, budgetLeft):
+      spacing = 5
+      style = "-fx-stroke-width: 1; -fx-border-color: gray; -fx-padding: 5"
 
   private def setupToolListener(): Unit =
     toolsGroup.selectedToggle.onChange { (_, _, newToggle) =>
@@ -169,6 +177,11 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
         for y <- 0 until height; x <- 0 until width do
           val cell = model.cells(y)(x)
           buttons(y)(x).style = toCssColor(cellToColor.getOrElse(cell.cellType, DefaultColor))
+        model.budget match
+          case Some(b) =>
+            budgetLeft.visible = true
+            budgetLeft.text = "Budget left: " + b
+          case _ => budgetLeft.visible = false
     }
 
   private def toCssColor(color: String): String = s"-fx-background-color: $color"

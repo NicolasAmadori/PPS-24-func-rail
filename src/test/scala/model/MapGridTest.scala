@@ -149,3 +149,37 @@ class MapGridTest extends AnyFlatSpec:
     val result = grid.place(7, 5, MetalRailType) // Adiacente al blocco centrale
     result.isRight should be(true)
   }
+
+  it should "allow placing a StationPiece if it is below budget" in {
+    val grid = MapGrid.empty(10, 10).setBudget(100)
+
+    val result = grid.place(7, 5, BigStationType)
+    result.isRight should be(true)
+  }
+
+  it should "not allow placing a StationPiece if it is over budget" in {
+    val grid = MapGrid.empty(10, 10).setBudget(30)
+
+    val result = grid.place(7, 5, BigStationType)
+    result.isLeft should be(true)
+    result should matchPattern {
+      case Left(PlacementError.OutOfBudget()) =>
+    }
+  }
+
+  it should "allow placing any block if the budget become disabled" in {
+    val grid = MapGrid.empty(10, 10).setBudget(30)
+
+    val resultWithNoAddition = grid.place(7, 5, BigStationType)
+    resultWithNoAddition.isLeft should be(true)
+
+    val gridWithoutBudget = grid.disableBudget
+    val result = gridWithoutBudget.place(7, 5, BigStationType)
+    result.isRight should be(true)
+  }
+
+  it should "place up to the budget" in {
+    val grid = MapGrid.empty(10, 10).setBudget(30)
+    val gridWithSmallStation = grid.place(7, 5, SmallStationType).toOption.get
+    gridWithSmallStation.isWithinBudget should be(true)
+  }
