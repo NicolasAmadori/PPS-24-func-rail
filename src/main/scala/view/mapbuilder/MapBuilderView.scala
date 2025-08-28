@@ -4,8 +4,8 @@ import model.mapgrid.*
 import scalafx.application.Platform
 import scalafx.geometry.Insets
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.control.{Alert, Button, Label, RadioButton, ToggleGroup}
-import scalafx.scene.layout.{BorderPane, GridPane, VBox}
+import scalafx.scene.control.{Alert, Button, CheckBox, Label, RadioButton, TextField, ToggleGroup}
+import scalafx.scene.layout.{BorderPane, GridPane, HBox, VBox}
 import scalafx.scene.{Node, Parent}
 import utils.ErrorMessage
 import view.simconfig.SimulationConfigViewConstants.{DefaultPadding, DefaultSpacing}
@@ -14,6 +14,7 @@ import MapViewConstants.*
 import ToolMappings.*
 import controller.mapbuilder.MapBuilderController
 import model.util.RailwayMapper
+import scalafx.geometry.Pos.Center
 
 object ToolMappings:
   val eraserNameToCell: Map[String, CellType] = Map(
@@ -48,6 +49,7 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
   private val toolsGroup = new ToggleGroup
   private val toolButtons = createToolButtons()
   private val buttons = createGrid(DefaultCellSize)
+  private val budgetBox = createBudgetBox()
 
   private val alert = new Alert(AlertType.Error):
     title = "Error"
@@ -60,7 +62,7 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
 
       top = new VBox:
         spacing = DefaultSpacing
-        children = toolButtons
+        children = budgetBox +: toolButtons
 
       bottom = parseMapButton
 
@@ -132,6 +134,24 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
     rails ++ stations match
       case allButtons =>
         List(instructions) ++ List(eraser) ++ (Seq(railLabel) ++ rails ++ Seq(stationLabel) ++ stations)
+
+  private def createBudgetBox(): Node =
+    val textField = new TextField():
+      promptText = "Budget"
+      disable = true
+      onKeyTyped = _ => text.value.toIntOption.map(controller.setBudget)
+          
+    val checkbox = new CheckBox():
+      onAction = _ => if selected.value then
+        textField.disable = false
+      else {
+        textField.disable = true
+        controller.disableBudget()
+      }
+
+    new HBox(checkbox, textField):
+      alignment = Center
+      spacing = 5
 
   private def setupToolListener(): Unit =
     toolsGroup.selectedToggle.onChange { (_, _, newToggle) =>

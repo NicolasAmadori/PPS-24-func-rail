@@ -29,6 +29,12 @@ class MapBuilderController(model: MapGrid) extends BaseController[MapBuilderView
 
   private def showError(error: ErrorMessage, title: String): Unit =
     getView.showError(title, error)
+    
+  def setBudget(value: Int): Unit =
+    currentModel = currentModel.setBudget(value)
+    
+  def disableBudget(): Unit =
+    currentModel = currentModel.disableBudget
 
   def placeAt(x: Int, y: Int): Unit =
     validation match

@@ -1,6 +1,20 @@
 package model.mapgrid
 
-import model.mapgrid.PlacementError.NonIsolatedStation
+import model.mapgrid.PieceCost.{BigStationCost, MetalRailCost, SmallStationCost, TitaniumRailCost, pieceCost}
+import model.mapgrid.PlacementError.{NonIsolatedStation, OutOfBudget}
+
+object PieceCost:
+  private val SmallStationCost = 30
+  private val BigStationCost = 50
+  private val MetalRailCost = 1
+  private val TitaniumRailCost = 3
+
+  val pieceCost: Map[CellType, Int] = Map(
+    SmallStationType -> SmallStationCost,
+    BigStationType -> BigStationCost,
+    MetalRailType -> MetalRailCost,
+    TitaniumRailType -> TitaniumRailCost
+  )
 
 object MapGrid:
   def empty(width: Int, height: Int): MapGrid =
@@ -8,23 +22,38 @@ object MapGrid:
     val grid = Vector.fill(height)(emptyRow)
     MapGrid(width, height, grid)
 
-case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], stationCounter: Int = 0):
+case class MapGrid(
+    width: Int,
+    height: Int,
+    cells: Vector[Vector[Cell]],
+    stationCounter: Int = 0,
+    budget: Option[Int] = None
+):
 
   private val cardinalOffsets = Seq((0, -1), (-1, 0), (1, 0), (0, 1))
   private val diagonalOffsets = Seq((-1, -1), (1, -1), (-1, 1), (1, 1))
 
   def getStationsNumber: Int = stationCounter
 
+  def setBudget(value: Int): MapGrid =
+    copy(budget = Some(value))
+
+  def disableBudget: MapGrid =
+    copy(budget = None)
+
   def place(x: Int, y: Int, cellType: CellType): Either[PlacementError, MapGrid] =
-    cellType match
-      case rail: RailType =>
-        placeGenericRail(x, y, rail)
-      case BigStationType =>
-        placeBigStation(x, y)
-      case SmallStationType =>
-        placeSmallStation(x, y)
-      case EmptyType =>
-        erasePiece(x, y)
+    if mapCost + pieceCost(cellType) <= budget.getOrElse(Int.MaxValue) then
+      cellType match
+        case rail: RailType =>
+          placeGenericRail(x, y, rail)
+        case BigStationType =>
+          placeBigStation(x, y)
+        case SmallStationType =>
+          placeSmallStation(x, y)
+        case EmptyType =>
+          erasePiece(x, y)
+    else
+      Left(OutOfBudget())
 
   /** Check if a coordinate is inside grid bounds
     * @param x
@@ -197,7 +226,7 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
       case t if isRail(x, y) =>
         Right(copy(cells = cells.updated(y, cells(y).updated(x, EmptyCell))))
 
-      case BigStationType =>
+      case t @ BigStationType =>
         val adj = adjacentCells(x, y)
         val allBigStation = adj.forall(_.exists(_.cellType == BigStationType))
         if allBigStation then
@@ -211,13 +240,16 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
             Left(NonIsolatedStation(x, y))
         else Right(this)
 
-      case _ =>
+      case t @ SmallStationType =>
         val adjCoords = selfAndAdjacentCoords(x, y)
         val noRailsAround = !adjCoords.exists { case (ax, ay) => isRail(ax, ay) }
         if noRailsAround then
           Right(copy(cells = cells.updated(y, cells(y).updated(x, EmptyCell))))
         else
           Left(NonIsolatedStation(x, y))
+
+      case _ =>
+        Right(this)
 
   /** Attempts to place a Big Station centered at the specified coordinates.
     *
@@ -371,3 +403,13 @@ case class MapGrid(width: Int, height: Int, cells: Vector[Vector[Cell]], station
       Left(PlacementError.InvalidPlacement(x, y, railType)) // Error if a 2x2 square would be formed
     else
       Right(copy(cells = cells.updated(y, cells(y).updated(x, railPiece))))
+
+  private def mapCost: Int =
+    cells.foldLeft(0) { (b, l) =>
+      b + l.foldLeft(b) { (a, c) =>
+        a + (c match
+          case _: BigStationBorderPiece => a
+          case _ @EmptyCell => a
+          case _ => pieceCost(c.cellType))
+      }
+    }
