@@ -51,7 +51,6 @@ object StationsWithMostWaitingProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): StationsWithMostWaiting =
     val positions = ctx.passengerStates.map(_.previousPositions).filter(_.nonEmpty)
     val waitingTimes = aggregateStationWaiting(positions)
-    println(waitingTimes)
     val maxWaiting = if waitingTimes.nonEmpty then waitingTimes.values.max else 0
     val stationsWithMaxWaiting = waitingTimes.collect { case (st, t) if t == maxWaiting => st }.toList
     StationsWithMostWaiting(Option(stationsWithMaxWaiting))

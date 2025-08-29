@@ -141,7 +141,6 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
       promptText = "Budget"
       disable = true
       onKeyTyped = _ =>
-        println(controller.model.budget.getOrElse(-1))
         controller.setBudget(text.value.toIntOption.getOrElse(0))
 
     val checkbox = new CheckBox():
