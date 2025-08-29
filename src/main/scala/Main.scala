@@ -20,6 +20,7 @@ object Main extends JFXApp3:
     val stageInstance = new JFXApp3.PrimaryStage:
       title = "Map Builder"
       scene = new Scene(view)
+      resizable = false
 
     StageManager.init(stageInstance)
 

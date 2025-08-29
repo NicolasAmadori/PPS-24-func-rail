@@ -75,7 +75,7 @@ class SimulationConfigController(mapGrid: MapGrid, model: Railway)
     *   the StationCode of the departure station
     */
   def setDepartureStation(id: Int, station: StationCode): Unit =
-    localState = localState.setDepartureStation(id, station)
+    localState = localState.clearStops(id).setDepartureStation(id, station).addStop(id, station)
 
   /** Adds a stop to a train in the local state.
     * @param id
@@ -96,12 +96,18 @@ class SimulationConfigController(mapGrid: MapGrid, model: Railway)
     localState = localState.removeStop(id, station)
 
   /** Start the simulation by building the Simulation object and transitioning to the simulation view */
-  def startSimulation(duration: Int, graphView: GraphView[StationView, RailView]): Unit =
-    val simulation = SimulationBuilder.build(duration, model, localState.trains)
+  def startSimulation(
+      duration: Int,
+      speed: Int,
+      faultsEnabled: Boolean,
+      itineraryStrategy: Int,
+      graphView: GraphView[StationView, RailView]
+  ): Unit =
+    val simulation = SimulationBuilder.build(duration, model, localState.trains, faultsEnabled, itineraryStrategy)
     simulation match
       case Left(error) => getView.showErrors(error)
       case Right(sim) =>
-        val transition = new SimulationTransition(sim, graphView)
+        val transition = new SimulationTransition(sim, speed, graphView)
         transition.transition()
 
   def onBack(): Unit =

@@ -116,7 +116,7 @@ class MapGridTest extends AnyFlatSpec:
 
   it should "not allow placing a BigStationPiece if part of it is out of bounds" in {
     val grid = MapGrid.empty(3, 3)
-    val result = grid.place(0, 0, BigStationType) // angolo in alto a sinistra
+    val result = grid.place(0, 0, BigStationType) // upper left corner
     result should matchPattern {
       case Left(PlacementError.InvalidPlacement(_, _, _)) =>
     }
@@ -126,7 +126,7 @@ class MapGridTest extends AnyFlatSpec:
     val grid = MapGrid.empty(10, 10)
       .place(1, 1, SmallStationType).toOption.get
 
-    val result = grid.place(3, 3, BigStationType) // troppo vicino
+    val result = grid.place(3, 3, BigStationType) // too close
     result should matchPattern {
       case Left(PlacementError.InvalidPlacement(_, _, _)) =>
     }
@@ -146,6 +146,40 @@ class MapGridTest extends AnyFlatSpec:
     val grid = MapGrid.empty(10, 10)
       .place(5, 5, BigStationType).toOption.get
 
-    val result = grid.place(7, 5, MetalRailType) // Adiacente al blocco centrale
+    val result = grid.place(7, 5, MetalRailType) // adjiacent to the center piece
     result.isRight should be(true)
+  }
+
+  it should "allow placing a StationPiece if it is below budget" in {
+    val grid = MapGrid.empty(10, 10).setBudget(100)
+
+    val result = grid.place(7, 5, BigStationType)
+    result.isRight should be(true)
+  }
+
+  it should "not allow placing a StationPiece if it is over budget" in {
+    val grid = MapGrid.empty(10, 10).setBudget(30)
+
+    val result = grid.place(7, 5, BigStationType)
+    result.isLeft should be(true)
+    result should matchPattern {
+      case Left(PlacementError.OutOfBudget()) =>
+    }
+  }
+
+  it should "allow placing any block if the budget become disabled" in {
+    val grid = MapGrid.empty(10, 10).setBudget(30)
+
+    val resultWithNoAddition = grid.place(7, 5, BigStationType)
+    resultWithNoAddition.isLeft should be(true)
+
+    val gridWithoutBudget = grid.disableBudget
+    val result = gridWithoutBudget.place(7, 5, BigStationType)
+    result.isRight should be(true)
+  }
+
+  it should "place up to the budget" in {
+    val grid = MapGrid.empty(10, 10).setBudget(30)
+    val gridWithSmallStation = grid.place(7, 5, SmallStationType).toOption.get
+    gridWithSmallStation.isWithinBudget should be(true)
   }

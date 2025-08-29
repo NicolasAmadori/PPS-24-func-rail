@@ -1,0 +1,69 @@
+package model
+
+import model.entities.EntityCodes.{PassengerCode, StationCode}
+import model.entities.dsl.ItineraryDSL.leg
+import model.entities.dsl.PassengerDSL.passenger
+import model.entities.Train.normalTrain
+import model.entities.{Itinerary, NormalTrain}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers.*
+
+class PassengerDslTest extends AnyFlatSpec:
+
+  private val stationA = StationCode("S1")
+  private val stationB = StationCode("S2")
+
+  val trainCode1 = "101"
+
+  private val train: NormalTrain = normalTrain(trainCode1, List(stationA, stationB))
+  private val itineraryLeg = leg(train) from stationA to stationB
+  private val itinerary = Itinerary(List(itineraryLeg))
+
+  "Passenger DSL" should "create a passenger with departure, arrival and itinerary" in {
+    val p = passenger("P1")
+      .from(stationA)
+      .to(stationB)
+      .withItinerary(itinerary)
+
+    p.code shouldBe PassengerCode("P1")
+    p.departure shouldBe stationA
+    p.destination shouldBe stationB
+    p.itinerary shouldBe Some(itinerary)
+  }
+
+  it should "create a passenger with no itinerary" in {
+    val p = passenger("P2")
+      .from(stationA)
+      .to(stationB)
+      .withNoItinerary
+
+    p.code shouldBe PassengerCode("P2")
+    p.departure shouldBe stationA
+    p.destination shouldBe stationB
+    p.itinerary shouldBe None
+  }
+
+  it should "allow chaining in different order (from -> to -> withNoItinerary)" in {
+    val p = passenger("P3")
+      .from(stationA)
+      .to(stationB)
+      .withNoItinerary
+
+    p.departure shouldBe stationA
+    p.destination shouldBe stationB
+    p.itinerary shouldBe None
+  }
+
+  it should "not mutate previous passengers when chaining" in {
+    val base = passenger("P4")
+    val p1 = base.from(stationA).to(stationB).withNoItinerary
+    val p2 = base.from(stationB).to(stationA).withItinerary(itinerary)
+
+    p1.departure shouldBe stationA
+    p1.destination shouldBe stationB
+    p1.itinerary shouldBe None
+
+    p2.departure shouldBe stationB
+    p2.destination shouldBe stationA
+    p2.itinerary shouldBe Some(itinerary)
+  }

@@ -1,4 +1,4 @@
-package controller
+package util
 
 import model.simulation.Simulation
 import org.scalatest.Assertions.fail

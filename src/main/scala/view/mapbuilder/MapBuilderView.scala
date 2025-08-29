@@ -4,8 +4,8 @@ import model.mapgrid.*
 import scalafx.application.Platform
 import scalafx.geometry.Insets
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.control.{Alert, Button, Label, RadioButton, ToggleGroup}
-import scalafx.scene.layout.{BorderPane, GridPane, VBox}
+import scalafx.scene.control.{Alert, Button, CheckBox, Label, RadioButton, TextField, ToggleGroup}
+import scalafx.scene.layout.{BorderPane, GridPane, HBox, VBox}
 import scalafx.scene.{Node, Parent}
 import utils.ErrorMessage
 import view.simconfig.SimulationConfigViewConstants.{DefaultPadding, DefaultSpacing}
@@ -14,6 +14,7 @@ import MapViewConstants.*
 import ToolMappings.*
 import controller.mapbuilder.MapBuilderController
 import model.util.RailwayMapper
+import scalafx.geometry.Pos.Center
 
 object ToolMappings:
   val eraserNameToCell: Map[String, CellType] = Map(
@@ -48,6 +49,8 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
   private val toolsGroup = new ToggleGroup
   private val toolButtons = createToolButtons()
   private val buttons = createGrid(DefaultCellSize)
+  private val budgetLeft = new Label("Budget left: 0"):
+    visible = false
 
   private val alert = new Alert(AlertType.Error):
     title = "Error"
@@ -60,7 +63,7 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
 
       top = new VBox:
         spacing = DefaultSpacing
-        children = toolButtons
+        children = createBudgetBox() +: toolButtons
 
       bottom = parseMapButton
 
@@ -133,6 +136,30 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
       case allButtons =>
         List(instructions) ++ List(eraser) ++ (Seq(railLabel) ++ rails ++ Seq(stationLabel) ++ stations)
 
+  private def createBudgetBox(): Node =
+    val textField = new TextField():
+      promptText = "Budget"
+      disable = true
+      onKeyTyped = _ =>
+        controller.setBudget(text.value.toIntOption.getOrElse(0))
+
+    val checkbox = new CheckBox():
+      onAction = _ =>
+        if selected.value then
+          textField.disable = false
+          textField.text = ""
+        else
+          textField.disable = true
+          controller.disableBudget()
+
+    val budgetControls = new HBox(checkbox, textField):
+      alignment = Center
+      spacing = 5
+
+    new VBox(budgetControls, budgetLeft):
+      spacing = 5
+      style = "-fx-stroke-width: 1; -fx-border-color: gray; -fx-padding: 5"
+
   private def setupToolListener(): Unit =
     toolsGroup.selectedToggle.onChange { (_, _, newToggle) =>
       Option(newToggle)
@@ -149,6 +176,11 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
         for y <- 0 until height; x <- 0 until width do
           val cell = model.cells(y)(x)
           buttons(y)(x).style = toCssColor(cellToColor.getOrElse(cell.cellType, DefaultColor))
+        model.budget match
+          case Some(b) =>
+            budgetLeft.visible = true
+            budgetLeft.text = "Budget left: " + b
+          case _ => budgetLeft.visible = false
     }
 
   private def toCssColor(color: String): String = s"-fx-background-color: $color"

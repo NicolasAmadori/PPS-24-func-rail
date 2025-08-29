@@ -1,11 +1,15 @@
 package model.simulation
 
 import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
-import model.entities.{Passenger, PassengerPosition, PassengerState, Rail, Route, Train}
+import model.entities.{Passenger, PassengerPosition, Rail, Train}
 import model.simulation.TrainPosition.{AtStation, OnRail}
-import model.simulation.TrainState.InitialRouteIndex
-import model.util.{PassengerGenerator, PassengerLog, TrainLog}
+
+import model.util.RailLog.{BecomeFaulty, BecomeRepaired}
+
+import model.util.{PassengerGenerator, PassengerLog, RailLog, TrainLog}
 import model.util.TrainLog.{EnteredStation, LeavedStation, WaitingAt}
+
+import scala.util.Random
 
 /** Represent the mutable state of the simulation.
   * @param trains
@@ -17,6 +21,8 @@ import model.util.TrainLog.{EnteredStation, LeavedStation, WaitingAt}
   *   The list of passenger present in the simulation
   * @param passengerStates
   *   map of [[model.entities.EntityCodes.PassengerCode]] and corresponding state
+  * @param faultyRails
+  *   map of currently faulty rails with their repair countdown
   * @param simulationStep
   *   counter for simulation progression
   */
@@ -42,16 +48,62 @@ case class SimulationState(
     * @return
     *   the updated simulation state and the list of logs
     */
-  def updateTrains(): (SimulationState, List[TrainLog]) =
+  def updateTrains(rails: List[Rail]): (SimulationState, List[TrainLog]) =
     val currentState = this
     trainStates.foldLeft((currentState, List.empty)) { (acc, ts) =>
       val (state, logs) = acc
       val (code, trainState) = (ts._1, ts._2)
-      val (newTrainState, newPosition) = trainState.update(trains.find(code == _.code).get, state.railStates)
+      val (newTrainState, newPosition) = trainState.update(trains.find(code == _.code).get, rails, state.railStates)
       val updatedTrainStates = state.trainStates.updated(code, newTrainState)
       val (updatedRailStates, log) = updateRailStateOn(ts._1, state.railStates, trainState.position, newPosition)
       (state.copy(trainStates = updatedTrainStates, railStates = updatedRailStates), appendLog(logs, log))
     }
+
+  def updateRails(faultProbability: Double, maxFaultDuration: Int): (SimulationState, List[RailLog]) =
+    var logs: List[RailLog] = List.empty
+    val newRailsStates: Map[RailCode, RailState] = railStates.map((rCode, rState) =>
+      if rState.isFaulty then
+        val newState = rState.decrementCountdown
+        if !newState.isFaulty then
+          logs = logs :+ BecomeRepaired(rCode)
+        rCode -> newState
+      else
+        rCode -> rState
+    )
+    val (finalRailStates, newFaultLogs) =
+      copy(railStates = newRailsStates).generateRailFaults(faultProbability, maxFaultDuration)
+    (
+      finalRailStates,
+      logs ++ newFaultLogs
+    )
+
+  private def generateFaultDuration(maxDuration: Int): Int =
+    val numbers = 1 to maxDuration
+
+    val weights = numbers.map(n => 1.0 / n)
+    val totalWeight = weights.sum
+    val cumulative = weights.scanLeft(0.0)(_ + _).tail
+
+    val r = Random.nextDouble() * totalWeight
+    numbers(cumulative.indexWhere(r <= _))
+
+  private def generateRailFaults(faultProbability: Double, maxFaultDuration: Int): (SimulationState, List[RailLog]) =
+    val notFaultyRailsStates = railStates.filter((_, rState) => !rState.isFaulty && rState.isFree)
+    if Random.nextDouble() > faultProbability || notFaultyRailsStates.isEmpty then
+      (copy(), List.empty)
+    else
+      val newFaultyRail = Random.shuffle(notFaultyRailsStates).head
+      val newFaultDuration = generateFaultDuration(maxFaultDuration)
+      val newRailStates = railStates.map((rCode, rState) =>
+        if rCode != newFaultyRail._1 then
+          rCode -> rState
+        else
+          rCode -> rState.setFaulty(newFaultDuration)
+      )
+      (
+        copy(railStates = newRailStates),
+        List(BecomeFaulty(newFaultyRail._1, newFaultDuration))
+      )
 
   /** Updates the passengers' state in the simulation.
     *
@@ -191,8 +243,11 @@ case class SimulationState(
           case None => pCode -> oldState
       }
 
-    val newPassengerLogs: List[PassengerLog] = passengerReadyToGetOffTrain.map((pCode, sCode) =>
-      PassengerLog.GetOffTrain(pCode, sCode)
+    val newPassengerLogs: List[PassengerLog] = passengerReadyToGetOffTrain.flatMap((pCode, sCode) =>
+      var logs = List(PassengerLog.GetOffTrain(pCode, sCode))
+      if passengers.find(_.code == pCode).get.itinerary.get.end == sCode then
+        logs = logs ++ List(PassengerLog.EndTrip(pCode))
+      logs
     ).toList
 
     (copy(passengerStates = newPassengerStates), newPassengerLogs)
@@ -212,13 +267,12 @@ case class SimulationState(
       passengers
         .filter(p =>
           // Filter out player arrived at their destination
-          if p.itinerary.isEmpty then
-            true
-          else
+          p.itinerary.fold(true) { _ =>
             val pState = passengerStates(p.code)
             pState.currentPosition match
               case PassengerPosition.AtStation(station) => station != p.destination
               case _ => true
+          }
         )
         .map(_.code)
         .filterNot(passengerReadyToGetOnTrain.contains)
@@ -262,9 +316,9 @@ case class SimulationState(
   ): (Map[RailCode, RailState], Option[TrainLog]) =
     (oldPosition, newPosition) match
       case (Some(AtStation(s)), OnRail(r)) =>
-        (states.updated(r, states(r).occupyRail), Some(LeavedStation(trainCode, s, r)))
+        (states.updated(r, states(r).setOccupied), Some(LeavedStation(trainCode, s, r)))
       case (Some(OnRail(r)), AtStation(s)) =>
-        (states.updated(r, states(r).freeRail), Some(EnteredStation(trainCode, s)))
+        (states.updated(r, states(r).setFree), Some(EnteredStation(trainCode, s)))
       case (Some(AtStation(s)), AtStation(_)) => (states, Some(WaitingAt(trainCode, s)))
       case _ => (states, None)
 
@@ -279,114 +333,3 @@ object SimulationState:
 
   /** Defines an empty simulation with empty train list */
   def empty: SimulationState = SimulationState(List.empty)
-
-trait TrainState:
-  def position: Option[TrainPosition]
-  def progress: Int
-  def travelTime: Int
-  def forward: Boolean
-  def previousPositions: List[TrainPosition]
-  def update(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition)
-
-case class TrainStateImpl(
-    position: Option[TrainPosition],
-    progress: Int,
-    travelTime: Int,
-    previousPositions: List[TrainPosition],
-    currentRouteIndex: Int = InitialRouteIndex,
-    forward: Boolean = true
-) extends TrainState:
-  /** Compute new state for train: if it's at station tries to enter next rail, if it's on a rail updates progress and
-    * enter a station if arrived
-    * @param train
-    *   the train to handle
-    * @param occupancies
-    *   rails occupancies
-    * @return
-    *   the updated state and the current train position
-    */
-  def update(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition) =
-    position match
-      case Some(AtStation(s)) => tryMoveOnRail(train, occupancies)
-      case Some(OnRail(r)) => move(train)
-      case None => move(train)
-
-  /** Computes new index based on the direction keeping it in route bounds */
-  private def nextIndex(routeLength: Int): Int =
-    val updated = if forward then currentRouteIndex + 1 else currentRouteIndex - 1
-    if updated < 0 then
-      0
-    else if updated >= routeLength then
-      routeLength - 1
-    else
-      updated
-
-  /** Updates train position to rail if it's free, does nothing otherwise */
-  private def tryMoveOnRail(train: Train, occupancies: Map[RailCode, RailState]): (TrainState, TrainPosition) =
-    val next = nextIndex(train.route.railsCount)
-    val nextRail = train.route.getRailAt(next)
-    if occupancies(nextRail.code).free then
-      val nextTravelTime = train.getTravelTime(nextRail)
-      val nextPosition = OnRail(nextRail.code)
-      (
-        copy(
-          position = Some(nextPosition),
-          progress = 1,
-          travelTime = nextTravelTime,
-          previousPositions = previousPositions :+ position.get,
-          currentRouteIndex = next
-        ),
-        nextPosition
-      )
-    else (copy(previousPositions = previousPositions :+ position.get), position.get)
-
-  private def newDirectionIfEndOfRoute(position: TrainPosition, route: Route): (Boolean, Int) =
-    position match
-      case AtStation(s) =>
-        if route.isEndOfRoute(s) then (!forward, nextIndex(route.railsCount)) else (forward, currentRouteIndex)
-      case _ => throw IllegalStateException()
-
-  /** Updates progress and enter station if it's reached its travel time */
-  private def move(train: Train): (TrainState, TrainPosition) =
-    val newProgress = progress + 1
-    if position.isEmpty then
-      val initialPosition = AtStation(train.route.startStation.get)
-      (copy(position = Some(initialPosition)), initialPosition)
-    else if progress >= travelTime then
-      val nextPosition = AtStation(train.route.getEndStationAt(currentRouteIndex, forward))
-      val (direction, index) = newDirectionIfEndOfRoute(nextPosition, train.route)
-      (
-        copy(
-          position = Some(nextPosition),
-          previousPositions = previousPositions :+ position.get,
-          forward = direction,
-          currentRouteIndex = index
-        ),
-        nextPosition
-      )
-    else
-      (copy(progress = newProgress, previousPositions = previousPositions :+ position.get), position.get)
-
-object TrainState:
-  val InitialRouteIndex = -1
-  def apply(): TrainState = TrainStateImpl(None, 0, 0, List.empty)
-  def apply(
-      position: TrainPosition
-  ): TrainState = TrainStateImpl(Some(position), 0, 0, List.empty)
-
-enum TrainPosition:
-  case OnRail(rail: RailCode)
-  case AtStation(station: StationCode)
-
-trait RailState:
-  def railCode: RailCode
-  def free: Boolean
-  def freeRail: RailState
-  def occupyRail: RailState
-
-case class RailStateImpl(railCode: RailCode, free: Boolean) extends RailState:
-  override def freeRail: RailState = copy(free = true)
-  override def occupyRail: RailState = copy(free = false)
-
-object RailState:
-  def apply(railCode: RailCode): RailState = RailStateImpl(railCode, true)

@@ -1,8 +1,7 @@
-package model
+package model.entities
 
 import model.entities.EntityCodes.StationCode
 import model.entities.Station.smallStation
-
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 

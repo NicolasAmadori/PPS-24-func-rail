@@ -100,3 +100,10 @@ case class SimulationFormState(trains: List[TrainConfig] = List.empty, trainId: 
       case train if train.id == id => train.copy(stops = train.stops.filterNot(_ == station))
       case train => train
     })
+
+  /** Removes all the stops for a given train */
+  def clearStops(id: Int): SimulationFormState =
+    copy(trains = trains.map {
+      case train if train.id == id => train.copy(stops = List.empty)
+      case train => train
+    })

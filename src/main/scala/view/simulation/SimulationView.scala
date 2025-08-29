@@ -81,7 +81,7 @@ class SimulationView(graphView: GraphView[StationView, RailView]) extends View:
     Platform.runLater:
       logs += message
       if !logsListView.focused.value then
-        logsListView.scrollTo(logs.size - 1) // autoscroll
+        logsListView.scrollTo(logs.size - 1)
 
   def setProgress(value: Double): Unit =
     Platform.runLater:

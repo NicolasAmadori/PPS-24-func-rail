@@ -1,10 +1,13 @@
 package controller
 
 import controller.simulation.util.*
-import model.entities.EntityCodes.{PassengerCode, RailCode, StationCode, TrainCode}
+import model.entities.EntityCodes.{RailCode, StationCode, TrainCode}
 import model.entities.Rail.metalRail
-import model.entities.Train.normalTrain
 import model.entities.*
+import model.entities.dsl.buildNormalTrain
+import model.entities.dsl.ItineraryDSL.leg
+import model.entities.dsl.PassengerDSL.passenger
+import model.simulation.PassengerState
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 import util.SampleRailway
@@ -13,14 +16,16 @@ import util.SampleRailway.SampleStation.*
 class StatisticProviderTest extends AnyFlatSpec:
 
   private val (stationA, stationB, stationC) = (StationCode(StationA), StationCode(StationB), StationCode(StationC))
-  private val train1 = normalTrain("T1", List(stationA, stationB))
-  private val train2 = normalTrain("T2", List(stationB, stationC))
+  private val train1 = buildNormalTrain("T1"):
+    _ departsFrom stationA stopsAt stationB
+  private val train2 = buildNormalTrain("T2"):
+    _ departsFrom stationB stopsAt stationC
   private val itinerary1 = Itinerary(List(
-    ItineraryLeg(train1, stationA, stationB),
-    ItineraryLeg(train2, stationB, stationC)
+    leg(train1) from stationA to stationB,
+    leg(train2) from stationB to stationC
   ))
   private val itinerary2 = Itinerary(List(
-    ItineraryLeg(train1, stationA, stationB)
+    leg(train1) from stationA to stationB
   ))
 
   "Statistic provider" should "retrieve most used rail" in {
@@ -33,7 +38,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = SimulationContext(routes = List(route1, route2))
 
     val mostUsedRails = MostUsedRailsProvider.compute(ctx)
-    mostUsedRails.rails.map(_.code) should contain(RailCode("MR1"))
+    mostUsedRails.rails.get should contain(RailCode("MR1"))
     mostUsedRails.unit should be("")
     mostUsedRails.toString should be("Most used rails")
   }
@@ -48,7 +53,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = SimulationContext(routes = List(route1, route2))
 
     val mostUsedRails = MostUsedRailsProvider.compute(ctx)
-    mostUsedRails.rails.map(_.code) should contain allOf (RailCode("MR1"), RailCode("MR2"), RailCode("MR3"))
+    mostUsedRails.rails.get should contain allOf (RailCode("MR1"), RailCode("MR2"), RailCode("MR3"))
     mostUsedRails.unit should be("")
     mostUsedRails.toString should be("Most used rails")
   }
@@ -75,7 +80,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = SimulationContext(trainHistories = List(positions1, positions2))
 
     val averageWaiting = AverageTrainWaitingProvider.compute(ctx)
-    averageWaiting.hours should be(1.5)
+    averageWaiting.hours.get should be(1.5)
     averageWaiting.unit should be("hours")
     averageWaiting.toString should be("Average train waiting")
   }
@@ -84,34 +89,34 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = SimulationContext(itineraries = List(itinerary1, itinerary2))
 
     val mostUsedTrains = MostUsedTrainsProvider.compute(ctx)
-    mostUsedTrains.trains should be(List(TrainCode("T1")))
+    mostUsedTrains.trains.get should be(List(TrainCode("T1")))
   }
 
   it should "retrieve all the most used train if there's a tie" in {
     val ctx = SimulationContext(itineraries = List(itinerary1, itinerary1))
 
     val mostUsedTrains = MostUsedTrainsProvider.compute(ctx)
-    mostUsedTrains.trains should contain allOf (TrainCode("T1"), TrainCode("T2"))
+    mostUsedTrains.trains.get should contain allOf (TrainCode("T1"), TrainCode("T2"))
   }
 
   it should "retrieve incomplete trips count" in {
-    val passenger1 = PassengerImpl(PassengerCode("P1"), stationA, stationC, None)
-    val passenger2 = PassengerImpl(PassengerCode("P1"), stationA, stationC, Some(itinerary1))
-    val passenger3 = PassengerImpl(PassengerCode("P1"), stationA, stationC, None)
+    val passenger1 = passenger("P1").from(stationA).to(stationC).withNoItinerary
+    val passenger2 = passenger("P2").from(stationA).to(stationC).withItinerary(itinerary1)
+    val passenger3 = passenger("P3").from(stationA).to(stationC).withNoItinerary
     val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
     val incompleteTrips = IncompleteTripsProvider.compute(ctx)
-    incompleteTrips.count should be(2)
+    incompleteTrips.count.get should be(2)
   }
 
   it should "retrieve completed trips count" in {
-    val passenger1 = PassengerImpl(PassengerCode("P1"), stationA, stationC, Some(itinerary1))
-    val passenger2 = PassengerImpl(PassengerCode("P1"), stationA, stationC, Some(itinerary1))
-    val passenger3 = PassengerImpl(PassengerCode("P1"), stationA, stationC, None)
+    val passenger1 = passenger("P1").from(stationA).to(stationC).withItinerary(itinerary1)
+    val passenger2 = passenger("P2").from(stationA).to(stationC).withItinerary(itinerary1)
+    val passenger3 = passenger("P3").from(stationA).to(stationC).withNoItinerary
     val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
     val completedTrips = CompletedTripsProvider.compute(ctx)
-    completedTrips.count should be(2)
+    completedTrips.count.get should be(2)
   }
 
   private def buildContextWithPassengersPositions: SimulationContext =
@@ -140,26 +145,26 @@ class StatisticProviderTest extends AnyFlatSpec:
   it should "retrieve correct stations with most waiting" in {
     val ctx = buildContextWithPassengersPositions
     val stationsWithMostWaiting = StationsWithMostWaitingProvider.compute(ctx)
-    stationsWithMostWaiting.stations should contain(stationA)
+    stationsWithMostWaiting.stations.get should contain(stationA)
   }
 
   it should "retrieve correct average trip duration" in {
     val ctx = buildContextWithPassengersPositions
 
     val averageTripDuration = AverageTripDurationProvider.compute(ctx)
-    averageTripDuration.hours should be(6.5)
+    averageTripDuration.hours.get should be(6.5)
   }
 
   it should "retrieve correct average passenger waiting" in {
     val ctx = buildContextWithPassengersPositions
 
     val averagePassengerWaiting = AveragePassengerWaitingProvider.compute(ctx)
-    averagePassengerWaiting.hours should be(1.5)
+    averagePassengerWaiting.hours.get should be(1.5)
   }
 
   it should "retrieve correct average passenger travel time" in {
     val ctx = buildContextWithPassengersPositions
 
     val averageTravelTime = AveragePassengerTravelTimeProvider.compute(ctx)
-    averageTravelTime.hours should be(3)
+    averageTravelTime.hours.get should be(3)
   }
