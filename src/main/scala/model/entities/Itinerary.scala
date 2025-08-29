@@ -44,6 +44,12 @@ case class ItineraryLeg(train: Train, from: StationCode, to: StationCode):
       .map(train.getTravelTime)
       .sum
 
+  /** Total cost of the leg */
+  def cost: Double =
+    railsOnLeg
+      .map(_.cost)
+      .sum
+
 /** Represents an itinerary composed of multiple train legs. */
 case class Itinerary(legs: List[ItineraryLeg]):
   require(legs.nonEmpty, "Itinerary cannot be empty")
@@ -63,6 +69,9 @@ case class Itinerary(legs: List[ItineraryLeg]):
 
   /** Total time of the itinerary. */
   def totalTime: Double = legs.map(_.time).sum
+
+  /** Total cost of the itinerary. */
+  def totalCost: Double = legs.map(_.cost).sum
 
   /** Number of train changes to make. */
   def changeNumber: Int = legs.size - 1

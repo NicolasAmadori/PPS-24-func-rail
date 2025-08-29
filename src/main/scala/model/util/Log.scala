@@ -51,10 +51,9 @@ enum PassengerLog extends Log:
 
   override def toString: String = this match
     case StartTrip(passenger) =>
-      if passenger.itinerary.isDefined then
-        s"Passenger ${passenger.code} started trip: ${passenger.itinerary.get}"
-      else
+      passenger.itinerary.fold(
         s"Passenger ${passenger.code} started trip from ${passenger.departure} to ${passenger.destination} but no itinerary is possible"
+      )(it => s"Passenger ${passenger.code} started trip: $it")
     case GetOnTrain(passenger, trainCode) =>
       s"Passenger $passenger got on train $trainCode"
     case GetOffTrain(passenger, stationCode) =>

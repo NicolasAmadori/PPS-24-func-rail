@@ -264,13 +264,12 @@ case class SimulationState(
       passengers
         .filter(p =>
           // Filter out player arrived at their destination
-          if p.itinerary.isEmpty then
-            true
-          else
+          p.itinerary.fold(true) { _ =>
             val pState = passengerStates(p.code)
             pState.currentPosition match
               case PassengerPosition.AtStation(station) => station != p.destination
               case _ => true
+          }
         )
         .map(_.code)
         .filterNot(passengerReadyToGetOnTrain.contains)

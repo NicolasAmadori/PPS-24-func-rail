@@ -23,7 +23,7 @@ case class Route(rails: List[Rail]):
   def startStation: Option[StationCode] = rails.headOption.map(_.stationA)
 
   /** Returns the station where the route ends. */
-  def endStation: Option[StationCode] = rails.lastOption.map(_.stationB)
+  private def endStation: Option[StationCode] = rails.lastOption.map(_.stationB)
 
   def isEndOfRoute(stationCode: StationCode): Boolean =
     stationCode == startStation.get || stationCode == endStation.get
