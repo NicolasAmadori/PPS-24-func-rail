@@ -49,24 +49,17 @@ object CompletedTripsProvider extends StatisticProvider:
 
 object StationsWithMostWaitingProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): StationsWithMostWaiting =
-    val positions = ctx.passengerStates.map(_.previousPositions).filter(_.nonEmpty).toList
+    val positions = ctx.passengerStates.map(_.previousPositions).filter(_.nonEmpty)
     val waitingTimes = aggregateStationWaiting(positions)
+    println(waitingTimes)
     val maxWaiting = if waitingTimes.nonEmpty then waitingTimes.values.max else 0
     val stationsWithMaxWaiting = waitingTimes.collect { case (st, t) if t == maxWaiting => st }.toList
     StationsWithMostWaiting(Option(stationsWithMaxWaiting))
 
   private def aggregateStationWaiting(histories: List[List[PassengerPosition]]): Map[StationCode, Int] =
-    val perPassenger = histories.map { history =>
+    histories.flatMap { history =>
       history.collect { case PassengerPosition.AtStation(st) => st }
-    }.map(waitingInItinerary)
-    perPassenger.flatten
-      .groupBy(_._1)
-      .map { case (station, waits) => station -> (waits.map(_._2).sum / waits.size) }
-
-  private def waitingInItinerary(stations: List[StationCode]): Map[StationCode, Int] =
-    stations.sliding(2).collect {
-      case List(st1, st2) if st1 == st2 => st1 -> 1
-    }.toList.groupMapReduce(_._1)(_._2)(_ + _)
+    }.groupBy(c => c).map { case (c, group) => (c, group.size) }
 
 object AverageTripDurationProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): AverageTripDuration =
