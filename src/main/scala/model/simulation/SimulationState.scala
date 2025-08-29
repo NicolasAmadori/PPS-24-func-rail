@@ -243,8 +243,11 @@ case class SimulationState(
           case None => pCode -> oldState
       }
 
-    val newPassengerLogs: List[PassengerLog] = passengerReadyToGetOffTrain.map((pCode, sCode) =>
-      PassengerLog.GetOffTrain(pCode, sCode)
+    val newPassengerLogs: List[PassengerLog] = passengerReadyToGetOffTrain.flatMap((pCode, sCode) =>
+      var logs = List(PassengerLog.GetOffTrain(pCode, sCode))
+      if passengers.find(_.code == pCode).get.itinerary.get.end == sCode then
+        logs = logs ++ List(PassengerLog.EndTrip(pCode))
+      logs
     ).toList
 
     (copy(passengerStates = newPassengerStates), newPassengerLogs)
@@ -264,13 +267,12 @@ case class SimulationState(
       passengers
         .filter(p =>
           // Filter out player arrived at their destination
-          if p.itinerary.isEmpty then
-            true
-          else
+          p.itinerary.fold(true) { _ =>
             val pState = passengerStates(p.code)
             pState.currentPosition match
               case PassengerPosition.AtStation(station) => station != p.destination
               case _ => true
+          }
         )
         .map(_.code)
         .filterNot(passengerReadyToGetOnTrain.contains)

@@ -96,14 +96,16 @@ class SimulationPassengerUpdateTest extends AnyFlatSpec:
       val (s1, l) = sim.start()
       sim = s1
       selectedPassenger1 = sim.state.passengers.find(p =>
-        p.itinerary.isDefined
-          && p.itinerary.get.start == StationCode(stationCode2)
-          && p.itinerary.get.end == StationCode(stationCode1)
+        p.itinerary.exists(it =>
+          it.start == StationCode(stationCode2) &&
+            it.end == StationCode(stationCode1)
+        )
       )
       selectedPassenger2 = sim.state.passengers.find(p =>
-        p.itinerary.isDefined
-          && p.itinerary.get.start == StationCode(stationCode2)
-          && p.itinerary.get.end == StationCode(stationCode3)
+        p.itinerary.exists(it =>
+          it.start == StationCode(stationCode2) &&
+            it.end == StationCode(stationCode3)
+        )
       )
 
     val N_STEPS = 20
@@ -141,9 +143,10 @@ class SimulationPassengerUpdateTest extends AnyFlatSpec:
     while selectedPassenger.isEmpty do
       val (s1, l) = sim.start()
       selectedPassenger = s1.state.passengers.find(p =>
-        p.itinerary.isDefined
-          && p.itinerary.get.start == StationCode(stationCode1)
-          && p.itinerary.get.end == StationCode(stationCode3)
+        p.itinerary.exists(it =>
+          it.start == StationCode(stationCode1)
+            && it.end == StationCode(stationCode3)
+        )
       )
       if selectedPassenger.isDefined then
         sim = s1

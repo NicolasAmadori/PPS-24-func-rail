@@ -45,19 +45,18 @@ enum RailLog extends Log:
 
 enum PassengerLog extends Log:
   case StartTrip(passenger: Passenger)
-  case GetOnTrain(passenger: PassengerCode, trainCode: TrainCode)
-  case GetOffTrain(passenger: PassengerCode, stationCode: StationCode)
-  case EndTrip(passenger: Passenger)
+  case GetOnTrain(passengerCode: PassengerCode, trainCode: TrainCode)
+  case GetOffTrain(passengerCode: PassengerCode, stationCode: StationCode)
+  case EndTrip(passengerCode: PassengerCode)
 
   override def toString: String = this match
     case StartTrip(passenger) =>
-      if passenger.itinerary.isDefined then
-        s"Passenger ${passenger.code} started trip: ${passenger.itinerary.get}"
-      else
+      passenger.itinerary.fold(
         s"Passenger ${passenger.code} started trip from ${passenger.departure} to ${passenger.destination} but no itinerary is possible"
-    case GetOnTrain(passenger, trainCode) =>
-      s"Passenger $passenger got on train $trainCode"
-    case GetOffTrain(passenger, stationCode) =>
-      s"Passenger $passenger got off train at station $stationCode"
-    case EndTrip(passenger) =>
-      s"Passenger $passenger ended trip: ${passenger.itinerary.get}"
+      )(it => s"Passenger ${passenger.code} started trip: $it")
+    case GetOnTrain(passengerCode, trainCode) =>
+      s"Passenger $passengerCode got on train $trainCode"
+    case GetOffTrain(passengerCode, stationCode) =>
+      s"Passenger $passengerCode got off train at station $stationCode"
+    case EndTrip(passengerCode) =>
+      s"Passenger $passengerCode ended its trip"
