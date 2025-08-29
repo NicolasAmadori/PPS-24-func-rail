@@ -265,6 +265,8 @@ class TrainConfigGroup(
 
   controller.updateTrainName(trainId, s"T$trainId")
 
+  private var departureStation: Option[String] = None
+
   private val trainNameTextField =
     new TextField:
       promptText = "Train name"
@@ -286,7 +288,9 @@ class TrainConfigGroup(
       onAction = _ =>
         val selectedStation = value.value
         if selectedStation != null then
+          departureStation = Some(selectedStation)
           controller.setDepartureStation(trainId, StationCode(selectedStation))
+          stopsCheckBoxes.foreach(c => c.selected = c.text.value == selectedStation)
 
   private val stopsCheckBoxes =
     stations.map(s => StationCode.value(s)).map { station =>
@@ -295,8 +299,10 @@ class TrainConfigGroup(
         onAction = _ =>
           if selected.value then
             controller.addStop(trainId, StationCode(station))
-          else
+          else if station != departureStation.getOrElse("") then
             controller.removeStop(trainId, StationCode(station))
+          else
+            this.selected = true
     }
 
   private def stopsCheckboxes: ScrollPane =
