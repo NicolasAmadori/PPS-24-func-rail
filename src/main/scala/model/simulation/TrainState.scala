@@ -52,8 +52,7 @@ case class TrainStateImpl(
       rails: List[Rail],
       railsStates: Map[RailCode, RailState]
   ): (TrainState, TrainPosition) =
-    val next = nextIndex(train.route.railsCount)
-    val nextRail = getNextRail(next, train, rails, railsStates)
+    val nextRail = getNextRail(currentRouteIndex, train, rails, railsStates)
     if nextRail.nonEmpty then
       val nextTravelTime = train.getTravelTime(nextRail.get).ceil.toInt
       val nextPosition = OnRail(nextRail.get.code)
@@ -63,7 +62,7 @@ case class TrainStateImpl(
           progress = 1,
           travelTime = nextTravelTime,
           previousPositions = previousPositions :+ position.get,
-          currentRouteIndex = next
+          currentRouteIndex = currentRouteIndex
         ),
         nextPosition
       )
@@ -90,7 +89,7 @@ case class TrainStateImpl(
   private def newDirectionIfEndOfRoute(position: TrainPosition, route: Route): (Boolean, Int) =
     position match
       case AtStation(s) =>
-        if route.isEndOfRoute(s) then (!forward, nextIndex(route.railsCount)) else (forward, currentRouteIndex)
+        if route.isEndOfRoute(s) then (!forward, currentRouteIndex) else (forward, nextIndex(route.railsCount))
       case _ => throw IllegalStateException()
 
   /** Updates progress and enter station if it's reached its travel time */
@@ -115,7 +114,7 @@ case class TrainStateImpl(
       (copy(progress = newProgress, previousPositions = previousPositions :+ position.get), position.get)
 
 object TrainState:
-  val InitialRouteIndex = -1
+  val InitialRouteIndex = 0
   def apply(): TrainState = TrainStateImpl(None, 0, 0, List.empty)
   def apply(
       position: TrainPosition

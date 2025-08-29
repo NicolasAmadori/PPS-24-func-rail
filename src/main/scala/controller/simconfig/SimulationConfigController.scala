@@ -75,7 +75,7 @@ class SimulationConfigController(mapGrid: MapGrid, model: Railway)
     *   the StationCode of the departure station
     */
   def setDepartureStation(id: Int, station: StationCode): Unit =
-    localState = localState.setDepartureStation(id, station)
+    localState = localState.clearStops(id).setDepartureStation(id, station).addStop(id, station)
 
   /** Adds a stop to a train in the local state.
     * @param id

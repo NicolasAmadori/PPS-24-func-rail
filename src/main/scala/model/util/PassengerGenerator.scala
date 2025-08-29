@@ -22,7 +22,7 @@ class PassengerGenerator(
     itineraryStrategy: Int = 0,
     passengerIdCounter: Int = 0
 ):
-  private val BIG_STATION_MULTIPLIER = 9
+  private val BIG_STATION_MULTIPLIER = 5
 
   /** Generates a specified number of passengers.
     *

@@ -38,7 +38,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = SimulationContext(routes = List(route1, route2))
 
     val mostUsedRails = MostUsedRailsProvider.compute(ctx)
-    mostUsedRails.rails.map(_.code) should contain(RailCode("MR1"))
+    mostUsedRails.rails.get should contain(RailCode("MR1"))
     mostUsedRails.unit should be("")
     mostUsedRails.toString should be("Most used rails")
   }
@@ -53,7 +53,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = SimulationContext(routes = List(route1, route2))
 
     val mostUsedRails = MostUsedRailsProvider.compute(ctx)
-    mostUsedRails.rails.map(_.code) should contain allOf (RailCode("MR1"), RailCode("MR2"), RailCode("MR3"))
+    mostUsedRails.rails.get should contain allOf (RailCode("MR1"), RailCode("MR2"), RailCode("MR3"))
     mostUsedRails.unit should be("")
     mostUsedRails.toString should be("Most used rails")
   }
@@ -80,7 +80,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = SimulationContext(trainHistories = List(positions1, positions2))
 
     val averageWaiting = AverageTrainWaitingProvider.compute(ctx)
-    averageWaiting.hours should be(1.5)
+    averageWaiting.hours.get should be(1.5)
     averageWaiting.unit should be("hours")
     averageWaiting.toString should be("Average train waiting")
   }
@@ -89,14 +89,14 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = SimulationContext(itineraries = List(itinerary1, itinerary2))
 
     val mostUsedTrains = MostUsedTrainsProvider.compute(ctx)
-    mostUsedTrains.trains should be(List(TrainCode("T1")))
+    mostUsedTrains.trains.get should be(List(TrainCode("T1")))
   }
 
   it should "retrieve all the most used train if there's a tie" in {
     val ctx = SimulationContext(itineraries = List(itinerary1, itinerary1))
 
     val mostUsedTrains = MostUsedTrainsProvider.compute(ctx)
-    mostUsedTrains.trains should contain allOf (TrainCode("T1"), TrainCode("T2"))
+    mostUsedTrains.trains.get should contain allOf (TrainCode("T1"), TrainCode("T2"))
   }
 
   it should "retrieve incomplete trips count" in {
@@ -106,7 +106,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
     val incompleteTrips = IncompleteTripsProvider.compute(ctx)
-    incompleteTrips.count should be(2)
+    incompleteTrips.count.get should be(2)
   }
 
   it should "retrieve completed trips count" in {
@@ -116,7 +116,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
     val completedTrips = CompletedTripsProvider.compute(ctx)
-    completedTrips.count should be(2)
+    completedTrips.count.get should be(2)
   }
 
   private def buildContextWithPassengersPositions: SimulationContext =
@@ -145,26 +145,26 @@ class StatisticProviderTest extends AnyFlatSpec:
   it should "retrieve correct stations with most waiting" in {
     val ctx = buildContextWithPassengersPositions
     val stationsWithMostWaiting = StationsWithMostWaitingProvider.compute(ctx)
-    stationsWithMostWaiting.stations should contain(stationA)
+    stationsWithMostWaiting.stations.get should contain(stationA)
   }
 
   it should "retrieve correct average trip duration" in {
     val ctx = buildContextWithPassengersPositions
 
     val averageTripDuration = AverageTripDurationProvider.compute(ctx)
-    averageTripDuration.hours should be(6.5)
+    averageTripDuration.hours.get should be(6.5)
   }
 
   it should "retrieve correct average passenger waiting" in {
     val ctx = buildContextWithPassengersPositions
 
     val averagePassengerWaiting = AveragePassengerWaitingProvider.compute(ctx)
-    averagePassengerWaiting.hours should be(1.5)
+    averagePassengerWaiting.hours.get should be(1.5)
   }
 
   it should "retrieve correct average passenger travel time" in {
     val ctx = buildContextWithPassengersPositions
 
     val averageTravelTime = AveragePassengerTravelTimeProvider.compute(ctx)
-    averageTravelTime.hours should be(3)
+    averageTravelTime.hours.get should be(3)
   }
