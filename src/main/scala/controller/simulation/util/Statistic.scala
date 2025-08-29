@@ -1,7 +1,8 @@
 package controller.simulation.util
 
-import model.entities.EntityCodes.{StationCode, TrainCode}
-import model.entities.Rail
+import model.entities.EntityCodes.{RailCode, StationCode, TrainCode}
+
+private val NotAvailable = "N/A"
 
 trait Statistic:
   def name: String
@@ -9,50 +10,48 @@ trait Statistic:
   def unit: String = ""
   override def toString: String = name
 
+trait HoursStatistic extends Statistic:
+  def hours: Option[Double]
+  def valueAsString: String = hours.fold(NotAvailable)(h => f"$h%.2f")
+  override def unit: String = hours.fold(super.unit)(_ => "hours")
+
 object Statistic:
-  case class MostUsedRails(rails: List[Rail]) extends Statistic:
+  case class MostUsedRails(rails: Option[List[RailCode]]) extends Statistic:
     val name = "Most used rails"
-    def valueAsString: String = rails.mkString(" - ")
+    def valueAsString: String = rails.fold(NotAvailable)(_.mkString(" - "))
 
-  case class AverageTrainWaiting(hours: Double) extends Statistic:
+  case class AverageTrainWaiting(hours: Option[Double]) extends Statistic:
     val name = "Average train waiting"
-    private def asDays: Double = hours / 24
+    private def asDays: Double = hours.getOrElse(0.0) / 24
 
-    def valueAsString: String =
-      if hours < 24 then f"$hours%.2f" else f"$asDays%.2f"
-    override def unit: String =
-      if hours < 24 then "hours" else "days"
+    def valueAsString: String = hours.fold(NotAvailable)(h => if h < 24 then f"$h%.2f" else f"$asDays%.2f")
 
-  case class MostUsedTrains(trains: List[TrainCode]) extends Statistic:
+    override def unit: String = hours.fold(super.unit)(h => if h < 24 then "hours" else "days")
+
+  case class MostUsedTrains(trains: Option[List[TrainCode]]) extends Statistic:
     val name = "Most used train"
-    def valueAsString: String = trains.mkString(" - ")
+    def valueAsString: String = trains.fold(NotAvailable)(_.mkString(" - "))
 
-  case class IncompleteTrips(count: Int) extends Statistic:
+  case class IncompleteTrips(count: Option[Int]) extends Statistic:
     val name = "Passengers who can't complete the trip"
-    def valueAsString: String = count.toString
+    def valueAsString: String = count.map(_.toString).getOrElse(NotAvailable)
 
-  case class CompletedTrips(count: Int) extends Statistic:
+  case class CompletedTrips(count: Option[Int]) extends Statistic:
     val name = "Passengers who can arrive at destination"
-    def valueAsString: String = count.toString
+    def valueAsString: String = count.map(_.toString).getOrElse(NotAvailable)
 
-  case class StationsWithMostWaiting(stations: List[StationCode]) extends Statistic:
+  case class StationsWithMostWaiting(stations: Option[List[StationCode]]) extends Statistic:
     val name = "Stations with most waiting"
-    def valueAsString: String = stations.mkString(" - ")
+    def valueAsString: String = stations.fold(NotAvailable)(_.mkString(" - "))
 
-  case class AverageTripDuration(hours: Double) extends Statistic:
+  case class AverageTripDuration(hours: Option[Double]) extends HoursStatistic:
     val name = "Average trip length"
-    def valueAsString: String = f"$hours%.2f"
-    override def unit: String = "hours"
 
-  case class AveragePassengerWaiting(hours: Double) extends Statistic:
+  case class AveragePassengerWaiting(hours: Option[Double]) extends HoursStatistic:
     val name = "Average passenger waiting"
-    def valueAsString: String = f"$hours%.2f"
-    override def unit: String = "hours"
 
-  case class AveragePassengerTravelTime(hours: Double) extends Statistic:
+  case class AveragePassengerTravelTime(hours: Option[Double]) extends HoursStatistic:
     val name = "Average passenger travel time"
-    def valueAsString: String = f"$hours%.2f"
-    override def unit: String = "hours"
 
   def mostUsedBy[A, K](items: List[A], key: A => K): List[A] =
     if items.isEmpty then Nil

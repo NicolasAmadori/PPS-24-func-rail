@@ -13,29 +13,39 @@ trait StatisticProvider:
 object MostUsedRailsProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): MostUsedRails =
     val rails = ctx.routes.flatMap(_.rails)
-    MostUsedRails(mostUsedBy(rails, _.code))
+    val mostUsed = mostUsedBy(rails, _.code).map(_.code)
+    if mostUsed.isEmpty then
+      MostUsedRails(None)
+    else
+      MostUsedRails(Option(mostUsed))
 
 object AverageTrainWaitingProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): AverageTrainWaiting =
     val trains = ctx.trainHistories
-    val waiting = trains.map(consecutiveSameBy(_) {
-      case TrainPosition.AtStation(st) => Some(st)
-      case _ => None
-    }).sum
-    AverageTrainWaiting(waiting / trains.size.toDouble)
+    if trains.isEmpty then AverageTrainWaiting(None)
+    else
+      val waiting = trains.map(consecutiveSameBy(_) {
+        case TrainPosition.AtStation(st) => Some(st)
+        case _ => None
+      }).sum
+      AverageTrainWaiting(Some(waiting / trains.size.toDouble))
 
 object MostUsedTrainsProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): MostUsedTrains =
     val trains = ctx.itineraries.flatMap(_.legs).map(_.train)
-    MostUsedTrains(mostUsedBy(trains, _.code).map(_.code))
+    val mostUsed = mostUsedBy(trains, _.code).map(_.code)
+    if mostUsed.isEmpty then
+      MostUsedTrains(None)
+    else
+      MostUsedTrains(Option(mostUsed))
 
 object IncompleteTripsProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): IncompleteTrips =
-    IncompleteTrips(ctx.passengers.count(_.itinerary.isEmpty))
+    IncompleteTrips(Option(ctx.passengers.count(_.itinerary.isEmpty)))
 
 object CompletedTripsProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): CompletedTrips =
-    CompletedTrips(ctx.passengers.count(_.itinerary.nonEmpty))
+    CompletedTrips(Option(ctx.passengers.count(_.itinerary.nonEmpty)))
 
 object StationsWithMostWaitingProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): StationsWithMostWaiting =
@@ -43,7 +53,7 @@ object StationsWithMostWaitingProvider extends StatisticProvider:
     val waitingTimes = aggregateStationWaiting(positions)
     val maxWaiting = if waitingTimes.nonEmpty then waitingTimes.values.max else 0
     val stationsWithMaxWaiting = waitingTimes.collect { case (st, t) if t == maxWaiting => st }.toList
-    StationsWithMostWaiting(stationsWithMaxWaiting)
+    StationsWithMostWaiting(Option(stationsWithMaxWaiting))
 
   private def aggregateStationWaiting(histories: List[List[PassengerPosition]]): Map[StationCode, Int] =
     val perPassenger = histories.map { history =>
@@ -60,21 +70,27 @@ object StationsWithMostWaitingProvider extends StatisticProvider:
 
 object AverageTripDurationProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): AverageTripDuration =
-    val averageDuration =
-      ctx.passengersWithCompletedTrip.map(_.previousPositions.size).sum.toDouble / ctx.passengerStates.size.toDouble
-    AverageTripDuration(averageDuration)
+    if ctx.passengersWithCompletedTrip.isEmpty then AverageTripDuration(None)
+    else
+      val averageDuration =
+        ctx.passengersWithCompletedTrip.map(_.previousPositions.size).sum.toDouble / ctx.passengerStates.size.toDouble
+      AverageTripDuration(Option(averageDuration))
 
 object AveragePassengerWaitingProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): AveragePassengerWaiting =
     val passengersPositions = ctx.passengersWithCompletedTrip.map(_.previousPositions)
-    val waiting = passengersPositions.map(Statistic.consecutiveSameBy(_) {
-      case PassengerPosition.AtStation(st) => Some(st)
-      case _ => None
-    }).sum
-    AveragePassengerWaiting(waiting / passengersPositions.size.toDouble)
+    if passengersPositions.isEmpty then AveragePassengerWaiting(None)
+    else
+      val waiting = passengersPositions.map(Statistic.consecutiveSameBy(_) {
+        case PassengerPosition.AtStation(st) => Some(st)
+        case _ => None
+      }).sum
+      AveragePassengerWaiting(Option(waiting / passengersPositions.size.toDouble))
 
 object AveragePassengerTravelTimeProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): AveragePassengerTravelTime =
     val passengerPosition = ctx.passengersWithCompletedTrip.map(_.previousPositions)
-    val travelTime = passengerPosition.flatten.collect { case OnTrain(t) => t }.size
-    AveragePassengerTravelTime(travelTime / passengerPosition.size.toDouble)
+    if passengerPosition.isEmpty then AveragePassengerTravelTime(None)
+    else
+      val travelTime = passengerPosition.flatten.collect { case OnTrain(t) => t }.size
+      AveragePassengerTravelTime(Option(travelTime / passengerPosition.size.toDouble))
