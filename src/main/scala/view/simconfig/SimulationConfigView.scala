@@ -36,7 +36,7 @@ class SimulationConfigView(
   private var simulationSpeed: Int = 60
   private var faultsEnabled: Boolean = false
   private val STRATEGIES: Map[String, Int] =
-    Map.from(List(("Random", 0), ("Shortest time", 1), ("Shortest distance", 2)))
+    Map.from(List(("Random", 0), ("Shortest time", 1), ("Shortest distance", 2), ("Lowest cost", 3)))
   private var itineraryStrategy: Int = STRATEGIES.values.head
 
   private val startButton = startSimulationButton
