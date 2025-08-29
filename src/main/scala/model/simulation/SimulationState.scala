@@ -243,8 +243,11 @@ case class SimulationState(
           case None => pCode -> oldState
       }
 
-    val newPassengerLogs: List[PassengerLog] = passengerReadyToGetOffTrain.map((pCode, sCode) =>
-      PassengerLog.GetOffTrain(pCode, sCode)
+    val newPassengerLogs: List[PassengerLog] = passengerReadyToGetOffTrain.flatMap((pCode, sCode) =>
+      var logs = List(PassengerLog.GetOffTrain(pCode, sCode))
+      if passengers.find(_.code == pCode).get.itinerary.get.end == sCode then
+        logs = logs ++ List(PassengerLog.EndTrip(pCode))
+      logs
     ).toList
 
     (copy(passengerStates = newPassengerStates), newPassengerLogs)
