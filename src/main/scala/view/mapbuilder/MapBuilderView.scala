@@ -98,7 +98,7 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
         try
           controller.placeAt(col, row)
         catch
-          case e => showError(UnexpectedErrorText, CustomError(e.getMessage))
+          case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
 
       btn.onDragDetected = (e: MouseEvent) =>
         painting = true
@@ -109,7 +109,7 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
         try
           if painting then controller.placeAt(col, row)
         catch
-          case e => showError(UnexpectedErrorText, CustomError(e.getMessage))
+          case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
 
       btn.onMouseReleased = (_: MouseEvent) =>
         painting = false
@@ -124,7 +124,7 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
       try
         controller.onNext()
       catch
-        case e => showError(UnexpectedErrorText, CustomError(e.getMessage))
+        case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
 
   private def createToolButtons(): Seq[Node] =
     val instructions = new Label("Click or drag to place pieces")
@@ -156,7 +156,7 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
         try
           controller.setBudget(text.value.toIntOption.getOrElse(0))
         catch
-          case e => showError(UnexpectedErrorText, CustomError(e.getMessage))
+          case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
 
     val checkbox = new CheckBox():
       onAction = _ =>
@@ -200,7 +200,7 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
 
   private def toCssColor(color: String): String = s"-fx-background-color: $color"
 
-  def showError(title: String = "", error: ErrorMessage): Unit =
+  def showError(error: ErrorMessage, title: String): Unit =
     if !painting then
       Platform.runLater:
         alert.contentText = error.toString

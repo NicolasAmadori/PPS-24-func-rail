@@ -6,6 +6,7 @@ import scalafx.scene.layout.{BorderPane, HBox, Pane, VBox}
 import scalafx.scene.control.{Alert, ListView, ProgressBar}
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control.Alert.AlertType
+import utils.ErrorMessage
 import view.View
 import view.simconfig.{GraphView, RailView, StationView}
 import view.simulation.SimulationViewConstants.{DefaultWindowMinWidth, ElementHeight, HalfElementHeight, OneThirdMinWidth}
@@ -89,7 +90,7 @@ class SimulationView(graphView: GraphView[StationView, RailView]) extends View:
 
   def getLogs: List[String] = logs.toList
 
-  def showError(title: String = "", error: String): Unit =
+  def showError(error: ErrorMessage, title: String): Unit =
     Platform.runLater:
       alert.contentText = error.toString
       alert.headerText = title
