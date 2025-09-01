@@ -7,7 +7,7 @@ import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.{Alert, Button, CheckBox, Label, RadioButton, TextField, ToggleGroup}
 import scalafx.scene.layout.{BorderPane, GridPane, HBox, VBox}
 import scalafx.scene.{Node, Parent}
-import utils.ErrorMessage
+import utils.{CustomError, ErrorMessage}
 import view.simconfig.SimulationConfigViewConstants.{DefaultPadding, DefaultSpacing}
 import view.View
 import MapViewConstants.*
@@ -44,6 +44,8 @@ object MapViewConstants:
   val DefaultCellSize = 15
 
 class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) extends BorderPane, View:
+
+  private val UnexpectedErrorText = "Unexpected error"
 
   private val gridPane = new GridPane
   private val toolsGroup = new ToggleGroup
@@ -93,7 +95,10 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
         focusTraversable = false
 
       btn.onMousePressed = (_: MouseEvent) =>
-        controller.placeAt(col, row)
+        try
+          controller.placeAt(col, row)
+        catch
+          case e => showError(UnexpectedErrorText, CustomError(e.getMessage))
 
       btn.onDragDetected = (e: MouseEvent) =>
         painting = true
@@ -101,7 +106,10 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
         e.consume()
 
       btn.onMouseDragEntered = (_: MouseDragEvent) =>
-        if painting then controller.placeAt(col, row)
+        try
+          if painting then controller.placeAt(col, row)
+        catch
+          case e => showError(UnexpectedErrorText, CustomError(e.getMessage))
 
       btn.onMouseReleased = (_: MouseEvent) =>
         painting = false
@@ -112,7 +120,11 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
 
   private def parseMapButton: Button = new Button("Parse Map"):
     maxWidth = Double.MaxValue
-    onAction = _ => controller.onNext()
+    onAction = _ =>
+      try
+        controller.onNext()
+      catch
+        case e => showError(UnexpectedErrorText, CustomError(e.getMessage))
 
   private def createToolButtons(): Seq[Node] =
     val instructions = new Label("Click or drag to place pieces")
@@ -141,15 +153,18 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
       promptText = "Budget"
       disable = true
       onKeyTyped = _ =>
-        controller.setBudget(text.value.toIntOption.getOrElse(0))
+        try
+          controller.setBudget(text.value.toIntOption.getOrElse(0))
+        catch
+          case e => showError(UnexpectedErrorText, CustomError(e.getMessage))
 
     val checkbox = new CheckBox():
       onAction = _ =>
         if selected.value then
           textField.disable = false
-          textField.text = ""
         else
           textField.disable = true
+          textField.text = ""
           controller.disableBudget()
 
     val budgetControls = new HBox(checkbox, textField):
