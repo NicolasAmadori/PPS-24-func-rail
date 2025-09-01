@@ -1,11 +1,11 @@
 package controller.simulation
 
 import controller.BaseController
-
 import model.entities.PassengerPosition
 import model.simulation.{Simulation, SimulationState}
 import model.util.SimulationLog
 import scalafx.application.Platform
+import utils.CustomError
 import view.simconfig.{GraphView, RailView, StationView}
 import view.simulation.SimulationView
 
@@ -61,7 +61,7 @@ class SimulationController(simulation: Simulation, speed: Int, graphView: GraphV
             try
               current.doStep() match
                 case Left(simError) =>
-                  getView.showError("Simulation Error", simError.toString)
+                  getView.showError(simError, "Simulation Error")
                 case Right((next, logs)) =>
                   logs.map(_.toString).foreach(getView.addLog)
                   getView.setProgress(next.state.simulationStep.toDouble / (next.duration.toDouble * 24))
@@ -69,7 +69,7 @@ class SimulationController(simulation: Simulation, speed: Int, graphView: GraphV
                   loopAsync(next, delayMs)
             catch
               case ex: Throwable =>
-                getView.showError("Simulation Error", ex.getMessage)
+                getView.showError(CustomError(ex.getMessage), "Simulation Error")
         ,
         delayMs,
         TimeUnit.MILLISECONDS

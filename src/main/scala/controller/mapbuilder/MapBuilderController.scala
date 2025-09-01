@@ -27,7 +27,7 @@ class MapBuilderController(var model: MapGrid) extends BaseController[MapBuilder
       Right(true)
 
   private def showError(error: ErrorMessage, title: String): Unit =
-    getView.showError(title, error)
+    getView.showError(error, title)
 
   /** Updates the budget with the given value
     *
