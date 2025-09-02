@@ -15,6 +15,7 @@ import util.SampleRailway.SampleStation.*
 
 class StatisticProviderTest extends AnyFlatSpec:
 
+  private val NotAvailable = "N/A"
   private val (stationA, stationB, stationC) = (StationCode(StationA), StationCode(StationB), StationCode(StationC))
   private val train1 = buildNormalTrain("T1"):
     _ departsFrom stationA stopsAt stationB
@@ -90,6 +91,7 @@ class StatisticProviderTest extends AnyFlatSpec:
 
     val mostUsedTrains = MostUsedTrainsProvider.compute(ctx)
     mostUsedTrains.trains.get should be(List(TrainCode("T1")))
+    mostUsedTrains.valueAsString should be("T1")
   }
 
   it should "retrieve all the most used train if there's a tie" in {
@@ -107,6 +109,8 @@ class StatisticProviderTest extends AnyFlatSpec:
 
     val incompleteTrips = IncompleteTripsProvider.compute(ctx)
     incompleteTrips.decimal.get should be(2.toDouble / 3)
+    incompleteTrips.valueAsString should be((2.toDouble / 3 * 100).toString)
+    incompleteTrips.unit should be("%")
   }
 
   it should "retrieve completed trips count" in {
@@ -146,6 +150,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = buildContextWithPassengersPositions
     val stationsWithMostWaiting = StationsWithMostWaitingProvider.compute(ctx)
     stationsWithMostWaiting.stations.get should contain(stationA)
+    stationsWithMostWaiting.valueAsString should be(stationA.value)
   }
 
   it should "retrieve correct average trip duration" in {
@@ -153,6 +158,7 @@ class StatisticProviderTest extends AnyFlatSpec:
 
     val averageTripDuration = AverageTripDurationProvider.compute(ctx)
     averageTripDuration.hours.get should be(6.5)
+    averageTripDuration.unit should be("hours")
   }
 
   it should "retrieve correct average passenger waiting" in {
@@ -167,4 +173,21 @@ class StatisticProviderTest extends AnyFlatSpec:
 
     val averageTravelTime = AveragePassengerTravelTimeProvider.compute(ctx)
     averageTravelTime.hours.get should be(3)
+  }
+
+  it should "retrieve not available if statistic cannot be computed" in {
+    val ctx = SimulationContext()
+
+    val statistics = List(
+      MostUsedTrainsProvider.compute(ctx),
+      MostUsedRailsProvider.compute(ctx),
+      AverageTrainWaitingProvider.compute(ctx),
+      AveragePassengerTravelTimeProvider.compute(ctx),
+      AveragePassengerWaitingProvider.compute(ctx),
+      AverageTripDurationProvider.compute(ctx)
+    )
+
+    statistics.foreach { s =>
+      s.valueAsString should be(NotAvailable)
+    }
   }
