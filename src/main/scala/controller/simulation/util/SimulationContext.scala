@@ -1,22 +1,22 @@
 package controller.simulation.util
 
-import model.entities.EntityCodes.{PassengerCode, TrainCode}
+import model.entities.EntityCodes.PassengerCode
 import model.entities.PassengerPosition.AtStation
 import model.entities.{Itinerary, Passenger, Route}
-import model.simulation.{PassengerState, Simulation, TrainPosition, TrainState}
+import model.simulation.{PassengerState, Simulation, TrainPosition}
 
+/** Helper class to easily access information to compute the statistics */
 case class SimulationContext(
     routes: List[Route] = List.empty,
     trainHistories: List[List[TrainPosition]] = List.empty,
     itineraries: List[Itinerary] = List.empty,
     passengers: List[Passenger] = List.empty,
     passengerStates: List[PassengerState] = List.empty,
-    passengerStatesTBD: Map[PassengerCode, PassengerState] = Map.empty,
     passengersWithCompletedTrip: List[PassengerState] = List.empty,
-    ts: Map[TrainCode, TrainState] = Map.empty
 )
 
 object SimulationContext:
+  /** Converts the simulation into the context */
   def from(sim: Simulation): SimulationContext =
     SimulationContext(
       routes = sim.state.trains.map(_.route),
@@ -27,6 +27,4 @@ object SimulationContext:
       passengersWithCompletedTrip = sim.state.passengerStates.collect {
         case (c, s) if AtStation(sim.state.passengers.find(_.code == c).get.destination) == s.currentPosition => s
       }.toList,
-      passengerStatesTBD = sim.state.passengerStates,
-      ts = sim.state.trainStates
     )
