@@ -13,6 +13,7 @@ import view.View
 import MapViewConstants.*
 import ToolMappings.*
 import controller.mapbuilder.MapBuilderController
+import model.mapgrid.PieceCost.pieceCost
 import model.util.RailwayMapper
 import scalafx.geometry.Pos.Center
 
@@ -133,14 +134,14 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
     val eraser = new RadioButton("Eraser"):
       toggleGroup = toolsGroup
 
-    val rails = railNameToCell.keys.toSeq.map { label =>
-      new RadioButton(label):
+    val rails = railNameToCell.toSeq.map { (label, kind) =>
+      new RadioButton(s"$label (cost: ${pieceCost(kind)})"):
         toggleGroup = toolsGroup
     }
 
     val stationLabel = new Label("Stations:")
-    val stations = stationNameToCell.keys.toSeq.map { label =>
-      new RadioButton(label):
+    val stations = stationNameToCell.toSeq.map { (label, kind) =>
+      new RadioButton(s"$label (cost: ${pieceCost(kind)})"):
         toggleGroup = toolsGroup
     }
 
@@ -180,7 +181,8 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
       Option(newToggle)
         .collect { case rb: javafx.scene.control.RadioButton => RadioButton(rb) }
         .flatMap(rb =>
-          railNameToCell.get(rb.text()).orElse(stationNameToCell.get(rb.text())).orElse(eraserNameToCell.get(rb.text()))
+          val text = rb.text().split('(')(0).trim
+          railNameToCell.get(text).orElse(stationNameToCell.get(text)).orElse(eraserNameToCell.get(text))
         )
         .foreach(controller.selectTool)
     }
@@ -191,11 +193,10 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
         for y <- 0 until height; x <- 0 until width do
           val cell = model.cells(y)(x)
           buttons(y)(x).style = toCssColor(cellToColor.getOrElse(cell.cellType, DefaultColor))
-        model.budget match
-          case Some(b) =>
-            budgetLeft.visible = true
-            budgetLeft.text = "Budget left: " + b
-          case _ => budgetLeft.visible = false
+        model.budget.fold(budgetLeft.visible = false) { _ =>
+          budgetLeft.visible = true
+          budgetLeft.text = "Budget left: " + model.budgetLeft
+        }
     }
 
   private def toCssColor(color: String): String = s"-fx-background-color: $color"
