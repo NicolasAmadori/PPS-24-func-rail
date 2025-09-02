@@ -106,7 +106,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
     val incompleteTrips = IncompleteTripsProvider.compute(ctx)
-    incompleteTrips.count.get should be(2)
+    incompleteTrips.decimal.get should be(2.toDouble / 3)
   }
 
   it should "retrieve completed trips count" in {
@@ -116,7 +116,7 @@ class StatisticProviderTest extends AnyFlatSpec:
     val ctx = SimulationContext(passengers = List(passenger1, passenger2, passenger3))
 
     val completedTrips = CompletedTripsProvider.compute(ctx)
-    completedTrips.count.get should be(2)
+    completedTrips.decimal.get should be(2.toDouble / 3)
   }
 
   private def buildContextWithPassengersPositions: SimulationContext =
