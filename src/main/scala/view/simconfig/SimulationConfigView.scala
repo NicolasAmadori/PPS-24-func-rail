@@ -9,7 +9,7 @@ import scalafx.scene.control.*
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy.{AsNeeded, Never}
 import scalafx.scene.layout.*
-import utils.ErrorMessage
+import utils.{CustomError, ErrorMessage}
 import view.{GraphUtil, View}
 
 import scala.language.postfixOps
@@ -28,6 +28,8 @@ class SimulationConfigView(
 ) extends View:
 
   import SimulationConfigViewConstants.*
+
+  private val UnexpectedErrorText = "Unexpected error"
 
   private val graphView = GraphView[StationView, RailView](GraphUtil.createGraph(controller.getRailway))
   private val stations = controller.getStationCodes
@@ -134,7 +136,10 @@ class SimulationConfigView(
     prefWidth = SidebarMinWidth - 70
     onAction = _ =>
       graphView.automaticLayoutProperty.set(true)
-      controller.startSimulation(simulationDuration, simulationSpeed, faultsEnabled, itineraryStrategy, graphView)
+      try
+        controller.startSimulation(simulationDuration, simulationSpeed, faultsEnabled, itineraryStrategy, graphView)
+      catch
+        case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
 
   private def backButton: Button = new Button("Back"):
     prefWidth = 70
