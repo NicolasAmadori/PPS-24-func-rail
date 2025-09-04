@@ -3,6 +3,7 @@ package model.railway
 import model.entities.EntityCodes.StationCode
 import model.entities.{Rail, Station}
 
+/** Trait to model the railway as a list of nodes (stations) and a list of edges (rails) */
 trait Railway:
   def stations: List[Station]
   def stationCodes: List[StationCode] = stations.map(_.code)
@@ -22,6 +23,8 @@ case class RailwayImpl(
 object Railway:
   def empty: RailwayImpl = RailwayImpl(Nil, Nil)
 
+  /** Creates a railway with stations */
   def withStations(stations: List[Station]): RailwayImpl = empty.withStations(stations)
 
+  /** Creates a railway with rails */
   def withRails(rails: List[Rail]): RailwayImpl = empty.withRails(rails)

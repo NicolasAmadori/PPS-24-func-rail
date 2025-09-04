@@ -2,6 +2,7 @@ package model.simulation
 
 import model.entities.EntityCodes.RailCode
 
+/** Trait to model the actual state of a rail */
 trait RailState:
   def railCode: RailCode
   def isFree: Boolean
