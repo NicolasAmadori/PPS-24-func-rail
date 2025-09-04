@@ -2,6 +2,7 @@ package model.entities
 
 import model.entities.EntityCodes.StationCode
 
+/** Trait to model a station */
 trait Station:
   def code: StationCode
 

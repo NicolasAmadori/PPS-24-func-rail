@@ -1,6 +1,7 @@
 package view.statistics
 
-import controller.simulation.util.{CsvWriter, Statistic}
+import controller.simulation.util.Statistic
+import controller.statistics.StatisticsController
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
@@ -13,7 +14,6 @@ import view.View
 import view.simconfig.{GraphView, RailView, StationView}
 import view.simulation.SimulationViewConstants.{DefaultPadding, DefaultWindowMinWidth, ElementHeight}
 import view.statistics.SimulationViewConstants.HalfHeight
-import view.util.FileOpener
 
 object SimulationViewConstants:
   val DefaultWindowMinWidth = 1300
@@ -27,7 +27,8 @@ case class Stat(statistic: Statistic):
   val valueProperty: StringProperty = StringProperty(statistic.valueAsString)
   val unitProperty: StringProperty = StringProperty(statistic.unit)
 
-class StatisticsView(logs: List[String], graphView: GraphView[StationView, RailView]) extends View:
+class StatisticsView(controller: StatisticsController, logs: List[String], graphView: GraphView[StationView, RailView])
+    extends View:
   private val UnexpectedErrorText = "Unexpected error"
 
   private val stats = ObservableBuffer[Stat]()
@@ -74,8 +75,7 @@ class StatisticsView(logs: List[String], graphView: GraphView[StationView, RailV
     bottom = new Button("Download and open CSV"):
       onAction = _ =>
         try
-          val file = CsvWriter.generateCsvFile(stats.toList.map(_.statistic))
-          FileOpener.openFile(file)
+          controller.downloadAndOpenFile()
         catch
           case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
       margin = Insets(10, 0, 0, 0)

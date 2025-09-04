@@ -12,7 +12,7 @@ class StatisticsTransition(logs: List[String], statistics: Seq[Statistic], graph
 
   def build(): (StatisticsController, StatisticsView) =
     val controller = StatisticsController(statistics)
-    val view = StatisticsView(logs, graphView)
+    val view = StatisticsView(controller, logs, graphView)
     (controller, view)
 
   override def afterAttach(controller: StatisticsController, view: StatisticsView): Unit =

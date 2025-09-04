@@ -5,6 +5,7 @@ import utils.ErrorMessage
 
 sealed trait SimulationError extends ErrorMessage
 
+/** Models the possible errors encountered during the simulation */
 object SimulationError:
   case class NotStarted() extends SimulationError:
     override def toString: String = "The simulation has not been started yet"

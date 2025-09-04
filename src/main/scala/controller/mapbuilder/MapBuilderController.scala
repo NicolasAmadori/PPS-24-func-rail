@@ -7,16 +7,26 @@ import model.util.RailwayMapper
 import utils.ErrorMessage
 import view.mapbuilder.{MapBuilderView, MapBuilderViewError}
 
+/** The controller for the map builder. It allows to build a map grid by selecting tools and placing items on the grid
+  * enforcing validation rules.
+  */
 class MapBuilderController(var model: MapGrid) extends BaseController[MapBuilderView]:
 
   private var selectedTool: Option[CellType] = None
 
   private var onModelUpdated: MapGrid => Unit = _ => ()
 
+  /** Sets the callback to execute when there is an update in the model.
+    * @param callback
+    */
   def setOnModelUpdated(callback: MapGrid => Unit): Unit =
     onModelUpdated = callback
     onModelUpdated(model)
 
+  /** Sets the current selected tool to the given type.
+    * @param tool
+    *   the [[model.mapgrid.CellType]] selected
+    */
   def selectTool(tool: CellType): Unit =
     selectedTool = Some(tool)
 
@@ -43,6 +53,10 @@ class MapBuilderController(var model: MapGrid) extends BaseController[MapBuilder
     model = model.disableBudget
     onModelUpdated(model)
 
+  /** Fills the given position with the current selected tool, shows an error if no tool is selected.
+    * @param x
+    * @param y
+    */
   def placeAt(x: Int, y: Int): Unit =
     validation match
       case Left(error) =>
@@ -56,6 +70,9 @@ class MapBuilderController(var model: MapGrid) extends BaseController[MapBuilder
           case Left(error) =>
             showError(error, s"Placement failed")
 
+  /** Parses the map grid and performs validity checks. If the railway is valid, it transitions to the next step. Shows
+    * an error otherwise.
+    */
   def onNext(): Unit =
     val parsedRailway = RailwayMapper.convert(model)
     val isRailwayConnected = RailwayPrologChecker.isRailwayConnected(parsedRailway)
