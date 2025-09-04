@@ -146,7 +146,7 @@ class MapGridTest extends AnyFlatSpec:
     val grid = MapGrid.empty(10, 10)
       .place(5, 5, BigStationType).toOption.get
 
-    val result = grid.place(7, 5, MetalRailType) // adjiacent to the center piece
+    val result = grid.place(7, 5, MetalRailType) // adjiacent to the centerpiece
     result.isRight should be(true)
   }
 

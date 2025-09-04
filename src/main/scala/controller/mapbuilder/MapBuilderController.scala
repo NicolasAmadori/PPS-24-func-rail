@@ -41,7 +41,7 @@ class MapBuilderController(var model: MapGrid) extends BaseController[MapBuilder
 
   /** Updates the budget with the given value
     *
-    * @param the
+    * @param value
     *   new value
     */
   def setBudget(value: Int): Unit =
@@ -62,8 +62,7 @@ class MapBuilderController(var model: MapGrid) extends BaseController[MapBuilder
       case Left(error) =>
         showError(error, "Validation failed")
       case Right(_) =>
-        val placementResult = model.place(x, y, selectedTool.get)
-        placementResult match
+        model.place(x, y, selectedTool.get) match
           case Right(updatedModel) =>
             model = updatedModel
             onModelUpdated(model)
@@ -76,16 +75,11 @@ class MapBuilderController(var model: MapGrid) extends BaseController[MapBuilder
   def onNext(): Unit =
     val parsedRailway = RailwayMapper.convert(model)
     val isRailwayConnected = RailwayPrologChecker.isRailwayConnected(parsedRailway)
-    if isRailwayConnected && model.isWithinBudget then
-      val transition = new SimulationConfigTransition(model, parsedRailway)
-      transition.transition()
-    else if !isRailwayConnected then
-      showError(
-        MapBuilderViewError.RailwayNotConnected(),
-        s"Invalid railway"
-      )
-    else
-      showError(
-        PlacementError.OutOfBudget(),
-        s"Invalid railway"
-      )
+
+    (isRailwayConnected, model.isWithinBudget) match
+      case (true, true) =>
+        new SimulationConfigTransition(model, RailwayMapper.convert(model)).transition()
+      case (false, _) =>
+        showError(MapBuilderViewError.RailwayNotConnected(), "Invalid railway")
+      case (true, false) =>
+        showError(PlacementError.OutOfBudget(), "Invalid railway")

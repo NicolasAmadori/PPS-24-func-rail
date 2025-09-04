@@ -5,6 +5,7 @@ import model.entities.Passenger
 
 trait Log
 
+/** Logs related to the simulation as a whole. */
 enum SimulationLog extends Log:
   case SimulationStarted()
   case SimulationFinished()
@@ -20,6 +21,7 @@ enum SimulationLog extends Log:
       val hour = step % 24
       f"[Day $day%02d Hour $hour%02d]"
 
+/** Logs related to train movements and positions. */
 enum TrainLog extends Log:
   case EnteredStation(train: TrainCode, station: StationCode)
   case LeavedStation(train: TrainCode, station: StationCode, rail: RailCode)
@@ -33,6 +35,7 @@ enum TrainLog extends Log:
     case WaitingAt(train, station) =>
       s"Train $train is waiting at station $station"
 
+/** Logs related to rail faults and repairs. */
 enum RailLog extends Log:
   case BecomeFaulty(rail: RailCode, duration: Int)
   case BecomeRepaired(rail: RailCode)
@@ -43,6 +46,7 @@ enum RailLog extends Log:
     case BecomeRepaired(rail) =>
       s"Rail $rail has now been repaired and can be used by trains"
 
+/** Logs related to passenger movements and trips. */
 enum PassengerLog extends Log:
   case StartTrip(passenger: Passenger)
   case GetOnTrain(passengerCode: PassengerCode, trainCode: TrainCode)
