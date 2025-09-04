@@ -1,6 +1,7 @@
 package model.entities
 
 object EntityCodes:
+  /** Type of the station codes */
   opaque type StationCode = String
   object StationCode:
     def apply(code: String): StationCode = code
@@ -11,6 +12,7 @@ object EntityCodes:
     extension (code: StationCode)
       def value: String = code
 
+  /** Type of the rail codes */
   opaque type RailCode = String
   object RailCode:
     def apply(code: String): RailCode = code
@@ -19,6 +21,7 @@ object EntityCodes:
     extension (code: RailCode)
       def value: String = code
 
+  /** Type of the train codes */
   opaque type TrainCode = String
   object TrainCode:
     def apply(code: String): TrainCode = code
@@ -28,8 +31,7 @@ object EntityCodes:
       def isEmpty: Boolean = code == empty
       def value: String = code
 
+  /** Type of the passengers codes */
   opaque type PassengerCode = String
   object PassengerCode:
     def apply(code: String): PassengerCode = code
-
-    def value(code: PassengerCode): String = code

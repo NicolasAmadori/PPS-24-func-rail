@@ -5,6 +5,14 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 
 object CsvWriter:
+  /** Creates a CVS file with the statistics.
+    * @param stats
+    *   the list of statistics to print in the file
+    * @param fileName
+    *   the name of the file
+    * @return
+    *   the instance of the created file
+    */
   def generateCsvFile(stats: List[Statistic], fileName: String = "simulation.csv"): File =
     val headings = "Metric;Value;Unit of measurement"
     val csv =

@@ -7,12 +7,13 @@ import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.{Alert, Button, CheckBox, Label, RadioButton, TextField, ToggleGroup}
 import scalafx.scene.layout.{BorderPane, GridPane, HBox, VBox}
 import scalafx.scene.{Node, Parent}
-import utils.ErrorMessage
+import utils.{CustomError, ErrorMessage}
 import view.simconfig.SimulationConfigViewConstants.{DefaultPadding, DefaultSpacing}
 import view.View
 import MapViewConstants.*
 import ToolMappings.*
 import controller.mapbuilder.MapBuilderController
+import model.mapgrid.PieceCost.pieceCost
 import model.util.RailwayMapper
 import scalafx.geometry.Pos.Center
 
@@ -44,6 +45,8 @@ object MapViewConstants:
   val DefaultCellSize = 15
 
 class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) extends BorderPane, View:
+
+  private val UnexpectedErrorText = "Unexpected error"
 
   private val gridPane = new GridPane
   private val toolsGroup = new ToggleGroup
@@ -93,7 +96,10 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
         focusTraversable = false
 
       btn.onMousePressed = (_: MouseEvent) =>
-        controller.placeAt(col, row)
+        try
+          controller.placeAt(col, row)
+        catch
+          case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
 
       btn.onDragDetected = (e: MouseEvent) =>
         painting = true
@@ -101,7 +107,10 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
         e.consume()
 
       btn.onMouseDragEntered = (_: MouseDragEvent) =>
-        if painting then controller.placeAt(col, row)
+        try
+          if painting then controller.placeAt(col, row)
+        catch
+          case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
 
       btn.onMouseReleased = (_: MouseEvent) =>
         painting = false
@@ -112,7 +121,11 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
 
   private def parseMapButton: Button = new Button("Parse Map"):
     maxWidth = Double.MaxValue
-    onAction = _ => controller.onNext()
+    onAction = _ =>
+      try
+        controller.onNext()
+      catch
+        case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
 
   private def createToolButtons(): Seq[Node] =
     val instructions = new Label("Click or drag to place pieces")
@@ -121,14 +134,14 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
     val eraser = new RadioButton("Eraser"):
       toggleGroup = toolsGroup
 
-    val rails = railNameToCell.keys.toSeq.map { label =>
-      new RadioButton(label):
+    val rails = railNameToCell.toSeq.map { (label, kind) =>
+      new RadioButton(s"$label (cost: ${pieceCost(kind)})"):
         toggleGroup = toolsGroup
     }
 
     val stationLabel = new Label("Stations:")
-    val stations = stationNameToCell.keys.toSeq.map { label =>
-      new RadioButton(label):
+    val stations = stationNameToCell.toSeq.map { (label, kind) =>
+      new RadioButton(s"$label (cost: ${pieceCost(kind)})"):
         toggleGroup = toolsGroup
     }
 
@@ -141,15 +154,18 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
       promptText = "Budget"
       disable = true
       onKeyTyped = _ =>
-        controller.setBudget(text.value.toIntOption.getOrElse(0))
+        try
+          controller.setBudget(text.value.toIntOption.getOrElse(0))
+        catch
+          case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
 
     val checkbox = new CheckBox():
       onAction = _ =>
         if selected.value then
           textField.disable = false
-          textField.text = ""
         else
           textField.disable = true
+          textField.text = ""
           controller.disableBudget()
 
     val budgetControls = new HBox(checkbox, textField):
@@ -165,7 +181,8 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
       Option(newToggle)
         .collect { case rb: javafx.scene.control.RadioButton => RadioButton(rb) }
         .flatMap(rb =>
-          railNameToCell.get(rb.text()).orElse(stationNameToCell.get(rb.text())).orElse(eraserNameToCell.get(rb.text()))
+          val text = rb.text().split('(')(0).trim
+          railNameToCell.get(text).orElse(stationNameToCell.get(text)).orElse(eraserNameToCell.get(text))
         )
         .foreach(controller.selectTool)
     }
@@ -176,16 +193,15 @@ class MapBuilderView(width: Int, height: Int, controller: MapBuilderController) 
         for y <- 0 until height; x <- 0 until width do
           val cell = model.cells(y)(x)
           buttons(y)(x).style = toCssColor(cellToColor.getOrElse(cell.cellType, DefaultColor))
-        model.budget match
-          case Some(b) =>
-            budgetLeft.visible = true
-            budgetLeft.text = "Budget left: " + b
-          case _ => budgetLeft.visible = false
+        model.budget.fold(budgetLeft.visible = false) { _ =>
+          budgetLeft.visible = true
+          budgetLeft.text = "Budget left: " + model.budgetLeft
+        }
     }
 
   private def toCssColor(color: String): String = s"-fx-background-color: $color"
 
-  def showError(title: String = "", error: ErrorMessage): Unit =
+  def showError(error: ErrorMessage, title: String): Unit =
     if !painting then
       Platform.runLater:
         alert.contentText = error.toString

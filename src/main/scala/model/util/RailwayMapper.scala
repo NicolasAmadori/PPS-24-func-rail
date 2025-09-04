@@ -1,8 +1,3 @@
-/** @file
-  *   This object is responsible for mapping a `MapGrid` representation of a game world into a `Railway` object, which
-  *   models a network of stations and rails. It navigates the grid to identify different types of stations and rails
-  *   and builds the railway infrastructure.
-  */
 package model.util
 
 import model.mapgrid.{BigStationBorderPiece, BigStationCenterPiece, BigStationType, Cell, CellType, MapGrid, MetalRailPiece, MetalRailType, SmallStationPiece, SmallStationType, TitaniumRailPiece, TitaniumRailType}
@@ -14,6 +9,10 @@ import model.railway.Railway
 
 import scala.annotation.tailrec
 
+/** This object is responsible for mapping a `MapGrid` representation of a game world into a `Railway` object, which
+  * models a network of stations and rails. It navigates the grid to identify different types of stations and rails and
+  * builds the railway infrastructure.
+  */
 object RailwayMapper:
 
   private val SMALL_STATION_PREFIX: String = "ST"

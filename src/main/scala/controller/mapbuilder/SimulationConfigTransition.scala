@@ -7,6 +7,10 @@ import model.railway.Railway
 import utils.StageManager
 import view.simconfig.SimulationConfigView
 
+/** Models the transition between the map builder and the simulation config.
+  * @param mapGrid
+  * @param model
+  */
 class SimulationConfigTransition(mapGrid: MapGrid, model: Railway)
     extends ScreenTransition[SimulationConfigController, SimulationConfigView]:
 

@@ -30,7 +30,7 @@ class TrainStateTest extends AnyFlatSpec:
       if c == firstRail then
         c -> r.setFaulty(2)
       else
-        c -> r.setOccupied
+        c -> r.setOccupied()
     }.toMap
 
     val newState = trainState.update(train, railway.rails, updatedRailStates)
@@ -42,7 +42,7 @@ class TrainStateTest extends AnyFlatSpec:
       if c == firstRail then
         c -> r.setFaulty(2)
       else
-        c -> r.setOccupied
+        c -> r.setOccupied()
     }.toMap
 
     val stateWithBrokenRail = trainState.update(train, railway.rails, updatedRailStates)
@@ -57,7 +57,7 @@ class TrainStateTest extends AnyFlatSpec:
       if c == firstRail then
         c -> r.setFaulty(2)
       else if railway.rails.filter(_.code == c).head.isInstanceOf[MetalRail] then
-        c -> r.setOccupied
+        c -> r.setOccupied()
       else
         c -> r
     }.toMap

@@ -1,17 +1,19 @@
 package view.statistics
 
-import controller.simulation.util.{CsvWriter, Statistic}
+import controller.simulation.util.Statistic
+import controller.statistics.StatisticsController
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
-import scalafx.scene.control.{Button, ListView, TableColumn, TableView}
+import scalafx.scene.control.{Alert, Button, ListView, TableColumn, TableView}
 import scalafx.scene.layout.{BorderPane, HBox, Pane, VBox}
 import scalafx.beans.property.StringProperty
+import scalafx.scene.control.Alert.AlertType
+import utils.{CustomError, ErrorMessage}
 import view.View
 import view.simconfig.{GraphView, RailView, StationView}
 import view.simulation.SimulationViewConstants.{DefaultPadding, DefaultWindowMinWidth, ElementHeight}
 import view.statistics.SimulationViewConstants.HalfHeight
-import view.util.FileOpener
 
 object SimulationViewConstants:
   val DefaultWindowMinWidth = 1300
@@ -25,8 +27,14 @@ case class Stat(statistic: Statistic):
   val valueProperty: StringProperty = StringProperty(statistic.valueAsString)
   val unitProperty: StringProperty = StringProperty(statistic.unit)
 
-class StatisticsView(logs: List[String], graphView: GraphView[StationView, RailView]) extends View:
+class StatisticsView(controller: StatisticsController, logs: List[String], graphView: GraphView[StationView, RailView])
+    extends View:
+  private val UnexpectedErrorText = "Unexpected error"
+
   private val stats = ObservableBuffer[Stat]()
+
+  private val alert = new Alert(AlertType.Error):
+    title = "Error"
 
   private val statsTable = new TableView[Stat](stats):
     columns ++= List(
@@ -66,9 +74,17 @@ class StatisticsView(logs: List[String], graphView: GraphView[StationView, RailV
     center = hBox
     bottom = new Button("Download and open CSV"):
       onAction = _ =>
-        val file = CsvWriter.generateCsvFile(stats.toList.map(_.statistic))
-        FileOpener.openFile(file)
+        try
+          controller.downloadAndOpenFile()
+        catch
+          case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
       margin = Insets(10, 0, 0, 0)
     padding = DefaultPadding
 
   def getRoot: Pane = root
+
+  def showError(error: ErrorMessage, title: String): Unit =
+    Platform.runLater:
+      alert.contentText = error.toString
+      alert.headerText = title
+      alert.showAndWait()

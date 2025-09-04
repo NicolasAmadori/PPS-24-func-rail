@@ -3,7 +3,6 @@ package model.entities
 import model.entities.EntityCodes.{StationCode, TrainCode}
 import model.entities.Rail.{metalRail, titaniumRail}
 import model.entities.Train.{defaultSpeed, highSpeed, highSpeedTrain, normalTrain}
-
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers.*
 
@@ -15,7 +14,7 @@ class TrainTest extends AnyFlatSpec:
   val stationCode1 = "ST001"
   val stationCode2 = "ST002"
   val stationCode3 = "ST003"
-  val stops = StationCode.listOf(stationCode1, stationCode2, stationCode3)
+  val stops: List[StationCode] = StationCode.listOf(stationCode1, stationCode2, stationCode3)
 
   "A Train" should "be created with code and stops" in {
     val train = normalTrain(trainCode1, StationCode.listOf(stationCode1, stationCode2))

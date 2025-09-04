@@ -432,3 +432,7 @@ case class MapGrid(
         case c => pieceCost(c.cellType)
       }.sum
     ).sum
+
+  /** @return the budget left */
+  def budgetLeft: Int =
+    budget.fold(0)(b => if b - mapCost < 0 then 0 else b - mapCost)

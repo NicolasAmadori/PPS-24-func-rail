@@ -8,6 +8,21 @@ import model.util.SimulationLog.StepExecuted
 
 import scala.util.Random
 
+/** Represents a simulation of trains, passengers, and rails over a specified duration.
+  *
+  * @param duration
+  *   simulation length in hours
+  * @param railway
+  *   the railway network for the simulation
+  * @param state
+  *   current [[SimulationState]] of the simulation
+  * @param passengerGenerator
+  *   generator for creating passengers during the simulation
+  * @param faultsEnabled
+  *   whether random rail faults are enabled
+  * @param itineraryStrategy
+  *   strategy used by passengers to choose their itinerary
+  */
 case class Simulation(
     duration: Int,
     railway: Railway,
@@ -22,6 +37,11 @@ case class Simulation(
   private val FAULT_PROBABILITY: Double = 0.05
   private val MAX_FAULT_DURATION: Int = 7 * 24
 
+  /** Starts the simulation, generating an initial batch of passengers.
+    *
+    * @return
+    *   updated simulation and list of logs including passenger generation and simulation start
+    */
   def start(): (Simulation, List[Log]) =
     val (newState, newGenerator, newPassengersLogs) =
       state.generatePassengers(passengerGenerator)(Random.nextInt(MAX_PASSENGER_NUMBER + 1))
@@ -33,6 +53,11 @@ case class Simulation(
       SimulationLog.SimulationStarted() +: newPassengersLogs
     )
 
+  /** Executes one simulation step if the simulation has started and not finished.
+    *
+    * @return
+    *   either a [[SimulationError]] if simulation is not started or finished, or updated simulation and logs
+    */
   def doStep(): Either[SimulationError, (Simulation, List[Log])] =
     if state.simulationStep < 0 then
       Left(SimulationError.NotStarted())
@@ -41,7 +66,12 @@ case class Simulation(
     else
       Right(update())
 
-  def update(): (Simulation, List[Log]) =
+  /** Updates rails, trains, passengers, and generates new passengers for one simulation step.
+    *
+    * @return
+    *   updated simulation and list of generated logs for the step
+    */
+  private def update(): (Simulation, List[Log]) =
     val nextStep = state.simulationStep + 1
 
     // Update rails faults and generate new ones
@@ -67,6 +97,11 @@ case class Simulation(
       logs
     )
 
+  /** Checks if the simulation has reached its duration.
+    *
+    * @return
+    *   true if the simulation is finished, false otherwise
+    */
   def isFinished: Boolean = state.simulationStep == duration * 24
 
   /** Set the simulation config.
@@ -88,6 +123,7 @@ case class Simulation(
 
   /** Adds the train list to the state initializing the state for each by computing the route.
     * @param trains
+    *   the train list to add
     * @return
     *   either a list of errors if train's data are invalid or if the route cannot be computed, or the updated
     *   simulation

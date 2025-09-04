@@ -41,11 +41,11 @@ object MostUsedTrainsProvider extends StatisticProvider:
 
 object IncompleteTripsProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): IncompleteTrips =
-    IncompleteTrips(Option(ctx.passengers.count(_.itinerary.isEmpty)))
+    IncompleteTrips(Option(ctx.passengers.count(_.itinerary.isEmpty).toDouble / ctx.passengers.size))
 
 object CompletedTripsProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): CompletedTrips =
-    CompletedTrips(Option(ctx.passengers.count(_.itinerary.nonEmpty)))
+    CompletedTrips(Option(ctx.passengers.count(_.itinerary.nonEmpty).toDouble / ctx.passengers.size))
 
 object StationsWithMostWaitingProvider extends StatisticProvider:
   def compute(ctx: SimulationContext): StationsWithMostWaiting =
