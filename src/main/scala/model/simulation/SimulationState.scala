@@ -59,6 +59,15 @@ case class SimulationState(
       (state.copy(trainStates = updatedTrainStates, railStates = updatedRailStates), appendLog(logs, log))
     }
 
+  /** Updates rails for faults and repairs.
+    *
+    * @param faultProbability
+    *   probability of a rail becoming faulty
+    * @param maxFaultDuration
+    *   maximum duration of a rail fault
+    * @return
+    *   a tuple containing the updated [[SimulationState]] and generated [[RailLog]] entries
+    */
   def updateRails(faultProbability: Double, maxFaultDuration: Int): (SimulationState, List[RailLog]) =
     var logs: List[RailLog] = List.empty
     val newRailsStates: Map[RailCode, RailState] = railStates.map((rCode, rState) =>
@@ -77,6 +86,42 @@ case class SimulationState(
       logs ++ newFaultLogs
     )
 
+  /** Updates the passengers' state in the simulation.
+    *
+    * @return
+    *   a tuple containing:
+    *   - the updated [[SimulationState]]
+    *   - the list of [[model.util.PassengerLog]] entries produced during the update
+    */
+  def updatePassengers(): (SimulationState, List[PassengerLog]) =
+    val (newState1, boardingLogs) = boardPassengers()
+    val (newState2, deboardingLogs) = newState1.deboardPassengers()
+    val (newState3, waitingLogs) = newState2.waitPassengers()
+    (newState3, boardingLogs ++ deboardingLogs ++ waitingLogs)
+
+  /** Generates new passengers using the provided generator.
+    *
+    * @param passengerGenerator
+    *   generator object for creating passengers
+    * @param n
+    *   number of passengers to generate
+    * @return
+    *   tuple containing updated simulation state, updated generator, and logs of generated passengers
+    */
+  def generatePassengers(passengerGenerator: PassengerGenerator)(n: Int)
+      : (SimulationState, PassengerGenerator, List[PassengerLog]) =
+    val (newGenerator, newPassengers, newPassengersLogs) =
+      passengerGenerator.generate(n)
+    (
+      copy(
+        passengers = passengers ++ newPassengers.map(p => p._1),
+        passengerStates = passengerStates ++ newPassengers.map(pS => pS._1.code -> pS._2).toMap
+      ),
+      newGenerator,
+      newPassengersLogs
+    )
+
+  /** Generates random fault duration between 1 and maxDuration. */
   private def generateFaultDuration(maxDuration: Int): Int =
     val numbers = 1 to maxDuration
 
@@ -87,6 +132,7 @@ case class SimulationState(
     val r = Random.nextDouble() * totalWeight
     numbers(cumulative.indexWhere(r <= _))
 
+  /** Randomly generates rail faults. */
   private def generateRailFaults(faultProbability: Double, maxFaultDuration: Int): (SimulationState, List[RailLog]) =
     val notFaultyRailsStates = railStates.filter((_, rState) => !rState.isFaulty && rState.isFree)
     if Random.nextDouble() > faultProbability || notFaultyRailsStates.isEmpty then
@@ -104,19 +150,6 @@ case class SimulationState(
         copy(railStates = newRailStates),
         List(BecomeFaulty(newFaultyRail._1, newFaultDuration))
       )
-
-  /** Updates the passengers' state in the simulation.
-    *
-    * @return
-    *   a tuple containing:
-    *   - the updated [[SimulationState]]
-    *   - the list of [[model.util.PassengerLog]] entries produced during the update
-    */
-  def updatePassengers(): (SimulationState, List[PassengerLog]) =
-    val (newState1, boardingLogs) = boardPassengers()
-    val (newState2, deboardingLogs) = newState1.deboardPassengers()
-    val (newState3, waitingLogs) = newState2.waitPassengers()
-    (newState3, boardingLogs ++ deboardingLogs ++ waitingLogs)
 
   /** Collects all passengers currently waiting at a station.
     *
@@ -290,24 +323,13 @@ case class SimulationState(
 
     (copy(passengerStates = newPassengerStates), List.empty)
 
-  def generatePassengers(passengerGenerator: PassengerGenerator)(n: Int)
-      : (SimulationState, PassengerGenerator, List[PassengerLog]) =
-    val (newGenerator, newPassengers, newPassengersLogs) =
-      passengerGenerator.generate(n)
-    (
-      copy(
-        passengers = passengers ++ newPassengers.map(p => p._1),
-        passengerStates = passengerStates ++ newPassengers.map(pS => pS._1.code -> pS._2).toMap
-      ),
-      newGenerator,
-      newPassengersLogs
-    )
-
+  /** Appends an optional [[TrainLog]] to a list. */
   private def appendLog(logs: List[TrainLog], log: Option[TrainLog]): List[TrainLog] =
     log match
       case Some(l) => logs :+ l
       case _ => logs
 
+  /** Updates rail state based on train movement. */
   private def updateRailStateOn(
       trainCode: TrainCode,
       states: Map[RailCode, RailState],

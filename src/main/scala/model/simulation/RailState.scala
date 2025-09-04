@@ -3,7 +3,6 @@ package model.simulation
 import model.entities.EntityCodes.RailCode
 
 trait RailState:
-  def railCode: RailCode
   def isFree: Boolean
   def isFaulty: Boolean
   def repairCountdown: Option[Int]

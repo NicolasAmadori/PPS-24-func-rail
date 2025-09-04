@@ -72,15 +72,19 @@ class PassengerGenerator(
         passengers.map(p => PassengerLog.StartTrip(p._1))
       )
 
+  /** Returns a random itinerary between two stations. */
   private def getRandomItinerary(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
     Random.shuffle(findAllItineraries(departureStation.code, arrivalStation.code)).headOption
 
+  /** Returns the itinerary with shortest total time between two stations. */
   private def getItineraryWithShortestTime(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
     findAllItineraries(departureStation.code, arrivalStation.code).sortBy(i => i.totalTime).headOption
 
+  /** Returns the itinerary with shortest distance between two stations. */
   private def getItineraryWithShortestDistance(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
     findAllItineraries(departureStation.code, arrivalStation.code).sortBy(i => i.totalLength).headOption
 
+  /** Returns the itinerary with lowest cost between two stations. */
   private def getItineraryWithLowestCost(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
     findAllItineraries(departureStation.code, arrivalStation.code).sortBy(i => i.totalCost).headOption
 
