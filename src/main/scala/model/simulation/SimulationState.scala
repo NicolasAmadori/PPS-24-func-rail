@@ -13,6 +13,7 @@ import scala.util.Random
 
 /** Represent the mutable state of the simulation.
   * @param trains
+  *   the list of trains
   * @param trainStates
   *   map of [[model.entities.EntityCodes.TrainCode]] and corresponding state
   * @param railStates
@@ -21,8 +22,6 @@ import scala.util.Random
   *   The list of passenger present in the simulation
   * @param passengerStates
   *   map of [[model.entities.EntityCodes.PassengerCode]] and corresponding state
-  * @param faultyRails
-  *   map of currently faulty rails with their repair countdown
   * @param simulationStep
   *   counter for simulation progression
   */
@@ -315,7 +314,7 @@ case class SimulationState(
       passengerStates
         .map { (pCode, oldState) =>
           if notMovingPassengers.contains(pCode) then
-            // Reset position to maintain an history step by step of the position
+            // Reset position to maintain a history step by step of the position
             pCode -> oldState.changePosition(oldState.currentPosition)
           else
             pCode -> oldState
@@ -338,9 +337,9 @@ case class SimulationState(
   ): (Map[RailCode, RailState], Option[TrainLog]) =
     (oldPosition, newPosition) match
       case (Some(AtStation(s)), OnRail(r)) =>
-        (states.updated(r, states(r).setOccupied), Some(LeavedStation(trainCode, s, r)))
+        (states.updated(r, states(r).setOccupied()), Some(LeavedStation(trainCode, s, r)))
       case (Some(OnRail(r)), AtStation(s)) =>
-        (states.updated(r, states(r).setFree), Some(EnteredStation(trainCode, s)))
+        (states.updated(r, states(r).setFree()), Some(EnteredStation(trainCode, s)))
       case (Some(AtStation(s)), AtStation(_)) => (states, Some(WaitingAt(trainCode, s)))
       case _ => (states, None)
 

@@ -73,11 +73,8 @@ case class Itinerary(legs: List[ItineraryLeg]):
   /** Total cost of the itinerary. */
   def totalCost: Double = legs.map(_.cost).sum
 
-  /** Number of train changes to make. */
-  def changeNumber: Int = legs.size - 1
-
   override def toString: String =
     val legsStr = legs.map { leg =>
       s"${leg.train.code.value}:${leg.from}→${leg.to}"
     }.mkString(", ")
-    f"$start→$end | $legsStr | ${totalLength}%.1f km | ${totalTime} hr"
+    f"$start→$end | $legsStr | $totalLength%.1f km | $totalTime hr"

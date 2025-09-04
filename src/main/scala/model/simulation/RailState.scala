@@ -7,8 +7,8 @@ trait RailState:
   def isFaulty: Boolean
   def repairCountdown: Option[Int]
 
-  def setFree: RailState
-  def setOccupied: RailState
+  def setFree(): RailState
+  def setOccupied(): RailState
   def setFaulty(stepToRepair: Int): RailState
   def decrementCountdown: RailState
 
@@ -19,8 +19,8 @@ case class RailStateImpl(
     repairCountdown: Option[Int] = None
 ) extends RailState:
 
-  override def setFree: RailState = copy(isFree = true)
-  override def setOccupied: RailState = copy(isFree = false)
+  override def setFree(): RailState = copy(isFree = true)
+  override def setOccupied(): RailState = copy(isFree = false)
 
   override def setFaulty(stepToRepair: Int): RailState =
     copy(isFaulty = true, repairCountdown = Some(stepToRepair))

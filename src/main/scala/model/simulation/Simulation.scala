@@ -123,6 +123,7 @@ case class Simulation(
 
   /** Adds the train list to the state initializing the state for each by computing the route.
     * @param trains
+    *   the train list to add
     * @return
     *   either a list of errors if train's data are invalid or if the route cannot be computed, or the updated
     *   simulation

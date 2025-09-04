@@ -13,6 +13,7 @@ import java.net.URI
 /** GraphView is a wrapper around SmartGraphPanel to provide a view for a graph.
   *
   * @param graph
+  *   the graph to view
   * @tparam V
   *   vertices type
   * @tparam E

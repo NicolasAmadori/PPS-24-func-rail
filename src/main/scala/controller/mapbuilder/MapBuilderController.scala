@@ -31,7 +31,7 @@ class MapBuilderController(var model: MapGrid) extends BaseController[MapBuilder
 
   /** Updates the budget with the given value
     *
-    * @param the
+    * @param value
     *   new value
     */
   def setBudget(value: Int): Unit =

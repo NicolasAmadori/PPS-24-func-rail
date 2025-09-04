@@ -64,7 +64,7 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
     val t1_copy = t1.withRoute(RouteHelper.getRouteForTrain(t1, simpleRailway).get)
     val generator = new PassengerGenerator(simpleRailway, List(t1_copy))
 
-    val (_, result, _) = generator.generate(1)
+    val (_, result, _) = generator.generate()
     result should have size 1
 
     val (passenger, state) = result.head
@@ -100,7 +100,7 @@ class PassengerGeneratorTest extends AnyFlatSpec with Matchers:
     val disconnectedRailway = Railway.withStations(List(st1, st2))
     val generator = new PassengerGenerator(disconnectedRailway, List.empty)
 
-    val (_, result, _) = generator.generate(1)
+    val (_, result, _) = generator.generate()
     result should have size 1
 
     val (passenger, _) = result.head

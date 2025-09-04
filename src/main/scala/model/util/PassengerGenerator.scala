@@ -76,15 +76,15 @@ class PassengerGenerator(
   private def getRandomItinerary(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
     Random.shuffle(findAllItineraries(departureStation.code, arrivalStation.code)).headOption
 
-  /** Returns the itinerary with shortest total time between two stations. */
+  /** Returns the itinerary with the shortest total time between two stations. */
   private def getItineraryWithShortestTime(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
     findAllItineraries(departureStation.code, arrivalStation.code).sortBy(i => i.totalTime).headOption
 
-  /** Returns the itinerary with shortest distance between two stations. */
+  /** Returns the itinerary with the shortest distance between two stations. */
   private def getItineraryWithShortestDistance(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
     findAllItineraries(departureStation.code, arrivalStation.code).sortBy(i => i.totalLength).headOption
 
-  /** Returns the itinerary with lowest cost between two stations. */
+  /** Returns the itinerary with the lowest cost between two stations. */
   private def getItineraryWithLowestCost(departureStation: Station, arrivalStation: Station): Option[Itinerary] =
     findAllItineraries(departureStation.code, arrivalStation.code).sortBy(i => i.totalCost).headOption
 
@@ -122,7 +122,7 @@ class PassengerGenerator(
                     List(leg(train) from current to next)
                   case head :: tail if head.train == train =>
                     // Continue the same ItineraryLeg
-                    (List(leg(train) from head.from to next)) ::: tail
+                    List(leg(train) from head.from to next) ::: tail
                   case _ =>
                     // New ItineraryLeg with a different train
                     (leg(train) from current to next) :: currentLegs

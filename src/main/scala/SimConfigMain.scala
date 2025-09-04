@@ -1,6 +1,6 @@
 import TestCell.cells
 import controller.simconfig.SimulationConfigController
-import model.mapgrid.{BigStationBorderPiece, BigStationCenterPiece, EmptyCell, MapGrid, MetalRailPiece, SmallStationPiece, TitaniumRailPiece}
+import model.mapgrid.{BigStationBorderPiece, BigStationCenterPiece, Cell, EmptyCell, MapGrid, MetalRailPiece, SmallStationPiece, TitaniumRailPiece}
 import model.util.RailwayMapper
 import scalafx.application.JFXApp3
 import scalafx.scene.Scene
@@ -32,9 +32,9 @@ object SimConfigMain extends JFXApp3:
     stage = stageInstance
 
 object TestCell:
-  val e = EmptyCell
-  val emptyRow = Vector.fill(20)(e)
-  val cells = Vector(
+  val e: Cell = EmptyCell
+  val emptyRow: Vector[Cell] = Vector.fill(20)(e)
+  val cells: Vector[Vector[Cell]] = Vector(
     emptyRow,
     emptyRow,
     Vector(

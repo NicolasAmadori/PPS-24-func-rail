@@ -1,6 +1,6 @@
 package model.mapgrid
 
-/** Represents the type of a cell in the grid.
+/** Represents the type of cells in the grid.
   */
 sealed trait CellType
 
@@ -33,9 +33,6 @@ case class TitaniumRailPiece() extends RailPiece:
   val cellType: CellType = TitaniumRailType
 
 /** Base trait for station pieces.
-  *
-  * @param id
-  *   identifier of the station this piece belongs to
   */
 sealed trait StationPiece extends Cell:
   def id: Int
