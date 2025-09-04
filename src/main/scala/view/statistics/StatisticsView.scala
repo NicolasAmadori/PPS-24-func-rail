@@ -1,6 +1,6 @@
 package view.statistics
 
-import controller.simulation.util.{CsvWriter, Statistic}
+import controller.simulation.util.Statistic
 import controller.statistics.StatisticsController
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
@@ -14,7 +14,6 @@ import view.View
 import view.simconfig.{GraphView, RailView, StationView}
 import view.simulation.SimulationViewConstants.{DefaultPadding, DefaultWindowMinWidth, ElementHeight}
 import view.statistics.SimulationViewConstants.HalfHeight
-import view.util.FileOpener
 
 object SimulationViewConstants:
   val DefaultWindowMinWidth = 1300
@@ -74,10 +73,11 @@ class StatisticsView(controller: StatisticsController, logs: List[String], graph
   private val root = new BorderPane:
     center = hBox
     bottom = new Button("Download and open CSV"):
-      onAction = _ => try
-        controller.downloadAndOpenFile()
-      catch
-        case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
+      onAction = _ =>
+        try
+          controller.downloadAndOpenFile()
+        catch
+          case e => showError(CustomError(e.getMessage), UnexpectedErrorText)
       margin = Insets(10, 0, 0, 0)
     padding = DefaultPadding
 

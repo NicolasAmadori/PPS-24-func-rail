@@ -6,14 +6,19 @@ import model.entities.EntityCodes.{RailCode, StationCode}
 /** Trait to define a rail */
 trait Rail:
   def code: RailCode
+
   /** The length */
   def length: Int
+
   /** The cost of using the rail */
   def cost: Double
+
   /** One endpoint of the rail */
   def stationA: StationCode
+
   /** The other endpoint of the rail */
   def stationB: StationCode
+
   /** @return true if the given train can pass through the rail, false otherwise */
   def canAcceptTrain(train: Train): Boolean = true
 

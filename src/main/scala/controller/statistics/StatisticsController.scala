@@ -2,7 +2,7 @@ package controller.statistics
 
 import controller.BaseController
 import controller.simulation.util.{CsvWriter, Statistic}
-import utils.CustomError
+
 import view.statistics.StatisticsView
 import view.util.FileOpener
 
@@ -14,5 +14,5 @@ class StatisticsController(statistics: Seq[Statistic]) extends BaseController[St
 
   /** Downloads the file and opens it */
   def downloadAndOpenFile(): Unit =
-      val file = CsvWriter.generateCsvFile(statistics.toList)
-      FileOpener.openFile(file)
+    val file = CsvWriter.generateCsvFile(statistics.toList)
+    FileOpener.openFile(file)

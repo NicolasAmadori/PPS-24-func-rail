@@ -9,12 +9,16 @@ import model.simulation.TrainState.InitialRouteIndex
 trait TrainState:
   /** The current position of the train */
   def position: Option[TrainPosition]
+
   /** The progress of the train in the current position */
   def progress: Int
+
   /** Time required to complete a rail crossing */
   def travelTime: Int
+
   /** The direction the train is following the route */
   def forward: Boolean
+
   /** History of all the positions of the train */
   def previousPositions: List[TrainPosition]
   def update(train: Train, rails: List[Rail], railsStates: Map[RailCode, RailState]): (TrainState, TrainPosition)

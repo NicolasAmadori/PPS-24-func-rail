@@ -71,7 +71,7 @@ def train(name: String)(build: TrainBuilder => TrainBuilder): Train =
 def buildNormalTrain(name: String)(build: TrainBuilder => TrainBuilder): NormalTrain =
   (build(TrainBuilder(name)) ofType Normal).build
     .asInstanceOf[NormalTrain]
-    
+
 /** Builds a high speed train applying the given build function */
 def buildHighSpeedTrain(name: String)(build: TrainBuilder => TrainBuilder): HighSpeedTrain =
   (build(TrainBuilder(name)) ofType HighSpeed).build

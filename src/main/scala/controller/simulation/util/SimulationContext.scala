@@ -12,7 +12,7 @@ case class SimulationContext(
     itineraries: List[Itinerary] = List.empty,
     passengers: List[Passenger] = List.empty,
     passengerStates: List[PassengerState] = List.empty,
-    passengersWithCompletedTrip: List[PassengerState] = List.empty,
+    passengersWithCompletedTrip: List[PassengerState] = List.empty
 )
 
 object SimulationContext:
@@ -26,5 +26,5 @@ object SimulationContext:
       passengerStates = sim.state.passengerStates.values.toList,
       passengersWithCompletedTrip = sim.state.passengerStates.collect {
         case (c, s) if AtStation(sim.state.passengers.find(_.code == c).get.destination) == s.currentPosition => s
-      }.toList,
+      }.toList
     )
