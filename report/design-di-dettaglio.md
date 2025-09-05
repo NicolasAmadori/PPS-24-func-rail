@@ -7,7 +7,7 @@ parent: Report
 
 # MapGrid
 
-MapGrid è la rappresentazione della griglia della mappa della simulazione, contenente **stazioni, binari e celle vuote**, e gestisce regole di posizionamento, costo e vincoli di budget.
+MapGrid è la rappresentazione della griglia della mappa della simulazione, contenente **stazioni, binari e celle vuote** e gestisce regole di posizionamento, costo e vincoli di budget.
 
 Il design si fonda sull’idea di **immutabilità**: ogni operazione che modifica la griglia produce una nuova istanza, preservando lo stato precedente.
 
@@ -35,7 +35,7 @@ Il `SimulationState` è la classe che mantiene lo stato complessivo della simula
 
 ## Viaggiatori
 
-Nel corso della simulazione, i viaggiatori e le loro posizioni vengono gestiti tramite le strutture dati `passengers` e `passengerStates`. La mappa degli stati viene aggiornata preservandone l’immutabilità.
+Nel corso della simulazione, i viaggiatori e le loro posizioni vengono gestiti tramite le strutture dati `passengers` e `passengerStates`. La mappa degli stati viene aggiornata, preservandone l’immutabilità.
 
 Ad ogni iterazione della simulazione, vengono generati nuovi passeggeri e vengono aggiornate le posizioni di quelli già esistenti.
 
@@ -47,7 +47,9 @@ La gestione dei treni si divide nelle informazioni statiche mantenute nella clas
 
 ![Blank diagram(1).png](../img/charts/e6896bde-11d1-4abb-96e8-145dcf6af7dc.png)
 
-La `Route` si differenzia dalla lista di fermate perché è il risultato di un algoritmo di ottimizzazione per fare in modo che il treno percorra la tratta più breve in termini di tempo, quindi tenendo in considerazione le diverse velocità sui binari, e considera anche delle stazioni intermedie in cui il treno transita senza fermarsi. 
+La `Route` si differenzia dalla lista di fermate perché è il risultato di un algoritmo di ottimizzazione.
+
+Questo permette al treno di percorrere la tratta più breve in termini di tempo, tenendo in considerazione le diverse velocità sui binari, e include anche eventuali stazioni intermedie in cui il treno transita senza fermarsi.
 
 ## Binari
 
@@ -68,7 +70,7 @@ Ogni oggetto `RailState` descrive lo stato di un singolo binario e contiene:
 
 `PassengerDSL` è un DSL ispirato al **Builder pattern** per creare `Passenger` in maniera controllata.
 
-Si parte dal codice del passeggero, si definisce la stazione di partenza e poi quella di arrivo, con la possibilità di associare un itinerario o lasciare il passeggero senza nel caso in cui non sia presente un itinerario possibile per tale meta.
+Si parte dal codice del passeggero, si definisce la stazione di partenza e poi quella di arrivo, con la possibilità di associare un itinerario o lasciare il passeggero senza itinerario nel caso in cui non sia presente un percorso possibile per la meta scelta.
 
 ## Treni
 

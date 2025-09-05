@@ -14,7 +14,7 @@ L'applicazione si divide in 4 parti principali:
 - il simulatore vero e proprio del traffico ferroviario,
 - la visualizzazione delle statistiche di simulazione.
 
-Per tutte le macro-sezioni abbiamo scelto di usare un’architettura **Model View Controller** con un collegamento tra i controller per passare da una view all’altra. Tale pattern garantisce una chiara separazione delle responsabilità all'interno del sistema, dandoci la possibilità di modificare i componenti singoli in maniera indipendente, migliorando per esempio la view in un secondo momento senza modificare il model.
+Per tutte le macro-sezioni abbiamo scelto di usare un’architettura **Model View Controller** con un collegamento tra i controller per passare da una view all’altra. Questo pattern garantisce una chiara separazione delle responsabilità all'interno del sistema, permettendo di modificare i componenti singoli in maniera indipendente, migliorando ad esempio la view in un secondo momento senza modificare il model.
 
 ![Copia di func-rail.png](../img/charts/Copia_di_func-rail.png)
 
@@ -42,11 +42,11 @@ Mostra le statistiche della simulazione appena terminata e permette di scaricare
 
 # Controller
 
-Ogni controller ha il compito di fare da tramite tra la view e la parte di model inerente e di istanziare il successivo controller condividendogli le informazioni del model necessarie allo step successivo.
+Ogni controller ha il compito di fungere da tramite tra la view e la parte di model corrispondente, e di istanziare il controller successivo, condividendogli le informazioni del model necessarie allo step successivo.
 
 ## SimulationController
 
-All’interno di questo controller è presente la logica di avvio ed avanzamento della simulazione, tramite un simulation loop asincrona che in invoca il metodo di update della simulazione e di aggiornamento della view.
+All’interno di questo controller è presente la logica di avvio ed avanzamento della simulazione, tramite un simulation loop asincrono che invoca i metodi di update della simulazione e di aggiornamento della view.
 
 # Model
 
@@ -70,7 +70,7 @@ Il `SimulationFormState` è un modello di supporto per l’interfaccia di config
 
 Per la parte di simulazione, sarà necessario mantenere separate le informazioni statiche, come la struttura fisica della rete ferroviaria (`Railway`), dalle informazioni dinamiche che mutano al progredire della simulazione, costituendo lo stato (`SimulationState`). Il model della simulazione dovrà mantenere anche la durata totale, il meccanismo di generazione passeggeri e il criterio di scelta degli itinerari.
 
-Il `SimulationState` dovrà tenere in considerazione gli stati dei treni, dei binari e dei passeggeri, prevedendo i meccanismi di aggiornamento durante la simulazione. Lo stato del treno (`TrainState`) sarà costituito dalla posizione corrente, che può essere ad una stazione o su un binario, e dalle informazioni che permettono di tracciare il suo percorso, permettendo quindi decisioni su se proseguire su un binario, rimanere fermo ad una stazione o entrare in una stazione. Per quanto riguarda i binari, il loro stato (`RailState`) consiste nell’identificare se un binario libero o è occupato da un treno e se è guasto. 
+Il `SimulationState` dovrà tenere in considerazione gli stati dei treni, dei binari e dei passeggeri, prevedendo i meccanismi di aggiornamento durante la simulazione. Lo stato del treno (`TrainState`) sarà costituito dalla posizione corrente, che può essere in una stazione o su un binario, e dalle informazioni necessarie a tracciare il suo percorso, permettendo quindi di decidere se proseguire su un binario, rimanere fermo ad una stazione o entrare in una stazione. Per quanto riguarda i binari, il loro stato (`RailState`) consiste nell’identificare se un binario libero o è occupato da un treno e se è guasto. 
 
 La simulazione prevede anche la gestione dei passeggeri tramite un oggetto di utility `PassengerGenerator` che ha il compito di generare passeggeri casuali scegliendo per ognuno partenza, destinazione e un itinerario possibile (seguendo il criterio di scelta degli itinerari).
 

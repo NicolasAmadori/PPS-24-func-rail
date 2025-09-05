@@ -7,7 +7,7 @@ parent: Report
 
 # Requisiti di business
 
-Il committente richiede lo sviluppo di un applicativo di modellazione di reti ferroviarie e di simulazione e calcolo di efficienza delle stesse.
+Il committente richiede lo sviluppo di un applicativo per la modellazione di reti ferroviarie e la simulazione e il calcolo della loro efficienza.
 
 Le funzionalità principali richieste sono:
 
@@ -22,7 +22,7 @@ Il dominio contiene tutti gli elementi che fanno parte delle reti ferroviarie od
 
 ## Stazioni
 
-Sono presenti vari tipologie di stazioni, differenziate dalla loro dimensione e affluenza: stazioni più grandi risulteranno avere una probabilità 5 volte superiore di essere stazione di partenza o di arrivo di un viaggiatore.
+Sono presenti varie tipologie di stazioni, differenziate dalla loro dimensione e affluenza: stazioni più grandi avranno una probabilità 5 volte superiore di essere stazione di partenza o di arrivo di un viaggiatore.
 
 ### Tipologie di stazioni
 
@@ -67,7 +67,7 @@ Durante la simulazione, più treni potrebbero trovarsi a dover usare lo stesso b
 
 ### Tratta
 
-La scelta del percorso che il treno dovrà seguire dalla stazione di partenza includendo le altre verrà calcolato all’avvio della simulazione e rimarrà lo stesso, a meno di eventuali guasti che modificheranno temporaneamente la percorrenza. La tratta verrà scelta cercando di minimizzare la lunghezza del percorso e dovrà necessariamente includere tutte le stazioni definite come fermate, ma potrà all’occorrenza includere stazioni aggiuntive di transito, nel quale il treno non caricherà passeggeri. 
+La scelta del percorso che il treno dovrà seguire dalla stazione di partenza includendo le altre verrà calcolato all’avvio della simulazione e rimarrà lo stesso, a meno di eventuali guasti che modificheranno temporaneamente la percorrenza. La tratta verrà scelta cercando di minimizzare la lunghezza del percorso e dovrà necessariamente includere tutte le stazioni definite come fermate, ma potrà all’occorrenza includere stazioni aggiuntive di transito, in cui il treno non caricherà passeggeri. 
 
 Durante la simulazione, il treno percorrerà la sua tratta in maniera continuativa, invertendo il senso di marcia una volta raggiunto il capolinea. Nell’eventualità in cui il binario prescelto fosse guasto, il treno ha due possibilità: scegliere un altro binario della rete ferroviaria per raggiungere la stazione successiva, oppure rimanere in attesa. La scelta di un binario alternativo è limitata dalla condizione che esso sia libero e che sia diretto, non sono ammessi cambi di tratte che modificano l’ordine di visita delle stazioni o che visitano stazioni non preventivate.
 
@@ -129,7 +129,7 @@ Nella costruzione della rete ferroviaria, sarà possibile attivare una limitazio
 - binari in metallo, costo `1`
 - binari in titanio, costo `3`
 
-Se il budget viene attivato dopo aver già piazzato dei pezzi il cui costo complessivo è maggiore, si dovrà utilizzare lo strumento di rimozione per eliminare i pezzi in eccesso, altrimenti non sarà possibile procedere con la conversione della mappa.
+Se il budget viene attivato dopo aver già piazzato dei pezzi, il cui costo complessivo è maggiore, si dovrà utilizzare lo strumento di rimozione per eliminare i pezzi in eccesso, altrimenti non sarà possibile procedere con la conversione della mappa.
 
 ## Simulazione
 
@@ -142,7 +142,7 @@ La simulazione procederà per step, ciascuno della durata logica di un’ora. In
 
 ### Messaggi di log
 
-Durante la simulazione, ogni cambiamento di stato delle entità del dominio (stazioni, binari, viaggiatori) genera uno o più messaggio di log.
+Durante la simulazione, ogni cambiamento di stato delle entità del dominio (stazioni, binari, viaggiatori) genera uno o più messaggi di log.
 Questi messaggi permettono di monitorare l’evoluzione della simulazione e di verificare che le operazioni avvengano come previsto.
 
 # Requisiti funzionali
