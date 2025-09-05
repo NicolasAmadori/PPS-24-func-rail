@@ -11,7 +11,7 @@ MapGrid è la rappresentazione della griglia della mappa della simulazione, cont
 
 Il design si fonda sull’idea di **immutabilità**: ogni operazione che modifica la griglia produce una nuova istanza, preservando lo stato precedente.
 
-![func-rail(2).png](../img/charts/func-rail(2).png)
+<img src="../img/charts/func-rail(2).png" alt="MapGrid UML" style="width:70%; height:auto;">
 
 Le regole di posizionamento, isolamento delle stazioni e rispetto del budget sono integrate nel modello ma rimangono **modulari**: la griglia sa validare la correttezza di una mossa senza doversi occupare della logica dei treni o della simulazione dei viaggiatori. La responsabilità di `MapGrid` è gestire lo stato della mappa e garantire che tutte le regole di costruzione e i vincoli siano rispettati.
 
@@ -25,11 +25,11 @@ La `Railway` è la struttura statica della rete, derivata dalla mappa a blocchi 
 
 Un `Rail` rappresenta un binario e, come tale, ha una lunghezza e il codice delle due stazioni alle quali è collegato, salvate in maniera generica come `stationA` e `stationB`, dato che non hanno una direzione di percorrenza. Inoltre, un `Rail` è in grado di accettare o meno un treno, in base al suo tipo.
 
-![Blank diagram(2).png](../img/charts/Blank_diagram(2).png)
+![Railway UML](../img/charts/Blank_diagram(2).png)
 
 # Simulation
 
-![func-rail(11).png](../img/charts/96a8ff95-620f-4426-a5fe-3e5cdbfcaeea.png)
+![Simulation e SimulationState UML](../img/charts/96a8ff95-620f-4426-a5fe-3e5cdbfcaeea.png)
 
 Il `SimulationState` è la classe che mantiene lo stato complessivo della simulazione, eseguendo l’aggiornamento dei singoli componenti. 
 
@@ -45,7 +45,7 @@ Ad ogni iterazione della simulazione, la posizione precedente viene registrata i
 
 La gestione dei treni si divide nelle informazioni statiche mantenute nella classe `Train` e quelle dinamiche del `TrainState`. All’interno del `Train` si trova la `Route` che rappresenta la tratta statica da seguire, mentre nel `TrainState` ci sono le informazioni per attuare il movimento del treno.
 
-![Blank diagram(1).png](../img/charts/e6896bde-11d1-4abb-96e8-145dcf6af7dc.png)
+![Train e TrainState UML](../img/charts/e6896bde-11d1-4abb-96e8-145dcf6af7dc.png)
 
 La `Route` si differenzia dalla lista di fermate perché è il risultato di un algoritmo di ottimizzazione.
 
@@ -53,7 +53,7 @@ Questo permette al treno di percorrere la tratta più breve in termini di tempo,
 
 ## Binari
 
-![func-rail(10).png](../img/charts/f4116806-b4b8-44a7-9578-0b8b0ee2bfd2.png)
+<img src="../img/charts/f4116806-b4b8-44a7-9578-0b8b0ee2bfd2.png" alt="RailState UML" style="width:50%; height:auto;">
 
 Le informazioni dinamiche relative ai binari sono gestite attraverso oggetti `RailState`, organizzati all’interno della mappa `railStates`.
 
@@ -66,7 +66,7 @@ Ogni oggetto `RailState` descrive lo stato di un singolo binario e contiene:
 
 ## Passeggeri
 
-![func-rail(5).png](../img/charts/0ddf8a82-379e-433a-879b-9c1a9a989f44.png)
+![PassengerDSL UML](../img/charts/0ddf8a82-379e-433a-879b-9c1a9a989f44.png)
 
 `PassengerDSL` è un DSL ispirato al **Builder pattern** per creare `Passenger` in maniera controllata.
 
@@ -78,6 +78,6 @@ Si parte dal codice del passeggero, si definisce la stazione di partenza e poi q
 
 ## Itinerari
 
-![func-rail(4).png](../img/charts/435bf8a0-8524-48ef-8d02-c5cd0ec6790c.png)
+![ItineraryDSL UML](../img/charts/435bf8a0-8524-48ef-8d02-c5cd0ec6790c.png)
 
 `ItineraryDSL` è un DSL ispirato al **Builder** **pattern** per creare `ItineraryLeg` in maniera chiara e controllata. Si parte dal train, si definisce la stazione di partenza e poi quella di arrivo, generando un leg già validato.

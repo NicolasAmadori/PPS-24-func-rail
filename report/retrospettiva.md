@@ -15,43 +15,43 @@ L’organizzazione del lavoro è stata quasi sempre rispettata, riuscendo così 
 
 Il primo sprint è stato definito di durata inferiore agli altri, poiché ha compreso attività introduttive che non richiedevano un’intera settimana. Abbiamo principalmente lavorato insieme per definire più nel dettaglio il progetto.
 
-![image.png](../img/charts/image.png)
+![Sprint 1](../img/charts/image.png)
 
 # Sprint 2 (dal 24/07 al 02/08)
 
 Durante il secondo sprint è stato definito uno scheletro iniziale del model del progetto e la prima interfaccia grafica di configurazione della mappa. Al termine della settimana, un utente era in grado di disegnare la propria mappa sull’interfaccia posizionando stazioni piccole e grandi, binari metallici e di titanio.
 
-![image.png](../img/charts/image%201.png)
+![Sprint 2](../img/charts/image%201.png)
 
 # Sprint 3 (dal 04/08 al 09/08)
 
 Nel terzo sprint sono state portati avanti task relativi alla configurazione e alla progressione della simulazione, permettendo all’utente di visualizzare un grafo corrispondente alla mappa disegnata, impostare treni e avviare una simulazione.
 
-![image.png](../img/charts/image%202.png)
+![Sprint 3](../img/charts/image%202.png)
 
 # Sprint 4 (dal 11/08 al 16/08)
 
 Nel quarto sprint sono stati creati i primi meccanismi di evoluzione dello stato della simulazione tra cui la generazione dei viaggiatori e la progressione dei treni all’interno della rete ferroviaria.
 
-![image.png](../img/charts/image%203.png)
+![Sprint 4](../img/charts/image%203.png)
 
 # Sprint 5 (dal 18/08 al 23/08)
 
 Al termine dello sprint 5, l’applicazione risultava completa di tutte le funzionalità minimali, perciò abbiamo proceduto al rilascio della prima versione.
 
-![image.png](../img/charts/image%204.png)
+![Sprint 5](../img/charts/image%204.png)
 
 # Sprint 6 (dal 25/08 al 30/08)
 
 Il sesto sprint è stato impiegato per implementare alcune funzionalità opzionali, effettuare migliorie al codice già esistente e fare il secondo rilascio.
 
-![image.png](../img/charts/image%205.png)
+![Sprint 6](../img/charts/image%205.png)
 
 # Sprint 7 (dal 01/08 al 05/08)
 
 Nell’ultima fase, abbiamo raffinato alcuni elementi di codice facendo l’ultima release del progetto, quindi ci siamo dedicati alla stesura della relazione.
 
-![image.png](../img/charts/image%206.png)
+![Sprint 7](../img/charts/image%206.png)
 
 # Commenti finali
 

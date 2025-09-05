@@ -16,7 +16,7 @@ L'applicazione si divide in 4 parti principali:
 
 Per tutte le macro-sezioni abbiamo scelto di usare un’architettura **Model View Controller** con un collegamento tra i controller per passare da una view all’altra. Questo pattern garantisce una chiara separazione delle responsabilità all'interno del sistema, permettendo di modificare i componenti singoli in maniera indipendente, migliorando ad esempio la view in un secondo momento senza modificare il model.
 
-![Copia di func-rail.png](../img/charts/Copia_di_func-rail.png)
+![MVC UML](../img/charts/Copia_di_func-rail.png)
 
 # View
 
@@ -66,7 +66,7 @@ Il `SimulationFormState` è un modello di supporto per l’interfaccia di config
 
 ## Simulation
 
-![func-rail.png](../img/charts/3effeca7-fcc7-401b-b86c-b5e6e60766ab.png)
+![Simulation UML](../img/charts/3effeca7-fcc7-401b-b86c-b5e6e60766ab.png)
 
 Per la parte di simulazione, sarà necessario mantenere separate le informazioni statiche, come la struttura fisica della rete ferroviaria (`Railway`), dalle informazioni dinamiche che mutano al progredire della simulazione, costituendo lo stato (`SimulationState`). Il model della simulazione dovrà mantenere anche la durata totale, il meccanismo di generazione passeggeri e il criterio di scelta degli itinerari.
 

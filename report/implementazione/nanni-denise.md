@@ -40,7 +40,7 @@ given WeightCalculator[Rail, NormalTrain] with
 
 /** Given instance to provide weight mapping for HighSpeedTrain */
 given WeightCalculator[Rail, HighSpeedTrain] with
-	// Depending on the type of the rail, the train should proceed at different speeds
+  // Depending on the type of the rail, the train should proceed at different speeds
   def weight(edge: Rail, train: HighSpeedTrain): Double = edge match
     case _: MetalRail => edge.length / Train.defaultSpeed
     case _: TitaniumRail => edge.length / train.speed
