@@ -1,5 +1,5 @@
 ---
-title:Analisi dei requisiti
+title: Analisi dei requisiti
 nav_order: 3
 parent: Report
 ---

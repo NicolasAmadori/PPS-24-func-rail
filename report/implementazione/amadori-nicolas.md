@@ -1,5 +1,5 @@
 ---
-title:Amadori Nicolas
+title: Amadori Nicolas
 nav_order: 2
 parent: Implementazione
 ---

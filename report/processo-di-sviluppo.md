@@ -1,5 +1,5 @@
 ---
-title:Processo di sviluppo
+title: Processo di sviluppo
 nav_order: 2
 parent: Report
 ---
