@@ -1,2 +1,6 @@
 title: Functional Rail
 description: Project for "Paradigmi di Programmazione e Sviluppo" – Master’s Degree in Computer Science (First Year)
+
+remote_theme: just-the-docs/just-the-docs@v0.10.0
+search_enabled: true
+color_scheme: dark
