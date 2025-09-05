@@ -28,7 +28,7 @@ case object BigStationType extends StationType
 case object SmallStationType extends StationType
 ```
 
-A partire da questi tipi, sono definiti i vari `Cell`, `RailPiece` e `StationPiece`
+A partire da questi tipi, sono definiti i vari `Cell`, `RailPiece` e `StationPiece`.
 
 ### Piazzamento e vincoli
 
@@ -129,7 +129,7 @@ private def followRails(mapGrid: MapGrid)(
 
 Per il calcolo degli itinerari dei passeggeri abbiamo implementato la classe `PassengerGenerator`, che permette di generare passeggeri con stazioni di partenza e destinazione randomizzate, e di associare loro un percorso definito secondo strategie diverse (casuale, più veloce, più economico o più breve).
 
-### Calcolo degl itinerari
+### Calcolo degli itinerari
 
 L’aspetto più interessante dell’implementazione è la funzione di ricerca degli itinerari, basata su una **DFS completamente funzionale**. Ogni chiamata esplora ricorsivamente le stazioni adiacenti, costruendo gli itinerari come liste immutabili di leg (`ItineraryLeg`) senza mutazioni intermedie:
 
@@ -222,7 +222,7 @@ Ogni passo di simulazione viene eseguito dal metodo `doStep`, che aggiorna stati
 
 Per semplificare la creazione di **passeggeri** e **itinerari**, ho implementato due **DSL fluide** (Domain-Specific Languages) in stile funzionale, che permettono di costruire oggetti complessi in modo leggibile e conciso.
 
-Entrambe le DSL separano chiaramente la costruzione dei dati dalla logica di dominio e rendono la definizione di scenari di viaggio e test molto più leggibile
+Entrambe le DSL separano chiaramente la costruzione dei dati dalla logica di dominio e rendono la definizione di scenari di viaggio e test molto più leggibile.
 
 ### Viaggiatori
 

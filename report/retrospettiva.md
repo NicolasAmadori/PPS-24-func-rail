@@ -5,11 +5,11 @@ parent: Report
 ---
 # Retrospettiva
 
-L’applicazione proposta soddisfa i requisiti minimi previsti inizialmente e include quasi la totalità delle funzionalità opzionali preventivate. Un miglioramento significativo che può essere apportato è la modifica dell’interfaccia di simulazione in modo da avere un feedback visivo dei movimenti dei treni e delle posizioni dei passeggeri, così da rendere più chiara l’evoluzione. 
+L’applicazione proposta soddisfa i requisiti minimi previsti inizialmente e include quasi la totalità delle funzionalità opzionali preventivate. Un miglioramento significativo che può essere apportato è la modifica dell’interfaccia di simulazione, in modo da avere un feedback visivo dei movimenti dei treni e delle posizioni dei passeggeri, così da rendere più chiara l’evoluzione. 
 
 Il processo di sviluppo si è ispirato alla metodologia Agile. Abbiamo lavorato in modo tale da avere, per ogni sprint, delle funzionalità con impatto diretto sulla view, in modo che fossero immediatamente verificabili dall’utente finale, anche quando lo sprint includeva task non direttamente rilevanti per quest’ultimo.
 
-L’organizzazione del lavoro è stata quasi sempre rispettata, riuscendo a portare a termine la maggior parte degli sprint nel tempo concordato. Ciascuno sprint è stato pianificato all’inizio della settimana ed è stato portato avanti con meeting frequenti e eventuale pair programming per sezioni di codice con rilevanza condivisa. 
+L’organizzazione del lavoro è stata quasi sempre rispettata, riuscendo così a portare a termine la maggior parte degli sprint nel tempo concordato. Ciascuno sprint è stato pianificato all’inizio della settimana ed è stato portato avanti con meeting frequenti e eventuale pair programming per sezioni di codice con rilevanza condivisa. 
 
 # Sprint 1 (dal 14/07 al 17/07)
 
@@ -19,7 +19,7 @@ Il primo sprint è stato definito di durata inferiore agli altri, poiché ha com
 
 # Sprint 2 (dal 24/07 al 02/08)
 
-Durante il secondo sprint è stato definito uno scheletro iniziale del model del progetto e la prima interfaccia grafica di configurazione della mappa. Al termine della settimana, un utente era in grado di disegnare la propria mappa sull’interfaccia posizionando stazioni piccole, grandi, binari metallici e di titanio.
+Durante il secondo sprint è stato definito uno scheletro iniziale del model del progetto e la prima interfaccia grafica di configurazione della mappa. Al termine della settimana, un utente era in grado di disegnare la propria mappa sull’interfaccia posizionando stazioni piccole e grandi, binari metallici e di titanio.
 
 ![image.png](../img/charts/image%201.png)
 
@@ -43,7 +43,7 @@ Al termine dello sprint 5, l’applicazione risultava completa di tutte le funzi
 
 # Sprint 6 (dal 25/08 al 30/08)
 
-Il sesto sprint è stato impiegato implementando alcune delle funzionalità considerate opzionali, abbiamo effettuato alcune migliorie al codice già esistente e abbiamo fatto il secondo rilascio.
+Il sesto sprint è stato impiegato per implementare alcune funzionalità opzionali, effettuare migliorie al codice già esistente e fare il secondo rilascio.
 
 ![image.png](../img/charts/image%205.png)
 
@@ -55,6 +55,6 @@ Nell’ultima fase, abbiamo raffinato alcuni elementi di codice facendo l’ulti
 
 # Commenti finali
 
-Complessivamente il team è soddisfatto del lavoro effettuato nonostante le difficoltà riconducibili alla nuova metodologia di lavoro e la nuovo linguaggio di programmazione. Ogni componente è stato in grado di portare a termine i propri task, mirando ad uno stile di programmazione il più funzionale possibile. Lo scoglio principale incontrato nello sviluppo è stato l’applicazione puntuale del **Test-Driven Development**, approccio non sempre rispettato in maniera rigorosa.
+Complessivamente il team è soddisfatto del lavoro effettuato nonostante le difficoltà riconducibili alla nuova metodologia di lavoro e il nuovo linguaggio di programmazione. Ogni componente è stato in grado di portare a termine i propri task, mirando a uno stile di programmazione il più funzionale possibile. Lo scoglio principale incontrato nello sviluppo è stato l’applicazione puntuale del **Test-Driven Development**, approccio non sempre rispettato in maniera rigorosa.
 
 Il team è particolarmente soddisfatto delle interfacce utente che, nonostante non fossero un focus del progetto, risultano semplici nell’utilizzo, con un’elevata usabilità e chiare nel mostrare i dati.
