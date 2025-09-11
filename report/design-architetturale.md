@@ -60,7 +60,7 @@ Tale model si occupa di controllare che i posizionamenti siano coerenti e che le
 
 Durante la conversione della MapGrid è anche presente una parte di controllo della rete ferroviaria implementata tramite Prolog.
 
-### SimulationFormState
+## SimulationFormState
 
 Il `SimulationFormState` è un modello di supporto per l’interfaccia di configurazione della simulazione che raccoglie gli input utente anche quando si trovano in uno stato inconsistente. È utilizzato per poter memorizzare e gestire in maniera incrementale le configurazioni dei treni `TrainConfig`, permettendo di fare controlli preventivi sulla creazione degli stessi, in particolare in relazione alla `Railway` come la selezione di stazioni irraggiungibili. Da questo verrà creato il model `Simulation` con i treni effettivi e le loro tratte.
 
